@@ -6,7 +6,7 @@ Copyright (C) 2008  Cyrus Shaoul
 
 by Cyrus Shaoul		cyrus.shaoul@ualberta.ca
 Version 0.01
-Updated on Sept 10th, 2008
+Updated on Nov 3rd, 2008
 
 Preface: 
 	 This document is split into two parts: Part 1 is the Quick Start
@@ -311,8 +311,8 @@ metrics. Vector aggregation must take place before metric calculation, and can
 be quite time-consuming. For this reason, HiDEx saves the results of
 aggregation (called the Global Co-occurrence Matrix, or GCM) in the work directory. 
 Each time a GCM is needed, HiDEx will seek and reuse a GCM saved in the work
-directory. (This feature is not yet available, but will be soon. For now,
-HiDEx will create a GCM in RAM each time it runs, and will not save it for you.)
+directory. This feature is enabled by using the saveGCM setting in the config file. 
+Please see the config file documentation for more info.
 
 Getting neighborhoods:
 
