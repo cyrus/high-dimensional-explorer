@@ -1,0 +1,105 @@
+# A Sample HiDEx configuration file. Please read the descriptions of
+# each setting carefully before changing the values.
+
+## dbname: Name of the database to be worked on.
+## This setting allows one to work with multiple databases in the same
+## directory.
+dbname=combined
+
+## dbpath: [Optional!] An absolute path for the working directory
+## If not set, HiDEx will use the CurrentWorkingDirectory.
+
+# dbpath=/scratch_local/beanstalk/
+
+## dictFilename: Name of the Lexicon file, assumed to be in the Working Directory
+dictFilename=lexicon.txt
+
+## maxWindowBehind: Maximum size of word window behind target word
+maxWindowBehind=10
+
+## maxWindowAhead: Maximum size of word window ahead of target word
+maxWindowAhead=10
+
+## corpusFilename: The filename of the corpus. Assumed to be in the Working Directory.
+corpusFilename=corpus1.txt
+
+## stepsize: The number of vectors to collect per pass through the corpus. If
+## you run out of memory during an "update", reduce this value. If you find
+## that you have more RAM to spare when running update, increase this value.
+stepsize=8000
+
+## eod: End of Document marker. Used when processing the corpus.
+eod=---END.OF.DOCUMENT---
+
+## outputpath: [Optional] An absolute path for program output. Defaults to
+## Current Working Directory.
+# outputpath=/scratch_local/jack/
+
+## normalization: Choose your method for vector normalization here. Default is
+## co-occurence divided by target word frequency. Other possibilities are PPMI
+## (Positive Pointwise Mutual Information) and Correlation.
+normalization=PPMI
+
+## weightingScheme: Code number to choose a weighting scheme. The names are
+## fairly self explanatory! The original HAL model used #1, Ramped Linear
+#  FLAT = 0
+#  RAMPED LINEAR = 1
+#  RAMPED EXPONENTIAL = 2
+#  FORWARD RAMP = 3
+#  BACKWARD RAMP = 4
+#  INVERSE RAMP = 5
+#  INVERSE EXPONENTIAL = 6
+#  SECOND WORD = 7
+#  THIRD WORD = 8
+#  FOURTH WORD = 9
+weightingScheme=1
+
+## contextSize: The number of dimensions to use in the co-occurrence
+## vector. Only the N most frequent word's vectors are included.
+contextSize=14000
+
+## saveGCM: if it is 0, the Global Co-occurrence Matrix will not be saved
+## after it is created. If it is 1, a new GCM will be saved to disk every time one is
+## created in memory. Saving the GCM can save a lot of processing time if the 
+## same parameters are used repeatedly.
+saveGCM=0
+
+## metric: Choose your similarity metric here. If it is blank, HiDEx will
+## default to using (inverse) Euclidean distance. Other possible values are 
+## Cosine and Correlation
+metric=Cosine
+
+## windowLenBehind: Size of the window behind the target word. Can be any number from
+## 1 to MaxWindowLenBehind. 
+windowLenBehind=8
+
+## windowLenAhead: Size of the window behind the target word. Can be any number from
+## 1 to MaxWindowLenAhead. 
+windowLenAhead=8
+
+## useThreshold: Setting to turn on z-score based neighborhood membership
+## thresholds (words more that 1 standard deviation similar than the average
+## similarity. 1 means it is ON, 0 means it is OFF.
+useThreshold=1
+
+## neighbourhoodSize: When not using neighborhood thresholds, the number of
+## neighbors to find. Any number greater than 1
+neighbourhoodSize=20
+
+## separate: Enables seperate forward and backward vectors when set to 1. When
+## set to 0, Forward and Backward vectors are combined, halving the context size.
+separate=1
+
+## percenttosample: When using thresholds, the percent of pairs to sample
+## during the calculation of the z-scores. 0.1 means 10%.
+percenttosample=0.1
+
+## wordlistfilename: List of words to analyze (can be a list of words, one per
+##line, or a list of pairs, two words per line, separated by tabs.
+wordlistfilename=words.txt
+
+## wordlistsize: If this number is smaller than the number of words in the
+## wordlist, HiDEx will pick a random subset of the words in the wordlistfile
+## to use. If this number is larger than the number of words in the
+## wordlistfile, HiDEx will use all the words in the file.
+wordlistsize=1000

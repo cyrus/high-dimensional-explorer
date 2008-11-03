@@ -1,0 +1,509 @@
+Copyright (C) 2008  Cyrus Shaoul 
+
+****************************************************************************
+			  How To Use HiDEx
+****************************************************************************
+
+by Cyrus Shaoul		cyrus.shaoul@ualberta.ca
+Version 0.01
+Updated on Sept 10th, 2008
+
+Preface: 
+	 This document is split into two parts: Part 1 is the Quick Start
+	 Guide. It is intended to be used by those who have extensive computer
+	 experience who want to get HiDEx working as quickly as possible.
+	 Part 2 is a detailed description of the software, and includes
+	 step-by-step instructions on how to download, build, and use
+	 HiDEx. If you are at all unsure about your expertise, please jump
+	 directly to Part 2.
+
+****************************************************************************
+Part 1: Quick Start Guide.
+****************************************************************************
+
+1A) Download the latest version of HiDEx from the HiDEx web site:
+
+   http://www.psych.ualberta.ca/~westburylab/HiDEx/
+
+NOTE: Make sure that you are on a supported platform and that you have all the
+   required prerequisite software packages.
+
+1B) Unpack the archive. The archive will create a directory called "hidex" with
+all the source code in it.
+
+1C) Compile the software using 
+
+	make hidex
+
+and install it using the command: (Default location is ~/bin)
+
+	make install
+
+1D) Go ahead! Start using HiDEx!
+
+****************************************************************************
+Part 2: User Manual
+****************************************************************************
+
+Table of Contents:
+
+2A) What is HiDEx?
+2B) What kind of hardware and software do I need to use HiDEx?
+2C) How do I obtain HiDEx?
+2D) How do I compile and install HiDEx?
+2E) How do I prepare my data before running HiDEx?
+2F) How do I use HiDEx to process my corpus?
+2G) How do I use HiDEx once I have finished processing my corpus?
+2H) How do I set up the configfile config.txt?
+2I) How do I improve the performance of HiDEx?
+Bib) Bibliography
+
+****************************************************************************
+2A) What is HiDEx?
+****************************************************************************
+
+HiDEx is a software system that implements a family word
+co-occurrence models. These models are similar to those that were introduced by
+Curt Burgess in 1996 as the HAL model (See the bibliography). 
+
+If you are unfamiliar with the ideas behind these models, I reccomend that you
+read the following papers listed in the Bibliography:
+
+Shaoul and Westbury, 2006
+Bullinaria and Levy, 2008
+
+HiDEx enables you to define the parameters of a general word-space model and
+then process a corpus of text to create word vectors. It also alows you to
+perform comparisons of these word vectors and other calculations.
+
+HiDEx has been tested so far only on English, but it may work on other
+languages as well. Any language that can be encoded in UTF8 and has spaces
+between words should work, but there is no empirical evidence yet that it
+does. Please send reports of success or failure with other languages to the
+authors.
+
+****************************************************************************
+2B) What kind of hardware and software do I need to use HiDEx?
+****************************************************************************
+
+HiDEx is not distributed as a pre-compiled program. It comes as many C++
+files, and must be compiled by the user before it will work. Here are the
+hardware and sofware requirements for parallel and serial operation.
+
+HiDEx does not work well or at all on computers that are underpowered. Please
+make sure that you have sufficient resources to run this program before
+continuing with the installation process.
+
+Abbreviations: Req=Required, Rec=Reccomended
+
+Hardware:
+-----------------------------
+CPU: (Types: PowerPC, Power5, and Intel/AMD x86 CPUs have been tested so far)
+-For serial operation:
++Req:	A fast 64-bit CPU.
++Rec:	The fastest CPU you can get your hands on.
+-For parallel operation: 
++Req:	A computer with more than one processor in it, the faster the better.
++Rec:	A computer with 4 or more processors in it, the faster the better.
+
+Memory:
++Req:	2 Gb RAM (the faster the better)
++Rec:	10 Gb or more of RAM (the faster the better)
+
+Hard Disk:
++Req:	100 Gb of disk
++Rec:	500 Gb or more of VERY FAST DISK (the faster the better)
+
+Software:
+-----------------------------
+OS:
++Req:	MacOS X 10.4.11 or greater with XCode Tools installed.
++Req:	Linux 2.6.x or greater
++Req:	AIX 5 or greater
+
+Compiler:
+-For parallel operation:
++Req:    g++ 4.2 or greater with libgomp inluded (for Linux, MacOS X)
++Req:    xlC++ (for AIX)
+-For serial operation:
++Req:    g++ 4.0.1 or greater. (default on most MacOS X and Linux systems)
+
+Text Editor:
++Rec:     Mac OS X: TextWrangler, BBEdit or any other text editor.
++Rec:     Linux, AIX: Emacs or other text editor
+
+
+****************************************************************************
+2C) How do I obtain HiDEx?
+****************************************************************************
+
+Go to this web site and download the software:
+
+   http://www.psych.ualberta.ca/~westburylab/HiDEx/
+
+Please make sure that you read and understand the restrictions that govern
+your use of the software. Read the file COPYING.txt, as it is written in
+English, not legal gobbleygook.
+
+****************************************************************************
+2D) How do I compile and install HiDEx?
+****************************************************************************
+
+Step 1: Move the software to the correct directory. (I reccomend the ~/src
+directory).
+Step 2: Start up a terminal application (Mac OS X: Terminal, Linux:
+xterm). Change to the correct directory:
+
+	       cd ~/src
+
+Step 3: Unpack the software in a good location 
+To unpack it, use this command:
+
+	  tar xzf hidex.[version].tgz
+
+Step 4: Change to the newly created directory:
+
+	cd hidex
+
+Step 5: Compile the program  (Make sure that your system has all the required
+software listed in section 2B first).
+
+	 	make hidex
+
+Step 6: Create a directory for the binary if you do not already have one. (I
+reccomend ~/bin)
+
+		mkdir ~/bin
+
+Step 7: Using a text editor, edit the Makefile to have the correct value for
+BINDIR (in this case, ~/bin). Then install the program:
+
+	     make install
+
+Step 8: Add the BINDIR to the PATH environment variable of your shell, if it
+is not already included. Reload your PATH or start a new terminal process.
+If you don't much about the shell, and the PATH environment variable, please read the
+following web page:
+    
+	http://en.wikipedia.org/wiki/Environment_variable
+
+That is it! Take a break! Strech out your tired finger muscles!
+
+WARNING: This is the first public release of HiDEx, so there may still be some
+bugs in the above process. If you get any error messages when doing the above
+steps, please post your questions on the user forum at:
+
+         http://www.psych.ualberta.ca/~westburylab/HiDEx/
+
+
+****************************************************************************
+2E) How do I prepare my data before running HiDEx?
+****************************************************************************
+
+Step 1: Obtain or download a large corpus of text. I have created a very
+large corpus of USENET text that is available freely under a Creative Commons
+licence. It is available here:
+
+ http://www.psych.ualberta.ca/~westburylab/downloads/usenetcorpus.download.html
+
+
+Step 2: If the corpus is not the above corpus, please change the corpus so
+that it follows the following format:
+     
+     Choose a very uncommon string to act as your document separator. I
+     reccomend:
+	
+	---END.OF.DOCUMENT---
+
+     Make sure that there is one of these between every document in your
+     corpus.
+
+     Do not worry about punctuation, numbers or other symbols, as they will be
+     removed by HiDEx. 
+
+     Do make sure to remove any markup (such as SGML, HTML or other markup
+     language with tags).
+
+     If possible, remove any redundant, non-content text (such as 
+     "Courtesy of the XYZ News Wire Service") if it is in all the documents.
+
+Step 3: If you corpus is contained in many separate files, concatenate them
+into one large file. For example the command:
+
+     cat *.txt > corpus.txt
+
+will concatenate all the files with the extension "txt" in a directory into a
+new file.
+
+Step 4: Put the corpus file in your working directory. I reccomend creating a
+new one for using with HiDEx. These commands will do it for you.
+
+    mkdir ~/work
+    mv corpus.txt ~/work 
+
+Step 5: Choose a lexicon to use with HiDEx. This is a file that contains all
+the words that will be analyzed for co-occurence. If you do not have one, and
+need one for the English language, I reccomend using one available here under
+a Creative Commons Licence:
+
+  http://www.psych.ualberta.ca/~westburylab/downloads/wlfreq.download.html
+
+Make sure to remove the frequency data from this file before using the above
+file.
+
+I also reccomend reducing the size of the lexicon to 30,000 to 70,000 words
+for performance reasons. You can do this by removing the words with the n lowest
+frequencies. Please see section 2I for information on HiDEx's performance.
+
+Once your lexicon is ready, put it in your work directory like so:
+
+     mv lexicon.txt ~/work
+
+Now you are ready to process your corpus. 
+
+****************************************************************************
+2F) How do I use HiDEx to process my corpus?
+****************************************************************************
+
+Intro: HiDEx is a program that has many different modes of operation. From
+this point onwards you will be specifying the mode that you would like HiDEx
+to use by typeing "-m" and then the name of the mode. 
+
+Also, HiDEx has many parameters that change how it operates. These parameters
+are set inside a text file called the configfile. A sample configfile is
+provided with the software. Before doing any work, I reccomend copying the
+sample configfile to your work directory:
+
+       cp ~/src/hidex/config.txt ~/work
+
+If no configfile is specified on the command line, a file in the current directory called
+config.txt is used. You can specify an alternate name and location of the
+configfile by using the "-f" option. For example
+
+	hidex -f special.config.txt
+
+Step 1: Edit the configfile to make the correct settings. Edit the
+"config.txt" file in your favorite text editor. The list of possible settings
+and their implications are described in the documentation in the "config.txt"
+file.  
+
+Step 2: Create an empty datastore using this command: 
+
+     cd ~/work
+     hidex -m create 
+
+Step 3: Process the corpus. The "update" command will create a sparse matrix
+representation of all the lexical co-occurences in the corpus. WARNING:
+depending on the size of your corpus and your parameter settings, this process
+can take a long time. Please see section 2I for information on this topic.
+
+    hidex -m update 
+
+****************************************************************************
+2G) How do I use HiDEx once I have finished processing my corpus?
+****************************************************************************
+
+Once the corpus data has been collected, you can begin analyzing it using
+several of HiDEx's other modes.
+
+There are two types of calculations: vector aggregation and vector-based
+metrics. Vector aggregation must take place before metric calculation, and can
+be quite time-consuming. For this reason, HiDEx saves the results of
+aggregation (called the Global Co-occurrence Matrix, or GCM) in the work directory. 
+Each time a GCM is needed, HiDEx will seek and reuse a GCM saved in the work
+directory. (This feature is not yet available, but will be soon. For now,
+HiDEx will create a GCM in RAM each time it runs, and will not save it for you.)
+
+Getting neighborhoods:
+
+To get neighborhoods in a word space, use the "getneighbors" mode, as in the
+following example:
+
+	  hidex -m getneighbors 
+
+To find the similarity between pairs of words, use the "getsimilarity":
+
+	  hidex -m getsimilarity
+
+To run a large batch of models and find neighborhoods, use the
+"batchneighbors" mode: [Currently flaky. Do not use!]
+
+	  hidex -m batchneighbors
+
+To  run  a  large batch  of  models  and  find  interword distances,  use  the
+"batchsimilarity" mode: [Currently flaky. Do not use!]
+
+	  hidex -m batchsimilarity
+
+To ouput specific vectors from the GCM in a dense matrix format text file, use
+the "getvectors" mode:
+
+           hidex -m getvectors
+
+
+For all of these commands, the output will be saved in a new folder called
+"output.date.time". This folder will be created in the currect directory, or
+if you have specified a different output directory in the configfile, in that
+directory.
+
+
+To add more text to your co-occurrence database, you can change the corpus
+filename to the new corpus that you would like to add, and then run this
+command again:
+
+	hidex -m update
+
+To remove a database and all the auxillary files that are related to it use
+the following command:
+
+        hidex -m remove
+
+WARNING: The above command is NOT reversible. Once you have removed the
+database, it is gone forever. You have been warned!
+
+****************************************************************************
+2H) How do I set up the configfile config.txt?
+****************************************************************************
+
+The section explains all the settings available in the configfile and what
+options are possible for each setting.
+
+dbname: This is the name to use for the database and all of its auxillary
+files. You can store multiple databases in one directory and pick which one to
+by changing this parameter.
+
+dbpath: Optional setting. Used to specify an absolute path for the database.
+
+dictFilename: Name of the lexicon file, assumed to be in the Working Directory.
+
+maxWindowBehind: Maximum size of word window behind target word. 
+maxWindowAhead: Maximum size of word window ahead of target word.
+These two parameters change the size of the database, as they limit how much
+context information is saved.
+
+corpusFilename: The filename of the corpus. Assumed to be in the Working Directory.
+
+stepsize: The number of vectors to collect per pass through the corpus. If
+you run out of memory during an "update", reduce this value. If you find
+ that you have more RAM to spare when running update, increase this value.
+
+eod: End of Document marker. Used when processing the corpus. HiDEx does not
+count co-occurrence accross document boundaries.
+
+outputpath: [Optional!] An absolute path for program output. Defaults to
+Current Working Directory.
+
+metric: Choose your similarity metric here. If it is blank, HiDEx will
+default to using (inverse) Euclidean distance. Other possible values are 
+Cosine, CityBlock and Correlation
+
+normalization: Choose your method for vector normalization here. Default is
+co-occurence divided by target word frequency. Other possibilities are PPMI
+(Positive Pointwise Mutual Information) and Correlation.
+
+weightingScheme: Code number to choose a weighting scheme. The names are
+fairly self explanatory! The original HAL model used #1, Ramped Linear
+Weighting.
+
+  FLAT = 0
+  RAMPED LINEAR = 1
+  RAMPED EXPONENTIAL = 2
+  FORWARD RAMP = 3
+  BACKWARD RAMP = 4
+  INVERSE RAMP = 5
+  INVERSE EXPONENTIAL = 6
+  SECOND WORD = 7
+  THIRD WORD = 8
+  FOURTH WORD = 9
+
+contextSize: The number of dimensions to use in the co-occurrence
+vector. Only the N most frequent word's vectors are included.
+
+windowLenBehind: Size of the window behind the target word. Can be any number from
+1 to MaxWindowLenBehind. 
+
+windowLenAhead: Size of the window behind the target word. Can be any number from
+1 to MaxWindowLenAhead. 
+
+useThreshold: Setting to turn on z-score based neighborhood membership
+thresholds (words more that 1 standard deviation similar than the average
+similarity. 1 means it is ON, 0 means it is OFF.
+
+neighbourhoodSize: When not using neighborhood thresholds, the number of
+neighbors to find.
+
+separate: Enables seperate forward and backward vectors when set to 1. When
+set to 0, Forward and Backward vectors are combined, halving the context size.
+
+percenttosample: When using thresholds, the percent of pairs to sample
+during the calculation of the z-scores. 0.1 means 10%.
+
+wordlistfilename: List of words to analyze (can be a list of words, one per
+line, or a list of pairs, two words per line, separated by tabs.
+
+wordlistsize: If this number is smaller than the number of words in the
+wordlist, HiDEx will pick a random subset of the words in the wordlistfile
+to use. If this number is larger than the number of words in the
+wordlistfile, HiDEx will use all the words in the file.
+
+
+****************************************************************************
+2I) How do I improve the performance of HiDEx?
+****************************************************************************
+
+The simplest way to improve performance is to run HiDEx on a computer with
+more CPUs and faster CPUs, more memory and faster disk. Make sure to use
+OpenMP, and set the number of threads equal to the number of cores available.
+
+Certain configuration options have a very strong influence on the performance
+of HiDEx. Here is a summary of the most important ones:
+
+Lexicon Size: The larger the lexicon, the larger the matrix (Each extra word in the
+lexicon add an extra dimension to the represenation). A lexicon with double
+the number of words in it can cause a 400% increase in storage space needed
+for the raw co-occurrence data. Also, the lexicon size will increase the size
+of the GCM, which will slow down all metric calculations. I normally use a
+lexicon of around 50,000 words in size.
+
+maxWindowBehind and maxWindowAhead: Large values for these variable will
+greatly slow down the processing of the corpus and the aggregation of the GCM.
+
+stepsize: This is a memory-usage tuning setting, and must be set
+carefully. During corpus processing, large amounts of data must be kept in
+RAM. There is no way that I know to predict the sparseness of the database,
+and that means there is no way to predict the memory usage of HiDEx when
+processing a corpus. The default setting is very conservative, and should work
+for computers that have 4Gb of RAM. If you have more RAM than 4Gb, please try
+larger values, but be careful to monitor the memory usage of the HiDEx
+process. If HiDEx tries to use more memory than your computer has, it will
+begin using virtual memory (and cause enormous amouts of swapping) and your
+corpus processing will take months instead of hours.
+
+contextSize: The larger the context size, the greater the memory usage, and
+the greater the computation required. I reccomend using context sizes of
+14,000 or greater.
+
+****************************************************************************
+Bibliography:
+****************************************************************************
+
+Buchanan, L., Westbury, C., & Burgess, C. (2001). Characterizing semantic
+space: Neighborhood effects in word recognition. Psychonomic Bulletin & Review, 
+8, 531-544. 
+
+Bullinaria, J., & Levy, J. (2007). Extracting semantic representations from word 
+co-occurrence statistics: A computational study. Behavior Research Methods, 
+39, 510-526.
+
+Lund, K., & Burgess, C. (1996). Producing high-dimensional semantic spaces 
+from lexical co-occurrence. Behavior Research Methods, Instrumentation, 
+and Computers, 28, 203-208.
+
+Shaoul, C., & Westbury, C. (2006). Word frequency effects in high-dimensional 
+co-occurrence models: A new approach. Behavior Research Methods, 38, 
+190-195. 
+
+Shaoul, C., & Westbury, C. (2007). A usenet corpus (2005-2008)
+(Tech. Rep.). Edmonton, AB: University of Alberta. Downloaded from
+http://www.psych.ualberta.ca/~westburylab/downloads/usenetcorpus.download.html
+
