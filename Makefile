@@ -48,12 +48,12 @@ FLAGS = -Wall -g
 # Shell command to detect Operating System
 UNAME= $(shell uname)
 
-#Mac OS X PPC specific comiler flags. Not configured for OpenMP support.
+#Mac OS X PPC specific comiler flags. Configured for OpenMP support.
 ifeq ($(UNAME), Darwin)
 CC = g++
 FLAGS = -Wall -g -gfull -O3 -falign-loops=16 -D NDEBUG -fopenmp
-# To remove OpenMP support, use this line:
-#FLAGS = -Wall -g -gfull -O3 -arch ppc64 -falign-loops=16 -D NDEBUG 
+#To add OpenMP support, use this line:
+#FLAGS = -Wall -g -gfull -O3 -falign-loops=16 -D NDEBUG 
 #TEST_LIBS = -lboost_unit_test_framework -lboost_filesystem
 LIBS =  -lm 
 endif
@@ -71,8 +71,6 @@ CC = xlC_r
 FLAGS = -g -O5 -qmaxmem=-1 -q64 -qsmp=omp -I/home/cyrus/include/ -qnoinline -qnoipa
 #TEST_LIBS = -bdynamic -L/usr/global/ibm/boost/boost/lib64 -lboost_unit_test_framework-xlc -lboost_filesystem-xlc -bdynamicLIBS = -lmass 
 endif
-
-
 
 # Payloads below
 TARGET = hidex
@@ -135,7 +133,8 @@ install:
 	@echo Change the BINDIR  in the Makefile if you have trouble.
 	@echo
 	$(INSTALL) -v hidex $(BINDIR)
-	@echo Instelled HiDEx in the direectory that you specified.
+	@echo Installed HiDEx in the direectory that you specified. Please make sure
+	@echo that this directory is in your PATH.
 
 
 
