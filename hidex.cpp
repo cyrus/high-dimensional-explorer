@@ -25,12 +25,12 @@ This file is part of HiDEx.
 // hidex.cpp
 //
 // This is where the master control program - getting options, reading in new corpora, building new
-// databases, printing out SDs and arcs. Skip to main() to see a list of
-// parameters you can pass to the program
+// databases, calculating measures based on word vectors.
+// 
+// Originally by Geoff Hollis as "sddbmaker".
 //
-// Originally by Geoff Hollis.
-//
-// Currently under development by Cyrus Shaoul. Renamed from "sddbmaker" to "hidex (High Dimensional EXplorer)"
+// Currently under continuous development by Cyrus Shaoul. 
+// Renamed from "sddbmaker" to "hidex (High Dimensional EXplorer)"
 // on Aug 9th, 2005.
 //
 // For instructions on how to use HiDEx, please see the documentation which can be found in the file
@@ -53,11 +53,6 @@ This file is part of HiDEx.
 #include "Filesystem.h"
 #include "SDDB.h"
 #include "time.h"
-// Future project: Switch to the Boost libraries.
-//
-//#include "boost/filesystem/operations.hpp" // includes boost/filesystem/path.hpp
-//#include "boost/filesystem/fstream.hpp"    // ditto
-//namespace fs = boost::filesystem;
 
 using namespace std;
 
@@ -76,7 +71,6 @@ namespace {
     double percenttosample;
     bool separate;
     int stepsize;
-    //    bool useldrt;
     bool usezscore;
     int weightingScheme;
     string metric;
@@ -108,7 +102,6 @@ void readSettings(const string& configString, string& multi)
     allowedKeys.push_back("percenttosample");
     allowedKeys.push_back("separate");
     allowedKeys.push_back("stepsize");
-    //    allowedKeys.push_back("useldrt");
     allowedKeys.push_back("useThreshold");
     allowedKeys.push_back("weightingScheme");
     allowedKeys.push_back("metric");
@@ -121,7 +114,6 @@ void readSettings(const string& configString, string& multi)
     allowedKeys.push_back("outputpath");
     allowedKeys.push_back("dbpath");
     allowedKeys.push_back("multipleFiles");
-    //    allowedKeys.push_back("maxMemory");
     ConfigFile cfg(configString, allowedKeys, multi);
     settings.dbname = cfg.get("dbname");
     settings.dictFilename = cfg.get("dictFilename");
@@ -135,7 +127,6 @@ void readSettings(const string& configString, string& multi)
     settings.separate = cfg.getBool("separate", false);
     settings.stepsize = cfg.getPositiveInt("stepsize", 800);
     settings.usezscore = cfg.getBool("useThreshold", false);
-    //    settings.useldrt = cfg.getBool("useldrt", false);
     settings.weightingScheme = cfg.getPositiveInt("weightingScheme", 1);
     settings.metric = cfg.get("metric", "");
     settings.saveGCM = cfg.getBool("saveGCM", "");
@@ -146,7 +137,6 @@ void readSettings(const string& configString, string& multi)
     settings.outputpath = cfg.get("outputpath", "");
     settings.dbpath = cfg.get("dbpath", "");
     settings.wordlistsize = cfg.getPositiveInt("wordlistsize", 300000);
-    //    settings.maxMemory = cfg.getSizet("maxMemory", 1000000000);
     settings.multipleFiles = cfg.get("multipleFiles", "");
 }
 
@@ -224,7 +214,6 @@ void update()
     }
     cerr << "Finished updateing database. Closing database files.\n";
     db.close();
-    //    cerr << "Successfully closed database.\n";
 }
 
 
@@ -261,7 +250,6 @@ void printSDs()
          << "Max Neighbourhood Size = " << settings.neighbourhoodSize << '\n'
          << "Use Zscore Thresholds = " << settings.usezscore << '\n'
          << "Percent to sample for Zscore Thresholds = " << settings.percenttosample << '\n'
-      //         << "Useldrt = " << settings.useldrt << '\n'
          << "Separate = " << settings.separate << '\n'
          << "Word List Size = " << settings.wordlistsize << '\n';
     cerr << "Opening Database...\n";
@@ -453,9 +441,9 @@ int main(int argc, char *argv[])
       // Test for Open MP settings.
       char * numthreads = getenv("OMP_NUM_THREADS");
       if (numthreads) {
-	cerr << "Using OpenMP. Number of OpenMP threads = " << numthreads << endl;
+	cerr << "Parallel processing enabled. Number of OpenMP threads to be used is: " << numthreads << endl;
       } else {
-	cerr << "Open MP not active. Continuing without parallel processing.\nPlease set OMP_NUM_THREADS in your environment.\n " << endl;
+	cerr << "OpenMP not active. Continuing without parallel processing.\nPlease set OMP_NUM_THREADS in your environment to use OpenMP.\n " << endl;
       }
       string mode;
       string configFilename;
@@ -526,7 +514,7 @@ int main(int argc, char *argv[])
     }
   catch (const bad_alloc& x)
     {
-      cerr << "  Out of memory: " << x.what() << endl;
+      cerr << "  Out of memory error: " << x.what() << endl;
       abort();
     }
   catch (const exception& e)
