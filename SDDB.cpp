@@ -464,7 +464,7 @@ void SDDB::setStepSize(int stepsize) {
     _stepsize = stepsize;
 }
 
-pair<string,string> SDDB::createDirectories (const string outputpath) {
+pair<string,string> SDDB::createDirectories (const string outputpath, const bool wordsout) {
     // creates Directories needed for output of results.
 
     string currenttime;
@@ -476,7 +476,7 @@ pair<string,string> SDDB::createDirectories (const string outputpath) {
     int resultcode = 0;
     resultcode = makeDir(outputdir);
 
-    //Code added to prevent time-based file name collision problems
+    // Code added to prevent time-based file name collision problems
     // This can happen when multiple HiDEx processes begin in the same working 
     // directory at the same time!
     if (resultcode < 0) {
@@ -490,14 +490,16 @@ pair<string,string> SDDB::createDirectories (const string outputpath) {
             throw Exception(buffer.str());
         }
     }
-
-    // Subdirectory for word neighborhoods
+    
     string subdir = outputdir + "/wordneighborhoods";
-    resultcode = makeDir(subdir);
-    if (resultcode < 0) {
+    if (wordsout) {
+      // Subdirectory for word neighborhoods
+      resultcode = makeDir(subdir);
+      if (resultcode < 0) {
         ostringstream buffer;
         buffer << "Could not create directory: " << subdir << " ...Exiting.";
         throw Exception(buffer.str());
+      }
     }
 
 
@@ -529,7 +531,7 @@ void SDDB::printPairs(istream &in,
     words = _idMap;
 
     // create the directories
-    pair<string,string> outputloc = createDirectories(outputpath);
+    pair<string,string> outputloc = createDirectories(outputpath,0);
 
     // collect all of the word pairs we'll be printing distances for
     cerr << "Time is: " <<  timestamp() << endl;
@@ -665,19 +667,18 @@ int SDDB::printSDs(istream &in,
     // corpus size per million
     Float PerMillionDivisor = static_cast<Float>(_corpussize)/1000000.0;
     //    cerr << "Corpus size / 1000000 = " <<  PerMillionDivisor << endl;
-    //    size_t num_dimensions = 0;
 
     // get all words from lexicon, put them in array of strings.
     idMap words;
     words = _idMap;
 
     // create the directories
-    pair<string,string> outputloc = createDirectories(outputpath);
+    pair<string,string> outputloc = createDirectories(outputpath,1);
 
-    // collect all of the words we'll be printing distances for
     cerr << "Time is: " <<  timestamp() << endl;
     cerr << "Reading in words of interest" << endl;
 
+    // collect all of the words we'll be printing distances for
     vector<resultdata> results;
     //load words
     //    LoadWords(in, useldrt, wordlistsize, results);
@@ -961,7 +962,7 @@ int SDDB::printVects(istream &in,
     idMap words;
     words = _idMap;
     // create the directories
-    pair<string,string> outputloc = createDirectories(outputpath);
+    pair<string,string> outputloc = createDirectories(outputpath,0);
     // collect all of the words we'll be printing distances for
     cerr << "Time is: " <<  timestamp() << endl;
     cerr << "Reading in words of interest" << endl;
@@ -997,7 +998,6 @@ int SDDB::printVects(istream &in,
 
     cerr << words_to_print << " target words found" << endl;
 
-
     vector<Float*> vectors(_numwords);
 
     if (GCMexists(_dbname)) {
@@ -1030,7 +1030,6 @@ int SDDB::printVects(istream &in,
       throw Exception(buffer.str()); 
     }
 
-    
     // Open vector output file.
     filename = outputloc.first + "/vectors.mat";
     ofstream vectOut;

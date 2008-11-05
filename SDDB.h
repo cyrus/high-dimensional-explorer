@@ -353,7 +353,7 @@ public:
   void addCooccurrences(vector<int>& window, size_t target) ;
 
   // creates Directories needed for output of results.
-  pair<string,string> createDirectories (const string outputpath);
+  pair<string,string> createDirectories (const string outputpath, const bool wordsout);
   
   // nornamlizes vectors
   Float* normalizeRawVector(int TargetWord, Float cooccurenceVector[], const string normalization, 
