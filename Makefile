@@ -38,17 +38,20 @@
 # That it is a directory that is listed in your $PATH.
 
 BINDIR=~/bin
+
 # For system-wide usage, use this directory.
 # BINDIR=/usr/local/bin
+
 INSTALL=cp
 
-#Was your OS supported? Then you get the wimpy default comiler flags:
+#Was your OS supported? No? Then you get the wimpy default compiler flags:
+CC = g++
 FLAGS = -Wall -g 
 
-# Shell command to detect Operating System
+# Shell command to detect Operating System.
 UNAME= $(shell uname)
 
-#Mac OS X PPC specific comiler flags. Configured for OpenMP support.
+#Mac OS X PPC specific comiler flags. DEFAULT: Configured for OpenMP support.
 ifeq ($(UNAME), Darwin)
 CC = g++
 FLAGS = -Wall -g -gfull -O3 -falign-loops=16 -D NDEBUG -fopenmp
@@ -135,6 +138,22 @@ install:
 	$(INSTALL) -v hidex $(BINDIR)
 	@echo Installed HiDEx in the direectory that you specified. Please make sure
 	@echo that this directory is in your PATH.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
