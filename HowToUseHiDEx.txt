@@ -200,6 +200,13 @@ steps, please post your questions on the user forum at:
 2E) How do I prepare my data before running HiDEx?
 ****************************************************************************
 
+There are two choices for getting co-occurence data when using HiDEx: use your
+own corpus or downloading a pre-built set of co-occurrence data.
+
+The amount of processing power, hard disk and processing time required to use
+your own corpus is large.
+
+
 Step 1: Obtain or download a large corpus of text. I have created a very
 large corpus of USENET text that is available freely under a Creative Commons
 licence. It is available here:
@@ -210,19 +217,14 @@ licence. It is available here:
 Step 2: If the corpus is not the above corpus, please change the corpus so
 that it follows the following format:
      
-     Choose a very uncommon string to act as your document separator. I
-     reccomend:
+Choose a very uncommon string to act as your document separator. I reccomend:
 	
-	---END.OF.DOCUMENT---
+---END.OF.DOCUMENT---
 
-     Make sure that there is one of these between every document in your
-     corpus.
-
-     Do not worry about punctuation, numbers or other symbols, as they will be
-     removed by HiDEx. 
-
-     Do make sure to remove any markup (such as SGML, HTML or other markup
-     language with tags).
+Make sure that there is one of these between every document in your
+corpus.  Do not worry about punctuation, numbers or other symbols, as they will be
+removed by HiDEx. Do make sure to remove any markup (such as SGML, HTML or other markup
+language with tags).
 
      If possible, remove any redundant, non-content text (such as 
      "Courtesy of the XYZ News Wire Service") if it is in all the documents.
