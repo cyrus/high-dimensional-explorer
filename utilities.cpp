@@ -47,11 +47,7 @@ This file is part of HiDEx.
 #include "Exception.h"
 #include "Filesystem.h"
 #include "utilities.h"
-
-//#include "boost/filesystem/operations.hpp" // includes boost/filesystem/path.hpp
-//#include "boost/filesystem/fstream.hpp"    // ditto
-
-//namespace fs = boost::filesystem;
+#include "string.h"
 
 bool
 // 
@@ -646,9 +642,6 @@ bool dbReady (const string& dbname) {
 }
 
 int makeDir (const string& dirName) {
- 
-  //    fs::path dirLoc( fs::initial_path() / dirName);
-    //  fs::path dirLoc( dirName);
     if (mkdir(dirName, 0755) >= 0) {
         cerr << "Created directory " << dirName << endl;
         return 0;

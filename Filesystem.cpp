@@ -30,6 +30,7 @@ other parts of HiDEx.
 */
 #include "sys/stat.h"
 #include "Filesystem.h"
+#include "string.h"
 
 using namespace std;
 
