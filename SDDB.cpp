@@ -801,7 +801,7 @@ int SDDB::printSDs(istream &in,
             continue;
         }
 
-        // Main distance calculation loop. (note: break into a seperate function later)
+        // Main distance calculation loop. 
         int limit = static_cast<int>(_numwords);
 #pragma omp parallel for 
         for (int j = 0; j < limit; j++) {
@@ -818,6 +818,9 @@ int SDDB::printSDs(istream &in,
             neighbours.push_back(NeighborhoodEntry(dist,j));
         }
         // sort neighbors by distance
+	//	for (size_t u =0; u < neighbours.size(); u++) {
+	//	  cerr << neighbours[u].first << " " << neighbours[u].second << endl;
+	//	}
         sort(neighbours.begin(), neighbours.end(), RevSort());
         //    remove all neighbors we don't need (gt than MAXNEIGHBOURS)
         if (neighbours.size() > MAXNEIGHBOURS) {
@@ -826,8 +829,7 @@ int SDDB::printSDs(istream &in,
                 neighbours.pop_back();
             }
         }
-
-        // print our neighbours.
+        // print out our neighbours.
         filename = outputloc.second + "/" + word + ".nbr.txt" ;
         ofstream nbrs;
         nbrs.open(filename.c_str());
@@ -1603,7 +1605,7 @@ Float* SDDB::normalizeRawVector(int TargetWord, Float cooccurenceVector[], const
 Float SDDB::CalcSimilarity(const vector<Float*> &vectors, int w1, int w2, const string algorithm) 
 {
   Float similarity = 0.0;
-
+  
   if (algorithm == "Cosine") {
     // Take the dot product of the two vectors, and divide it by the product of
     // the two magnitudes.
@@ -1614,7 +1616,7 @@ Float SDDB::CalcSimilarity(const vector<Float*> &vectors, int w1, int w2, const 
       n1 += (vectors[w1][k] * vectors[w2][k]);
       len1 += (vectors[w1][k] * vectors[w1][k]);
       len2 += (vectors[w2][k] * vectors[w2][k]);
-      }
+    }
     if ((len1 > 0.0) && (len2 > 0.0)) {
       similarity =  (n1/(sqrt(len1) * sqrt(len2)));
     } else {
@@ -1635,19 +1637,21 @@ Float SDDB::CalcSimilarity(const vector<Float*> &vectors, int w1, int w2, const 
       sumsq1 += vectors[w1][k] * vectors[w1][k];
       sumsq2 += vectors[w2][k] * vectors[w2][k];
     }
-    similarity = abs((N * prod) - (sum1 * sum2)) / (sqrt((N * sumsq1) - (sum1 * sum1)) * sqrt( (N * sumsq2) - (sum2 * sum2)));
-
+    if ((sum1 != 0) && (sum2 != 0)) {
+      // Final calculation
+      similarity = abs(((N * prod) - (sum1 * sum2))/(sqrt(((N * sumsq1) - (sum1 * sum1)) * ( (N * sumsq2) - (sum2 * sum2))))); 
+    } 
   } else if (algorithm == "CityBlock") {
-      for(size_t k = 0; k < _numdimensions; k++) {
-	similarity += abs(vectors[w1][k] - vectors[w2][k]);
-      }
-      similarity = 1/((similarity * similarity) + 1.0);
+    for(size_t k = 0; k < _numdimensions; k++) {
+      similarity += abs(vectors[w1][k] - vectors[w2][k]);
+    }
+    similarity = 1/((similarity * similarity) + 1.0);
   } else {
-      // Euclidean Distance: sqrt of the sum of the squared differences
-      for(size_t k = 0; k < _numdimensions; k++) {
-	similarity += (vectors[w1][k] - vectors[w2][k]) * (vectors[w1][k] - vectors[w2][k]);
-      }
-      similarity = 1/(sqrt(similarity) + 1.0);
+    // Euclidean Distance: sqrt of the sum of the squared differences
+    for(size_t k = 0; k < _numdimensions; k++) {
+      similarity += (vectors[w1][k] - vectors[w2][k]) * (vectors[w1][k] - vectors[w2][k]);
+    }
+    similarity = 1/(sqrt(similarity) + 1.0);
   }
   return similarity;
 }
