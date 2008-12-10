@@ -13,8 +13,8 @@ Free Documentation License" at the end of this file.
 ****************************************************************************
 
 by Cyrus Shaoul		cyrus.shaoul@ualberta.ca
-Version 0.01
-Updated on Nov 3rd, 2008
+Version 0.03
+Updated on Dec 10th, 2008
 
 Preface: 
 	 This document is split into two parts: Part 1 is the Quick Start
@@ -35,7 +35,7 @@ Part 1: Quick Start Guide.
    http://www.psych.ualberta.ca/~westburylab/projects/HDLSM.html
 
 NOTE: Make sure that you are on a supported platform and that you have all the
-   required prerequisite software packages.
+   required software packages.
 
 1B) Unpack the archive. The archive will create a directory called "hidex" with
 all the source code in it.
@@ -91,9 +91,8 @@ large amounts of RAM and multiple CPUs.
 
 NOTE: HiDEx has been tested so far only on English, but it may work on other
 languages as well. Any language that can be encoded in UTF8 and has spaces
-between words should work, but there is no empirical evidence yet that it
-does. Please send reports of success or failure with other languages to the
-authors.
+between words should work. The authors are very interested in how
+HiDEx works in other languages, so please let us know what you are doing!
 
 HiDEx is free software released under the GNU Public License. This
 means that you are free to change HiDEx to better suit your needs. If
@@ -366,7 +365,7 @@ the work directory. This feature is enabled by using the saveGCM
 setting in the config file.  Please see the config file documentation
 for more info.
 
-Warning: On some computers it my be faster to NOT save the GCM and
+Warning: On some computers it may be faster to NOT save the GCM and
 recalculate the GCM each time. Please try both modes to compare.
 
 Getting neighborhoods:
@@ -541,7 +540,7 @@ Certain configuration options have a very strong influence on the performance
 of HiDEx. Here is a summary of the most important ones:
 
 Lexicon Size: The larger the lexicon, the larger the matrix (Each
-extra word in the lexicon add an extra dimension to the
+extra word in the lexicon adds an extra dimension to the
 representation). A lexicon with double the number of words in it can
 cause a 400% increase in storage space needed for the raw
 co-occurrence data. Also, the lexicon size will increase the size of
