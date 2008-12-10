@@ -136,7 +136,7 @@ void readSettings(const string& configString, string& multi)
     settings.wordlistfilename = cfg.get("wordlistfilename", "");
     settings.outputpath = cfg.get("outputpath", "");
     settings.dbpath = cfg.get("dbpath", "");
-    settings.wordlistsize = cfg.getPositiveInt("wordlistsize", 300000);
+    settings.wordlistsize = cfg.getPositiveInt("wordlistsize", 300000000);
     settings.multipleFiles = cfg.get("multipleFiles", "");
 }
 
