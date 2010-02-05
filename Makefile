@@ -64,6 +64,7 @@ endif
 # Linux Specific compiler Flags. Configured for OpenMP support. Remove OpenMP flags if you don't need parallel support.
 ifeq ($(UNAME), Linux)
 CC = g++
+# Debug only : FLAGS = -Wall -g -O0 -Wextra -fopenmp
 FLAGS = -Wall -g -O3 -Wextra -fopenmp -ftree-vectorize -ffast-math -funroll-all-loops -fpeel-loops -ftracer -funswitch-loops -funit-at-a-time -D NDEBUG
 #TEST_LIBS = -lboost_unit_test_framework 
 endif

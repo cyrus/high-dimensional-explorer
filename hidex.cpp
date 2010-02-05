@@ -1,5 +1,5 @@
 /* 
-Copyright (C) 2004,2005,2006,2007,2008  Cyrus Shaoul and Geoff Hollis 
+Copyright (C) 2004,2005,2006,2007,2008,2009,2010  Cyrus Shaoul and Geoff Hollis 
 
 This file is part of HiDEx.
 
@@ -27,7 +27,7 @@ This file is part of HiDEx.
 // This is where the master control program - getting options, reading in new corpora, building new
 // databases, calculating measures based on word vectors.
 // 
-// Originally by Geoff Hollis as "sddbmaker".
+// Based on the software called "sddbmaker" written  by Geoff Hollis.
 //
 // Currently under continuous development by Cyrus Shaoul. 
 // Renamed from "sddbmaker" to "hidex (High Dimensional EXplorer)"
@@ -238,7 +238,8 @@ void printSDs()
                         + wordlistfilename + "\"");
     if (settings.dbpath != "")
       cerr << "Working Directory = " << settings.dbpath << "\n";
-    cerr << "Database Name = " << settings.dbname << "\n"
+    ostringstream buffer;
+    buffer << "Database Name = " << settings.dbname << "\n"
          << "Wordlist FileName = " << settings.wordlistfilename << '\n'
          << "Context size = " << settings.contextSize << '\n'
          << "Window Length Behind " << settings.windowLenBehind << '\n'
@@ -252,6 +253,7 @@ void printSDs()
          << "Percent to sample for Zscore Thresholds = " << settings.percenttosample << '\n'
          << "Separate = " << settings.separate << '\n'
          << "Word List Size = " << settings.wordlistsize << '\n';
+    cerr << buffer.str();
     cerr << "Opening Database...\n";
     SDDB db(settings.dbname, settings.dbpath);
     db.load(settings.eod, settings.maxMemory);    
@@ -262,7 +264,7 @@ void printSDs()
 			    settings.neighbourhoodSize, settings.usezscore,
 			    settings.separate,
 			    settings.percenttosample, settings.wordlistsize, 
-			    settings.outputpath, settings.saveGCM);
+			    settings.outputpath, settings.saveGCM, buffer.str());
     if (errorcode != 0)
         cerr << "ErrorCode was: " << errorcode << endl;
 }
@@ -420,7 +422,7 @@ void usage(ostream& out, const char* programName)
 void warranty()
 {
   
-  cerr <<  "**HiDEx Copyright (C) 2004,2005,2006,2007,2008  Cyrus Shaoul and Geoff Hollis \n**This program comes with ABSOLUTELY NO WARRANTY\n**This is free software, and you are welcome to redistribute it\n**under certain conditions; see the included file COPYING.txt for details.\n**(This is program is covered by the GPLv3).\n\nThe authors kindly request that if you report any findings that involved\nthe use of this software, please make sure to cite this\nsoftware in your report. For the correct way to cite this software,\nplease see the documentation.\nBeginning execution.\n\n" << endl; 
+cerr <<  "**HiDEx Copyright (C) 2004,2005,2006,2007,2008,2009,2010  Cyrus Shaoul and Geoff Hollis \n**This program comes with ABSOLUTELY NO WARRANTY\n**This is free software, and you are welcome to redistribute it\n**under certain conditions; see the included file COPYING.txt for details.\n**(This is program is covered by the GPLv3).\n\nThe authors kindly request that if you report any findings that involved\nthe use of this software, please make sure to cite this\nsoftware in your report. For the correct way to cite this software,\nplease see the documentation.\nBeginning execution.\n\n" << endl; 
   
 }
 

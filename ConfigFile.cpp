@@ -249,10 +249,8 @@ void ConfigFile::readstring(string& inputstring)
     int itemNumber = 0;
     while (! inputstring.empty())
     {
-        //        cerr << "Size of line is: " << inputstring.size() << " " << inputstring << endl;
         string line;
         line = getItem(inputstring);
-        //        cerr << "Getting Item from line: " << line << ", item Number " << itemNumber <<  endl;
         trim(line);
         ++itemNumber;
         if (line == "" || line[0] == '#')

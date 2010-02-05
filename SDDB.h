@@ -314,7 +314,8 @@ public:
 	       const double percenttosample, 
 	       const int wordlistsize, 
 	       const string outputpath,
-	       const int saveGCM
+	       const int saveGCM,
+	       const string configdata
 	       ); 
 
   int printVects(istream &in,
@@ -357,7 +358,7 @@ public:
   
   // nornamlizes vectors
   Float* normalizeRawVector(int TargetWord, Float cooccurenceVector[], const string normalization, 
-			  vector<int> &context );
+			  vector<int> &context, const bool separate);
 
   // calculates the similarity between two vectors
   Float CalcSimilarity(const vector<Float*> &vectors, int w1, int w2, const string algorithm);

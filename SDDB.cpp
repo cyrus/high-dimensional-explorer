@@ -1,5 +1,5 @@
 /* 
-Copyright (C) 2004,2005,2006,2007,2008  Cyrus Shaoul and Geoff Hollis 
+Copyright (C) 2004,2005,2006,2007,2008,2009  Cyrus Shaoul and Geoff Hollis 
 
 This file is part of HiDEx.
 
@@ -654,7 +654,8 @@ int SDDB::printSDs(istream &in,
 		   const int separate, 
 		   const double percenttosample, const int wordlistsize,
 		   const string outputpath, 	       
-		   const int saveGCM
+		   const int saveGCM, 
+		   const string configdata
 		   )
 {
     int words_to_print = 0;
@@ -666,7 +667,6 @@ int SDDB::printSDs(istream &in,
     Float stddev = 0.0;
     // corpus size per million
     Float PerMillionDivisor = static_cast<Float>(_corpussize)/1000000.0;
-    //    cerr << "Corpus size / 1000000 = " <<  PerMillionDivisor << endl;
 
     // get all words from lexicon, put them in array of strings.
     idMap words;
@@ -681,7 +681,6 @@ int SDDB::printSDs(istream &in,
     // collect all of the words we'll be printing distances for
     vector<resultdata> results;
     //load words
-    //    LoadWords(in, useldrt, wordlistsize, results);
     LoadWords(in, wordlistsize, results);
     cerr << "Loaded " << results.size() << " words." << endl;
 
@@ -761,6 +760,18 @@ int SDDB::printSDs(istream &in,
 
     string filename;
 
+    // Open parameter output file.
+    filename = outputloc.first + "/parameters.txt";
+    ofstream parms;
+    parms.open(filename.c_str());
+    if(!parms.good()) {
+        ostringstream buffer;
+        buffer << "Could not create output file." << filename << "  Exiting.";
+        throw Exception(buffer.str()); 
+    }
+    parms << configdata << endl;
+    parms.close();
+
     // Open arc output file.
     filename = outputloc.first + "/arcs.txt";
     ofstream arcs;
@@ -833,7 +844,7 @@ int SDDB::printSDs(istream &in,
         filename = outputloc.second + "/" + word + ".nbr.txt" ;
         ofstream nbrs;
         nbrs.open(filename.c_str());
-        nbrs.precision(10);
+        nbrs.precision(16);
         Float neighbourhood_distance = 0;
         Float neighbourhood_frequency = 0;
         Float freqpermillion = 0;
@@ -913,7 +924,7 @@ int SDDB::printSDs(istream &in,
         Float inverseclustercount = 1.0 / (1.0 + static_cast<Float>(clustercount));
 
         arcs << word << "\t" << (static_cast<Float>(_frequency[id]) / PerMillionDivisor) ;
-        arcs.precision(10);
+        arcs.precision(15);
         arcs << "\t" << ARC << "\t" ;
         arcs << clustercount << "\t" ;
         arcs << inverseclustercount;
@@ -1193,10 +1204,10 @@ Float SDDB::GenerateStandardDev(const Float percenttosample, const vector<Float*
       int num2 = pairvector[pindex].second;
 
       // Get similarity.
-      Float dist =  CalcSimilarity(vectors, num1, num2, metric); 
+      Float similarity =  CalcSimilarity(vectors, num1, num2, metric); 
 #pragma omp critical
-      scores.push_back(dist);
-      total += dist;
+      scores.push_back(similarity);
+      total += similarity;
   }
 
   //  out.close();
@@ -1204,48 +1215,48 @@ Float SDDB::GenerateStandardDev(const Float percenttosample, const vector<Float*
 
   cerr << "Time is: " << timestamp() << endl;
 
-  size_t numdistances = static_cast<size_t>(scores.size());
-  cerr << "Number of random pairs produced = " << numdistances << " which is ";
+  size_t numSimilarities = static_cast<size_t>(scores.size());
+  cerr << "Number of randomly selected word pairs = " << numSimilarities << " which is ";
   cerr.precision(6);
-  cerr << ((static_cast<Float>(numdistances) / static_cast<Float>(NumPairs))*100.0) << "% of those possible" << endl; 
+  cerr << ((static_cast<Float>(numSimilarities) / static_cast<Float>(NumPairs))*100.0) << "% of those possible" << endl; 
   
-  average = total/(static_cast<Float>(numdistances));
-  cerr << "Average similarity between randomly cooccuring words is : " << average << endl;  
-  // get Sum of Squares
+  average = total/(static_cast<Float>(numSimilarities));
+  cerr << "Average similarity between randomly co-occuring words is : " << average << endl;  
 
+  //calculating the StdDev:  std dev = sqrt (ss/N)
   Float SumSquares = 0.0;
   stddev = 0.0;
-
-  for(size_t i = 0; i < numdistances; i++) {
+  
+  for(size_t i = 0; i < numSimilarities; i++) {
     SumSquares += ((scores[i] - average) * (scores[i] - average));
   }
-
-  //calc std dev = sqrt (ss/N)
-
-  stddev = sqrt(SumSquares / static_cast<Float>(numdistances));
+  
+  stddev = sqrt(SumSquares / static_cast<Float>(numSimilarities));
+      
   cerr << "STDEV is : " << stddev << endl;
-
   Float threshold = 0.0;
+  Float multiplier = 2.0;
 
-  //one stddev above the average
-  threshold = (average + (stddev));
+  //similarity should be one half stddev below the average
+  threshold = (average + (stddev * multiplier));
+  while (threshold >= 1.0) {
+     multiplier = multiplier - 0.25;  
+      cerr << "WARNING: Threshold was too large. Using smaller threshold,  " << multiplier << " STD above the mean." << endl;
+      threshold = (average + (stddev * multiplier));
+    }
+  
 
-  //  cerr << "Sorting Distances... " << endl;  
-
-  //  sort(scores.begin(), scores.end());
-
-  //  cerr << "Getting Threshold... " << endl;  
-
-  //find top 95th percentile
-  //  unsigned int indx = static_cast<unsigned int>(numdistances * 0.95);
-
+  //
+  //find threshold in the top 1%
+  //  Float rank = 0.000001;
+  //  unsigned int indx = static_cast<unsigned int>(numSimilarities * rank );
   //  threshold = scores[indx];
 
-  cerr << "Threshold  was " << threshold << ", one standard deviation above the average." << endl;
+  cerr << "Threshold  was " << threshold << ", which is " << multiplier << " standard deviations above the mean. " << endl;
+  //  cerr << "Threshold  is set to " << threshold << ", which is in the top " << rank * 100  << "% of the distances." << endl;
   cerr << "Finished Threshold Calculations"<< endl;
 
   // Send back the threshold,
-
   return threshold;
 }
 
@@ -1257,8 +1268,8 @@ void removeAllFiles(const string& dbname, const string& dbpath) {
 vector<int> SDDB::GenerateContext(const size_t context_size, const bool separate)
 {
   // get a list of all our words
-  //  cerr << "Generating complete word list" << endl;
-  //  cerr << "Time is: " << timestamp() << endl;
+  //  keep only the N most frequent
+  //  
   cerr << "Number of words in lexicon = " << _numwords << endl;
 
   if (_numwords < context_size) {
@@ -1316,8 +1327,9 @@ vector<int> SDDB::GenerateContext(const size_t context_size, const bool separate
   }
   //  cerr << "The context vector is size: " << context.size() << endl;
   //  cerr << "The context is : [";
+  // FOR DEBUGGING... print context.
   //  for (size_t i=0; i < context.size(); i++) {
-  //    cerr << _idMap[context[i]] << " ";
+  //    cerr << i << " : " << _idMap[context[i]] << "\n";
   //  } 
   //  cerr  << "]" << endl;
   return context;
@@ -1363,7 +1375,7 @@ void SDDB::AggregateVectors(vector<Float*> &vectors, const bool separate, vector
                                                                  context);
         }        
 	// Normalize the vector, using the correct normalization algorithm
-	normalizeRawVector(i, vectors[i], normalization, context);
+	normalizeRawVector(i, vectors[i], normalization, context, separate);
         //  Free up some memory and delete the raw matrix.
         delete M;
     }
@@ -1563,25 +1575,45 @@ vector<int> SDDB::preprocess(string& word)
 }
 
 
-Float* SDDB::normalizeRawVector(int TargetWord, Float cooccurenceVector[], const string normalization, vector<int> &context )
+Float* SDDB::normalizeRawVector(int TargetWord, Float cooccurenceVector[], const string normalization, vector<int> &context, const bool separate )
 {
-  // Depending on the setting in the configfile, a normalization procedure is chosen.
-  // Do Positive Pointwise Mutual Information 
+  // Depending on the setting in the configfile, a normalization procedure is chosen. Currently only PPMI and Frequency Ratio are supported.
+
+  // Inverse corpus size for efficient division by N.
   Float InvN = 1.0/(static_cast<Float>(_corpussize));
-  size_t size = context.size();
+
+  // Set size of matrix, depending on separate forw/back vectors or not.
+  size_t contextSize = context.size();
+  size_t size;
+
+  if (separate) {
+    size =  contextSize* 2;
+  } else {
+    size = contextSize;
+  }
+  //  cerr << "About to test with " << size << " dimensions" << endl; 
   Float InvTargetWordFrequency = 1.0/(static_cast<Float>(_frequency[TargetWord]) + 1.0);
+  Float pContextGivenTarget = 0.0;
+  Float pContext = 0.0;
+  Float PPMI = 0.0;
+
+  // Do Positive Pointwise Mutual Information 
   if (normalization == "PPMI") {
     for (size_t j=0; j < size; j++) {
       if (cooccurenceVector[j]) {
-	Float pContextGivenTarget = cooccurenceVector[j]*InvTargetWordFrequency;
+	pContextGivenTarget = cooccurenceVector[j]*InvTargetWordFrequency;
 	//	cerr << "pContext|Target: " << pContextGivenTarget << endl;
-	Float pContext = static_cast<Float>(_frequency[context[j]])*InvN;
+	if (j > contextSize) {
+	  pContext = (static_cast<Float>(_frequency[context[j-contextSize]]) + 1.0) * InvN;
+	} else {
+	  pContext = (static_cast<Float>(_frequency[context[j]]) + 1.0) * InvN;
+	}
 	//	cerr << "pContext: " << pContext << endl;
-	Float PMI = log(pContextGivenTarget/pContext);
-	if (PMI < 0.0)
-	  PMI = 0.0;
+	PPMI = log(pContextGivenTarget/pContext);
+	if (PPMI < 0.0)
+	  PPMI = 0.0;
 	  // cerr << "Negative PMI :" << PMI << " for item " << TargetWord << endl;
-	cooccurenceVector[j] = PMI;
+	cooccurenceVector[j] = PPMI;
       }
     }
   }
@@ -1605,8 +1637,28 @@ Float* SDDB::normalizeRawVector(int TargetWord, Float cooccurenceVector[], const
 Float SDDB::CalcSimilarity(const vector<Float*> &vectors, int w1, int w2, const string algorithm) 
 {
   Float similarity = 0.0;
-  
-  if (algorithm == "Cosine") {
+
+  if (algorithm == "PenalizedCosine") {
+    // Take the dot product of the two vectors, and divide it by the product of
+    // the two magnitudes.
+    Float n1 = 0.0;
+    Float len1 = 0.0;
+    Float len2 = 0.0;
+    size_t nonzeroCount = 0;
+    for(size_t k = 0; k < _numdimensions; k++) {
+      if ((vectors[w1][k] != 0.0) || (vectors[w2][k] != 0.0)) {
+	nonzeroCount++;
+      }
+      n1 += (vectors[w1][k] * vectors[w2][k]);
+      len1 += (vectors[w1][k] * vectors[w1][k]);
+      len2 += (vectors[w2][k] * vectors[w2][k]);
+    }
+    if ((len1 > 0.0) && (len2 > 0.0)) {
+      similarity =  (n1/(sqrt(len1) * sqrt(len2))) * (static_cast<Float>(nonzeroCount)/static_cast<Float>(_numdimensions));
+    } else {
+      similarity = 0.0;
+    }
+  } else if (algorithm == "Cosine") {
     // Take the dot product of the two vectors, and divide it by the product of
     // the two magnitudes.
     Float n1 = 0.0;
@@ -1638,7 +1690,7 @@ Float SDDB::CalcSimilarity(const vector<Float*> &vectors, int w1, int w2, const 
       sumsq2 += vectors[w2][k] * vectors[w2][k];
     }
     if ((sum1 != 0) && (sum2 != 0)) {
-      // Final calculation
+      // Final calculation of correlation
       similarity = abs(((N * prod) - (sum1 * sum2))/(sqrt(((N * sumsq1) - (sum1 * sum1)) * ( (N * sumsq2) - (sum2 * sum2))))); 
     } 
   } else if (algorithm == "CityBlock") {
@@ -1646,8 +1698,23 @@ Float SDDB::CalcSimilarity(const vector<Float*> &vectors, int w1, int w2, const 
       similarity += abs(vectors[w1][k] - vectors[w2][k]);
     }
     similarity = 1/((similarity * similarity) + 1.0);
+  } else if (algorithm == "Intersection") {
+    // this is a bad idea.
+    size_t inter = 0;
+    for(size_t k = 0; k < _numdimensions; k++) {
+      if ((vectors[w1][k] != 0.0) && (vectors[w2][k] != 0.0)) {
+	inter++;
+      }
+    }
+    similarity =  static_cast<Float>(inter)/static_cast<Float>(_numdimensions);
+  } else if (algorithm == "Euc") {
+    // Euclidean Distance: This will break because of sorting direction
+    for(size_t k = 0; k < _numdimensions; k++) {
+      similarity += (vectors[w1][k] - vectors[w2][k]) * (vectors[w1][k] - vectors[w2][k]);
+    }
+    similarity = sqrt(similarity);
   } else {
-    // Euclidean Distance: sqrt of the sum of the squared differences
+    // Inverse Euclidean Distance: inverse of the sqrt of the sum of the squared differences
     for(size_t k = 0; k < _numdimensions; k++) {
       similarity += (vectors[w1][k] - vectors[w2][k]) * (vectors[w1][k] - vectors[w2][k]);
     }
@@ -1675,6 +1742,10 @@ void SDDB::SaveMatrix(const vector<Float*> &vectors) {
   GCMOut.precision(10);
   cerr << "Saving GCM requested. Starting GCM output. This may take a while. Time is: " << timestamp() << endl;
   for (size_t i = 0; i < _numwords; i++) {
+    if(((i+1) % 1000) == 0) {
+      cerr << ".";
+      cerr.flush();
+    }
     if (vectors[i]) {
       for(size_t k = 0; k < _numdimensions; k++) {
 	GCMOut << vectors[i][k] << " ";
@@ -1708,7 +1779,7 @@ void SDDB::LoadMatrix(vector<Float*> &vectors) {
     throw Exception(buffer.str());
     }
   
-  cerr << "Starting to load GCM file. Please be patient as this could take a while. Time is: " << timestamp() << endl;
+  cerr << "Starting to load GCM file. Please be patient as this could take a while. \n Time is: " << timestamp() << endl;
   // read matrix size information from file header.
   GCMIn >> GCMwords >> GCMcontext;
 
@@ -1723,6 +1794,10 @@ void SDDB::LoadMatrix(vector<Float*> &vectors) {
     // Zero out memory.
     // Read through file and add values to matrix in memory.
     for (size_t i = 0; i < _numwords; i++) {
+        if(((i+1) % 1000) == 0) {
+	  cerr << ".";
+	  cerr.flush();
+        }
       Float *tempvect = new Float[_numdimensions];
 //       for (size_t h = 0; h < GCMcontextsize; h++) {
 // 	tempvect[h] = 0.0;
