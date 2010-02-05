@@ -55,25 +55,24 @@ UNAME= $(shell uname)
 ifeq ($(UNAME), Darwin)
 CC = g++
 FLAGS = -Wall -g -gfull -O3 -falign-loops=16 -D NDEBUG -fopenmp
-#To add OpenMP support, use this line:
+#To remove OpenMP support, use this line:
 #FLAGS = -Wall -g -gfull -O3 -falign-loops=16 -D NDEBUG 
-#TEST_LIBS = -lboost_unit_test_framework -lboost_filesystem
 LIBS =  -lm 
 endif
 
 # Linux Specific compiler Flags. Configured for OpenMP support. Remove OpenMP flags if you don't need parallel support.
 ifeq ($(UNAME), Linux)
 CC = g++
-# Debug only : FLAGS = -Wall -g -O0 -Wextra -fopenmp
+# Debug only 
+# FLAGS = -Wall -g -O0 -Wextra -fopenmp
+# Debug only 
 FLAGS = -Wall -g -O3 -Wextra -fopenmp -ftree-vectorize -ffast-math -funroll-all-loops -fpeel-loops -ftracer -funswitch-loops -funit-at-a-time -D NDEBUG
-#TEST_LIBS = -lboost_unit_test_framework 
 endif
 
 #AIX specific compiler flags. Configured for OpenMP support.
 ifeq ($(UNAME), AIX)
 CC = xlC_r
 FLAGS = -g -O5 -qmaxmem=-1 -q64 -qsmp=omp -I/home/cyrus/include/ -qnoinline -qnoipa
-#TEST_LIBS = -bdynamic -L/usr/global/ibm/boost/boost/lib64 -lboost_unit_test_framework-xlc -lboost_filesystem-xlc -bdynamicLIBS = -lmass 
 endif
 
 # Payloads below
@@ -88,28 +87,11 @@ OBJS = \
   SDDBAccessor.o \
   hidex.o 
 
-#Test objects. Testing functionality is very incomplete.
-#TEST_OBJS = \
-#  SDDB.o \
-#  ConfigFile.o \
-#  Exception.o \
-#  SDDBAccessor.o \
-#  Filesystem.o \
-#  utilities.o\
-#  test/ConfigFileTest.o \
-#  test/MatrixTest.o \
-#  test/TestMain.o \
-#  test/SDDBTest.o
-
 default: $(TARGET)
 
 
 $(TARGET): $(OBJS)
 	$(CC) $(FLAGS) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
-
-#Testing system. Do not use!
-#hidex-test : $(TEST_OBJS)
-#	$(CC) $(FLAGS) $(LDFLAGS) $(TEST_FLAGS) -o $@ $(TEST_OBJS) $(TEST_LIBS)
 
 .SUFFIXES:
 .SUFFIXES: .o .cpp
@@ -139,13 +121,6 @@ install:
 	$(INSTALL) -v hidex $(BINDIR)
 	@echo Installed HiDEx in the direectory that you specified. Please make sure
 	@echo that this directory is in your PATH.
-
-
-
-
-
-
-
 
 
 
