@@ -118,8 +118,8 @@ LoadPairs(istream& in, vector<pairdata> &results) {
         if ((tempstring1.length() > MAX_WORDLEN) || (tempstring2.length() > MAX_WORDLEN))   {
             throw Exception("A Word was too long. Exiting\n");
         }
-        temp.word1 = tempstring1;
-        temp.word2 = tempstring2;
+        temp.word1 = upstring(tempstring1);
+        temp.word2 = upstring(tempstring2);
         temp.distance = 0.0;
         results.push_back(temp);
     }
@@ -169,7 +169,7 @@ LoadWords(istream& in, const int wordlistsize, vector<resultdata> &results) {
         }
         temp.ARC = 10000000;
         temp.InverseNcount = 0.0;
-        temp.word = tempstring;
+        temp.word = upstring(tempstring);
         temp.LDRT = tempdouble;
         wordlist.push_back(temp);
     }
@@ -331,26 +331,26 @@ void
 //
 build_starting_dict(Dictionary& D, string filename, FrequencyMap& frequencies)
 {
-    ifstream inStream(filename.c_str());
-    string word;
-    bool notEOF;
-    if (inStream.good()) {
-        notEOF = getWord(inStream, word);
-        for(int i = MIN_WORD_VAL; notEOF; i++) {
-            if(D.find(word) != D.end()) {
-                cerr << "word, " << word << ", exists in dictionary already" << endl;
-                i--;
-            }
-            else {
-                //                cerr << "Added " << word << " to dictionary" << endl;
-                D[word] = i;
-                frequencies[i] = 0; 
-            }
-            notEOF = getWord(inStream, word);
-        }
-    } else {
-        throw Exception("Dictionary file could not be opened");
+  ifstream inStream(filename.c_str());
+  string word;
+  bool notEOF;
+  if (inStream.good()) {
+    notEOF = getWord(inStream, word);
+    for(int i = MIN_WORD_VAL; notEOF; i++) {
+      if(D.find(word) != D.end()) {
+	cerr << "word, " << word << ", exists in dictionary already" << endl;
+	i--;
+      }
+      else {
+	word = upstring(word);
+	D[word] = i;
+	frequencies[i] = 0; 
+      }
+      notEOF = getWord(inStream, word);
     }
+  } else {
+    throw Exception("Dictionary file could not be opened");
+  }
 }
 
 
@@ -571,8 +571,9 @@ void removeDBFiles (const string& dbname, const string& dbpath) {
     string dictfilename = dbpath + dbname + DICT_TAG;
     bool errorState = false;
     string datadirname = dbpath + dbname + DBDIR_TAG;
+    string gcmfilename = dbpath + dbname + GCM_TAG;
     
-    cerr << "Removing database now....Please be patient."<< endl;
+    cerr << "Removing all relevant files now....Please be patient."<< endl;
 
     if (unlink(dbBase) == 0) {
         cerr << "Removed " << dbBase << endl;
@@ -596,8 +597,14 @@ void removeDBFiles (const string& dbname, const string& dbpath) {
         errorState = true;
     }
     
+    if (unlink(gcmfilename) == 0) {
+        cerr << "Removed " << gcmfilename << endl;
+    } else {
+        cerr << "Could not remove " << gcmfilename << ". File does not exist" << endl;
+    }
+    
     if (errorState) {
-        throw Exception("There were errors detected. Database was not able to be removed.");
+        throw Exception("There were errors detected. Database files were not able to be successfully removed.");
     }
     
 }
@@ -1069,3 +1076,9 @@ void writeMetaData(string dbBase, int numVectors, int vectorLen, int windowLenBe
     out.close();
 }
 
+string upstring(string localword) {
+  for (unsigned int j=0; j < localword.length(); ++j)    {
+    localword[j]=toupper(localword[j]);   
+  }
+  return(localword);
+}

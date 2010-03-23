@@ -622,7 +622,7 @@ void SDDB::printPairs(istream &in,
     dists.close();
 
     // Open global output file.
-    filename = outputloc.first + "/parameters.txt";
+    filename = outputloc.first + "/global.txt";
     ofstream global;
     global.open(filename.c_str());
     if(!global.good()) {
@@ -770,6 +770,7 @@ int SDDB::printSDs(istream &in,
         throw Exception(buffer.str()); 
     }
     parms << configdata << endl;
+    parms << "Threshold: " << threshold << endl;
     parms.close();
 
     // Open arc output file.
@@ -1638,27 +1639,7 @@ Float SDDB::CalcSimilarity(const vector<Float*> &vectors, int w1, int w2, const 
 {
   Float similarity = 0.0;
 
-  if (algorithm == "PenalizedCosine") {
-    // Take the dot product of the two vectors, and divide it by the product of
-    // the two magnitudes.
-    Float n1 = 0.0;
-    Float len1 = 0.0;
-    Float len2 = 0.0;
-    size_t nonzeroCount = 0;
-    for(size_t k = 0; k < _numdimensions; k++) {
-      if ((vectors[w1][k] != 0.0) || (vectors[w2][k] != 0.0)) {
-	nonzeroCount++;
-      }
-      n1 += (vectors[w1][k] * vectors[w2][k]);
-      len1 += (vectors[w1][k] * vectors[w1][k]);
-      len2 += (vectors[w2][k] * vectors[w2][k]);
-    }
-    if ((len1 > 0.0) && (len2 > 0.0)) {
-      similarity =  (n1/(sqrt(len1) * sqrt(len2))) * (static_cast<Float>(nonzeroCount)/static_cast<Float>(_numdimensions));
-    } else {
-      similarity = 0.0;
-    }
-  } else if (algorithm == "Cosine") {
+  if (algorithm == "Cosine") {
     // Take the dot product of the two vectors, and divide it by the product of
     // the two magnitudes.
     Float n1 = 0.0;
@@ -1694,25 +1675,11 @@ Float SDDB::CalcSimilarity(const vector<Float*> &vectors, int w1, int w2, const 
       similarity = abs(((N * prod) - (sum1 * sum2))/(sqrt(((N * sumsq1) - (sum1 * sum1)) * ( (N * sumsq2) - (sum2 * sum2))))); 
     } 
   } else if (algorithm == "CityBlock") {
+    // Inverse City Block
     for(size_t k = 0; k < _numdimensions; k++) {
       similarity += abs(vectors[w1][k] - vectors[w2][k]);
     }
     similarity = 1/((similarity * similarity) + 1.0);
-  } else if (algorithm == "Intersection") {
-    // this is a bad idea.
-    size_t inter = 0;
-    for(size_t k = 0; k < _numdimensions; k++) {
-      if ((vectors[w1][k] != 0.0) && (vectors[w2][k] != 0.0)) {
-	inter++;
-      }
-    }
-    similarity =  static_cast<Float>(inter)/static_cast<Float>(_numdimensions);
-  } else if (algorithm == "Euc") {
-    // Euclidean Distance: This will break because of sorting direction
-    for(size_t k = 0; k < _numdimensions; k++) {
-      similarity += (vectors[w1][k] - vectors[w2][k]) * (vectors[w1][k] - vectors[w2][k]);
-    }
-    similarity = sqrt(similarity);
   } else {
     // Inverse Euclidean Distance: inverse of the sqrt of the sum of the squared differences
     for(size_t k = 0; k < _numdimensions; k++) {
