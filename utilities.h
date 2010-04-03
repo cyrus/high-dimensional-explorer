@@ -98,7 +98,7 @@ wordpair ExtractWord(string localword);
 
 Numpair CleanWord(string word, Dictionary& D);
 
-void readMetaData(string dbBase, int& numVectors, int& vectorLen, int& windowLenBehind, int& windowLenAhead, int& corpussize);
+void readMetaData(string dbBase, int& numVectors, int& vectorLen, int& windowLenBehind, int& windowLenAhead, long& corpussize);
 
 void writeMetaData(string dbBase, int numVectors, int vectorLen, int windowLenBehind, int windowLenAhead, int corpussize);  
 //Float CalcSimilarity(const vector<Float*> &vectors, size_t num_dimensions, int w1, int w2, const string algorithm); 

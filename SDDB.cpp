@@ -82,7 +82,7 @@ void SDDB::load(const string eod, const size_t maxMemory) {
     int vectorLen;
     int windowLenBehind;
     int windowLenAhead;
-    int corpussize;
+    long corpussize;
 
     readMetaData(dbBase, numVectors, vectorLen, windowLenBehind, windowLenAhead, corpussize);
 
@@ -157,7 +157,7 @@ void SDDB::initialize (const string& dictfile, const int windowLenBehind, const 
     
     int numVectors = entries;
     int vectorLen  = entries;
-    int corpussize = _corpussize;
+    long corpussize = _corpussize;
     
     writeMetaData(dbBase, numVectors, vectorLen, windowLenBehind, windowLenAhead, corpussize);
     
@@ -359,9 +359,9 @@ void SDDB::update(istream& in, const int testmode) {
         //            }
 
         // Progress Meter
-        if(((x+1) % 5000) == 0) {
+        if(((x+1) % 1000) == 0) {
 	  cerr << "Reading Doc number: " << loopCount << " " << timestamp() << endl;
-	  cerr << ".";
+	  //	  cerr << ".";
 	  cerr.flush();
         }
         validDocument = ConvertADocument(in, wordsInDocument, behind, ahead, testmode);

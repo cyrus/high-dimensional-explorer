@@ -386,7 +386,7 @@ public:
   idMap _idMap;
   
   /** How many words have we processed so far? */
-  int _wordNum;
+  long _wordNum;
   
   /** What step are we working on? */
   int _currStep;
@@ -395,7 +395,7 @@ public:
   int _stepsize;
   
   /** How big is our corpus? */
-  int _corpussize;
+  long _corpussize;
   
   /** How many words are there in our lexicon? */
   size_t _numwords;

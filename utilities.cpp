@@ -1022,7 +1022,7 @@ CleanWord(string word, Dictionary& dict)
 }
 
 
-void readMetaData(string dbBase, int& numVectors, int& vectorLen, int& windowLenBehind, int& windowLenAhead, int& corpussize) 
+void readMetaData(string dbBase, int& numVectors, int& vectorLen, int& windowLenBehind, int& windowLenAhead, long& corpussize) 
 {
     ifstream in;
 
