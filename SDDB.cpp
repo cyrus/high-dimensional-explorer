@@ -783,6 +783,8 @@ int SDDB::printSDs(istream &in,
         throw Exception(buffer.str()); 
     }
     arcs << "WORD\tOFREQ\tARC\tNCount\tInverseNCount" << endl;
+    // set precision
+    arcs.precision(15);
 
     // Open global output file.
     filename = outputloc.first + "/global.txt";
@@ -797,20 +799,22 @@ int SDDB::printSDs(istream &in,
 
     // Loops through the list of words to have SDs calculated.
     //    size_t counter = 1;
-    cerr << "Finished words: ";
-    for(Dictionary::iterator i = words_of_interest.begin(); i != words_of_interest.end(); i++) {
-      
-        string word = i->first;
-        size_t  id    = static_cast<size_t>(i->second);
-        
-        //        getNCOUNT(word,id, neighbours, neighbourhood_distance)
+    cerr << "Completed Processing these words: ";
 
-        NeighborsVector neighbours;
+
+
+
+    // Output loop
+    for (Dictionary::iterator i = words_of_interest.begin(); i != words_of_interest.end(); i++) {
+      string word = i->first;
+      size_t id   = static_cast<size_t>(i->second);
+
+      NeighborsVector neighbours;
 
         if(vectors[id] == NULL) {
-            cerr << "Tried to print SDs for, " << word
-                 << ", but we did not have a vector for it!" << endl;
-            continue;
+	  cerr << endl << "Tried to print SDs for, " << word
+	       << ", but we did not have a vector for it!" << endl;
+	  continue;
         }
 
         // Main distance calculation loop. 
@@ -829,10 +833,6 @@ int SDDB::printSDs(istream &in,
 #pragma omp critical
             neighbours.push_back(NeighborhoodEntry(dist,j));
         }
-        // sort neighbors by distance
-	//	for (size_t u =0; u < neighbours.size(); u++) {
-	//	  cerr << neighbours[u].first << " " << neighbours[u].second << endl;
-	//	}
         sort(neighbours.begin(), neighbours.end(), RevSort());
         //    remove all neighbors we don't need (gt than MAXNEIGHBOURS)
         if (neighbours.size() > MAXNEIGHBOURS) {
@@ -845,7 +845,7 @@ int SDDB::printSDs(istream &in,
         filename = outputloc.second + "/" + word + ".nbr.txt" ;
         ofstream nbrs;
         nbrs.open(filename.c_str());
-        nbrs.precision(16);
+        nbrs.precision(10);
         Float neighbourhood_distance = 0;
         Float neighbourhood_frequency = 0;
         Float freqpermillion = 0;
@@ -857,30 +857,24 @@ int SDDB::printSDs(istream &in,
 	  // Get standard neighborhood
 	  for(size_t j = 0; j < neighbourhood_size; j++) {
 	    if(neighbours[j].second != -1) {
-	      //	      word_magnitude = get_magnitude(vectors[neighbours[j].second], num_dimensions);
 	      neighbourhood_distance += neighbours[j].first;
 	      freqpermillion = static_cast<Float>(_frequency[neighbours[j].second]) / PerMillionDivisor;
-// 	      neighbourhood_frequency += freqpermillion;
  	      nbrs << word << "\t" 
  		   << words[neighbours[j].second] << "\t"
  		   << freqpermillion << "\t"
  		   << neighbours[j].first << endl;
-		// 		   << word_magnitude << endl;
 	    }
 	  }
         }
         else {
             // get z-cluster neighborhood
-            //      nbrs << "----------- Score Clusters, Z-score ARC-------------" << endl;
             nbrs << "WORD\tNEIGHBOR\tOFREQ\tSIMILARITY" << endl;
             clustercount = 0;
             for (size_t j=0; j < MAXNEIGHBOURS; j++) {
                 if(neighbours[j].second != -1) {
-                    //	  if (neighbours[j].first <= threshold && neighbours[j].first != 0.0 ) {
                     if (neighbours[j].first >= threshold) {
                         clustercount += 1;
                         neighbourhood_distance += neighbours[j].first;
-			//                        word_magnitude = get_magnitude(vectors[neighbours[j].second], num_dimensions);
                         freqpermillion = static_cast<Float>(_frequency[neighbours[j].second]) / PerMillionDivisor;
                         neighbourhood_frequency += freqpermillion;
                         nbrs << word << "\t" 
@@ -906,32 +900,14 @@ int SDDB::printSDs(istream &in,
             } else {
                 ARC = ( neighbourhood_distance / static_cast<Float>(clustercount) ) ;
             }
-            // Get ARC Zscore
-            //      ARC = (ARC - average)/stddev;
         }
-	//        word_magnitude = get_magnitude(vectors[id], num_dimensions);
-        //        nbrs << "Word was: " << word << "\t Frequency per million = " << (static_cast<Float>(_frequency[id]) / PerMillionDivisor);
-        //        nbrs << "\t ARC = " << ARC;
-	//        if (clustercount > 0) {
-            //            nbrs << "\t Average orthographic frequency of neighbors = " << ( neighbourhood_frequency / static_cast<Float>(clustercount));
-	//        }
-        //        nbrs << "\t Word Magnitude = " << word_magnitude	
-        //             << endl;
-        //        nbrs << "Average Distance = " << average << " and Standard Deviation = " << stddev << endl;
-        //        nbrs << "Neighborhood Threshold = " << threshold << ", and Number of neighbors within Threshold = " << clustercount << endl;
         nbrs.close();
 
         // print log entry
         Float inverseclustercount = 1.0 / (1.0 + static_cast<Float>(clustercount));
-
-        arcs << word << "\t" << (static_cast<Float>(_frequency[id]) / PerMillionDivisor) ;
-        arcs.precision(15);
-        arcs << "\t" << ARC << "\t" ;
-        arcs << clustercount << "\t" ;
-        arcs << inverseclustercount;
-        arcs << endl;
-	cerr << word << ",";
-        //insert arc, etc into resultsdb
+	//#pragma omp critical
+        arcs << word << "\t" << (static_cast<Float>(_frequency[id]) / PerMillionDivisor) << "\t" << ARC << "\t" << clustercount << "\t" << inverseclustercount << endl;
+	cerr << word << " , ";
     }
     cerr << endl;
 
@@ -949,9 +925,7 @@ int SDDB::printSDs(istream &in,
     for(size_t i = 0; i < _numwords; i++)
         if(vectors[i] != NULL)
 	  delete [] vectors[i];
-    //  delete[] vectors;
-    // no need to delete words_of_interest;
-    cerr << "Success. Finished processing at " << timestamp() << endl;
+    cerr << "Success. Finished processing all words' neighborhoods at " << timestamp() << endl;
     return 0;
 }
 
