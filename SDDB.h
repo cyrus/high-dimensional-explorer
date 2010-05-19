@@ -176,13 +176,13 @@ public:
 class SDDB
 {
 public:
-  static const int WEIGHT_SCHEME_FLAT = 0;
-  static const int WEIGHT_SCHEME_RAMPED_LINEAR = 1;
-  static const int WEIGHT_SCHEME_RAMPED_EXPONENTIAL = 2;
+  static const int FLAT = 0;
+  static const int RAMPED_LINEAR = 1;
+  static const int RAMPED_QUADRATIC = 2;
   static const int FORWARD_RAMP = 3;
   static const int BACKWARD_RAMP = 4;
   static const int INVERSE_RAMP = 5;
-  static const int INVERSE_EXPONENTIAL = 6;
+  static const int INVERSE_QUADRATIC = 6;
   static const int SECOND_WORD = 7;
   static const int THIRD_WORD = 8;
   static const int FOURTH_WORD = 9;

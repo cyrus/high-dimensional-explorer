@@ -786,7 +786,7 @@ vector<int> createWeightScheme(int windowLen, int behind, int scheme)
     vector<int> weights(windowLen);
     //    vector<int> error(1);
     //    error[0]=0;
-    if(scheme == SDDB::WEIGHT_SCHEME_RAMPED_LINEAR)
+    if(scheme == SDDB::RAMPED_LINEAR)
     {
         cerr << "Creating ramped, linear weighting scheme\n";
         for(int i = 0; i < behind; i++)
@@ -794,9 +794,9 @@ vector<int> createWeightScheme(int windowLen, int behind, int scheme)
         for(int i = behind; i < windowLen; i++)
             weights[i] = windowLen - i;
     }
-    else if(scheme == SDDB::WEIGHT_SCHEME_RAMPED_EXPONENTIAL)
+    else if(scheme == SDDB::RAMPED_QUADRATIC)
     {
-        cerr << "Creating ramped, exponential weighting scheme\n";
+        cerr << "Creating ramped, quadratic weighting scheme\n";
         for(int i = 0; i < behind; i++)
             weights[i] = (i + 1)*(i + 1);
         for(int i = behind; i < windowLen; i++)
@@ -826,9 +826,9 @@ vector<int> createWeightScheme(int windowLen, int behind, int scheme)
         for(int i = behind; i < windowLen; i++)
             weights[i] = ((i - behind) + 1);
     }
-    else if (scheme == SDDB::INVERSE_EXPONENTIAL)
+    else if (scheme == SDDB::INVERSE_QUADRATIC)
     {
-        cerr << "Creating inverse exponential weighting scheme\n";
+        cerr << "Creating inverse quadratic weighting scheme\n";
         for(int i = 0; i < behind; i++)
             weights[i] = (behind - i) * (behind - i) ;
         for(int i = behind; i < windowLen; i++)

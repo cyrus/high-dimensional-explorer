@@ -1322,7 +1322,7 @@ void SDDB::AggregateVectors(vector<Float*> &vectors, const bool separate, vector
     cerr << "Processing word matrices." << endl;
     cerr << "Loading, Aggregating and Normalizing vectors..." << endl;
     cerr << "Time is: " << timestamp() << endl;
-    cerr << "Printing one dot per thousand vectors aggregated: ";
+    cerr << "Printing one dot per 1000 vectors aggregated: ";
 
     // Much speeded by parallel execution!
     #pragma omp parallel for
@@ -1720,7 +1720,7 @@ void SDDB::LoadMatrix(vector<Float*> &vectors) {
     throw Exception(buffer.str());
     }
   
-  cerr << "Starting to load GCM file. Please be patient as this could take a while. \n Time is: " << timestamp() << endl;
+  cerr << "Starting to load GCM file. Please be patient as this could take a while. A dot is printed for every 1000 vectors loaded.\n Time is: " << timestamp() << endl;
   // read matrix size information from file header.
   GCMIn >> GCMwords >> GCMcontext;
 
