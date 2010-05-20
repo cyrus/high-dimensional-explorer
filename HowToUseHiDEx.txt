@@ -8,13 +8,14 @@ A copy of the license is included in the section entitled "GNU
 Free Documentation License" at the end of this file.
 
 
+
 ****************************************************************************
 			  How To Use HiDEx
 ****************************************************************************
 
-by Cyrus Shaoul		cyrus.shaoul@ualberta.ca
-Version 0.04
-Updated on Feb 4th, 2010
+by Cyrus Shaoul		                            cyrus.shaoul@ualberta.ca
+Document Version 0.05 for HiDEx v. 0.03
+Updated on May 25th, 2010
 
 Preface: 
 	 This document is split into two parts: Part 1 is the Quick Start
@@ -44,11 +45,16 @@ all the source code in it.
 
 	make hidex
 
-and install it using the command: (Default location is ~/bin)
+and install it using the command: (Default location is ~/bin, so make sure to
+add that to your path.)
 
 	make install
 
-1D) Go ahead! Start using HiDEx!
+1D) Get a corpus, or for a shortcut, use an example vector set, available at:
+
+    http://www.psych.ualberta.ca/~westburylab/downloads/HiDEx.vectorset.download.html
+
+1E) Go ahead! Start using HiDEx!
 
 ****************************************************************************
 Part 2: User Manual
@@ -79,6 +85,7 @@ Curt Burgess in 1996 as the HAL model and have been extensively studied since
 If you are unfamiliar with the ideas behind these models, I recommend that you
 start by reading the following papers listed in the Bibliography:
 
+Shaoul and Westbury, 2010
 Shaoul and Westbury, 2006
 Bullinaria and Levy, 2008
 
@@ -522,7 +529,7 @@ this number is larger than the number of words in the wordlistfile, or
 if the setting is left blank, HiDEx will use all the words in the file
 set by wordlistfilename. 
 
-saveGCM: If this is set to "1", HiDEx will create a large text file called dbname.GCM 
+saveGCM: If this is set to "1", HiDEx will create a large text file called "dbname.gcm"
 in the working directory. This file will be automatically detected the next time a
 GCM is required, and loaded. Depending on the speed of your computer, this may be faster
 or slower than building the GCM on the fly.
@@ -563,7 +570,13 @@ corpus processing will take months instead of hours.
 
 contextSize: The larger the context size, the greater the memory usage, and
 the greater the computation required. I recommend using context sizes of
-14,000 or greater.
+10,000 or greater.
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Thanks for reading the manual. If you any comments about it, please send them
+to Cyrus.Shaoul@ualberta.ca
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 
 ****************************************************************************
 Bibliography:
@@ -593,6 +606,11 @@ co-occurrence models: A new approach. Behavior Research Methods, 38,
 Shaoul, C., & Westbury, C. (2007). A usenet corpus (2005-2008)
 (Tech. Rep.). Edmonton, AB: University of Alberta. Downloaded from
 http://www.psych.ualberta.ca/~westburylab/downloads/usenetcorpus.download.html
+
+Shaoul, C. & Westbury, C. (2010). Exploring lexical co-occurrence space using 
+HiDEx. Behavior Research Methods, 42:2, 393-413.
+
+
 
 
 
