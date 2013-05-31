@@ -657,19 +657,19 @@ Matrix<T>::~Matrix()
 template<class T>
 inline void Matrix<T>::checkRowIndex(int rowIndex) const
 {
-  bool temp = (rowIndex >= 0);
-  assert(temp);
-  temp = (rowIndex < rows);
-  assert(temp);
+  //  bool temp = (rowIndex >= 0);
+  assert(rowIndex >= 0);
+  //  temp = (rowIndex < rows);
+  assert(rowIndex < rows);
 }
 
 template<class T>
 inline void Matrix<T>::checkColIndex(int colIndex) const
 {
-  bool temp = (colIndex >= 0); 
-  assert(temp);
-  temp =(colIndex < cols); 
-  assert(temp);
+  //  bool temp = (colIndex >= 0); 
+  assert(colIndex >= 0); 
+  //  temp =(colIndex < cols); 
+  assert(colIndex < cols); 
 }
 
 template<class T>

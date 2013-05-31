@@ -64,9 +64,9 @@ endif
 ifeq ($(UNAME), Linux)
 CC = g++
 # Debug only 
-# FLAGS = -Wall -g -O0 -Wextra -fopenmp
+#FLAGS = -Wall -g -O0 -Wextra -fopenmp
 # Debug only 
-FLAGS = -Wall -g -O3 -Wextra -fopenmp -ftree-vectorize -ffast-math -funroll-all-loops -fpeel-loops -ftracer -funswitch-loops -funit-at-a-time -D NDEBUG
+FLAGS = -g -O3 -fopenmp -ffast-math -funroll-all-loops -fpeel-loops -ftracer -D NDEBUG
 endif
 
 #AIX specific compiler flags. Configured for OpenMP support.

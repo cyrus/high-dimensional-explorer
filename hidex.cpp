@@ -447,6 +447,7 @@ int main(int argc, char *argv[])
       } else {
 	cerr << "OpenMP not active. Continuing without parallel processing.\nPlease set OMP_NUM_THREADS in your environment to use OpenMP.\n " << endl;
       }
+
       string mode;
       string configFilename;
       string multi = "";
@@ -521,7 +522,7 @@ int main(int argc, char *argv[])
     }
   catch (const exception& e)
     {
-      cerr << "ERROR: " << e.what() << '\n';
+      cerr << endl <<"ERROR: " << e.what() << endl;
       return 1;
 	}
   cerr << "Execution time: " <<  (time(NULL) - start) / 60.0 << " minutes. (Walltime)"<<  endl;

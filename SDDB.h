@@ -121,6 +121,7 @@ typedef map<Numpair,bool> numberpairmap;
 typedef vector<Numpair> numberpairvector;
 
 // Dictionary has keys of words and values of ID
+
 typedef map<string, int> Dictionary;
 
 // Maps word to their frequencies
@@ -442,3 +443,28 @@ std::string getcorrelation(vector<resultdata> &results);
 */
 
 #endif // SDDB_H
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

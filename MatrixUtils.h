@@ -81,10 +81,10 @@ Float*computeWeightedCooccurenceVectorUnified(Matrix<T> *M,
   //    cerr << "Computing aggregate" << endl;
   
   // Sanity check for window ranges.
-  bool temp = (ahead <= realAhead);
-  assert(temp);
-  temp = (behind <= realBehind);
-  assert(temp);
+  //  bool temp = (ahead <= realAhead);
+  assert(ahead <= realAhead);
+  //  temp = (behind <= realBehind);
+  assert(behind <= realBehind);
   
   int windowLen = behind+ahead;
   int startpoint = realBehind-behind;
@@ -127,10 +127,10 @@ Float*computeWeightedCooccurenceVectorSeparate(Matrix<T> *M, const vector<int>& 
                       int behind, int realAhead, int ahead, vector<int>& frequentWords)
 
 {
-  bool temp = (ahead <= realAhead);
-  assert(temp);
-  temp = (behind <= realBehind);
-  assert(temp);
+  //  bool temp = (ahead <= realAhead);
+  assert(ahead <= realAhead);
+  //  temp = (behind <= realBehind);
+  assert(behind <= realBehind);
   
   size_t num_dimensions = 2 * frequentWords.size();
   size_t context_size = frequentWords.size();
