@@ -42,9 +42,9 @@ struct word_distance_pair
 
 vector<int> createWeightScheme(int windowLen, int behind, int scheme);
 
-void LoadPairs(istream& in, vector<pairdata> &results);
+void LoadPairs(istream& in, vector<pairdata> &results, const bool normCase);
 
-void LoadWords(istream& in, const int wordlistsize, vector<resultdata> &results);
+void LoadWords(istream& in, const int wordlistsize, vector<resultdata> &results,const bool normCase);
 
 void addtoresults(vector<resultdata> &results, string word, Float ARC, Float InverseNcount);
 
@@ -73,7 +73,7 @@ std::string timestamp ();
 
 std::string itoa(int value, unsigned int base);
 
-void build_starting_dict(Dictionary& D, string filename,  FrequencyMap& frequencies);
+void build_starting_dict(Dictionary& D, string filename,  FrequencyMap& frequencies, const bool normCase);
 
 void build_dict_and_freqs(Dictionary& D, string filename, FrequencyMap& frequencies, const string eod);
 
@@ -94,9 +94,9 @@ bool acceptable_word_char(char ch, bool alphaOnly);
 
 string strip_non_alpha(string word, bool sidesOnly);
 
-wordpair ExtractWord(string localword);
+wordpair ExtractWord(string localword, const bool normCase, const bool englishContractions);
 
-Numpair CleanWord(string word, Dictionary& D);
+Numpair CleanWord(string word, Dictionary& D, const bool normCase, const bool englishContractions);
 
 void readMetaData(string dbBase, int& numVectors, int& vectorLen, int& windowLenBehind, int& windowLenAhead, long& corpussize);
 

@@ -306,8 +306,7 @@ public:
   // Set the maximum vector num we are collecting co-occurance
   // counts for, where max = currentStep + stepsize - 1
   //
-  void setStepSize(const Settings settings);
-
+  void setOptions(const Settings settings);
 
   // sets the end of document marker
   void setEOD(const string EOD);
@@ -455,12 +454,7 @@ public:
   //possessive
   bool _englishContractions;
 
-  //private functions for preprocessing
-  bool acceptable_word_char(char& ch, bool alphaOnly);
-  string strip_non_alpha(string& word, bool sidesOnly);
-  wordpair extractWord(string& localword);
-  vector<int> preprocess(string& word);
-  vector<string> iscompound(string& localword);
+
 };
 
 void removeAllFiles(const string& dbname, const string& dbpath);

@@ -103,7 +103,7 @@ copy_file(const char *source, const char *dest) {
 
 void 
 // Loads pairs of words to find distances for.
-LoadPairs(istream& in, vector<pairdata> &results) {
+LoadPairs(istream& in, vector<pairdata> &results, const bool normCase) {
     pairdata temp;
     cerr << "Reading in pairs from wordlist" << endl;
     while (!in.eof()){
@@ -118,8 +118,13 @@ LoadPairs(istream& in, vector<pairdata> &results) {
         if ((tempstring1.length() > MAX_WORDLEN) || (tempstring2.length() > MAX_WORDLEN))   {
             throw Exception("A Word was too long. Exiting\n");
         }
-        temp.word1 = upstring(tempstring1);
-        temp.word2 = upstring(tempstring2);
+	if (normCase) {
+	  temp.word1 = upstring(tempstring1);
+	  temp.word2 = upstring(tempstring2);
+	} else {
+	  temp.word1 = tempstring1;
+	  temp.word2 = tempstring2;
+	}
         temp.distance = 0.0;
         results.push_back(temp);
     }
@@ -131,79 +136,64 @@ void
 // Will generate a random subsample if desired.
 //
 //LoadWords(istream& in, const int useldrt, const int wordlistsize, vector<resultdata> &results) {
-LoadWords(istream& in, const int wordlistsize, vector<resultdata> &results) {
-    resultdata temp;
-    vector<resultdata> wordlist;
-    //  bool done_reading_file = false;
-    //    cerr << "Reading in words from wordlist" << endl;
-    while (!in.eof()){
-        if (in.fail()) {
-            throw Exception("Error Reading Input File.. Make sure it is in the correct format. Exiting\n");
-        }
-        string tempstring = "";
-        Float tempdouble = 0.0;
-//         if (useldrt) {
-//             in >> tempstring >> tempdouble;
-//             if (tempstring == "---END.OF.DOCUMENT---") {
-//                 break;
-//             }
-//             // check for bad file format in LDRT mode
-//             //      cout << tempstring << " "<< tempdouble << endl;
-//             if (!(tempdouble > 0.0)) {
-//                 cerr << "Error LDRT data in word list." << tempstring << " " << tempdouble;
-//                 throw Exception("Add end of file marker or disable LDRT MODE.... Exiting");
-//             }
-//         }
-//         else {
-	in >> tempstring;
-	if (tempstring == "---END.OF.DOCUMENT---")
-	  break;
-// 	string::size_type pos = tempstring.find(".",0);
-// 	// check for bad file format in non-LDRT mode
-// 	if (pos != string::npos) {
-// 	  throw Exception("Numerical data found in word list. Please enable LDRT MODE... Exiting");
-// 	}
-        if (tempstring.length() > MAX_WORDLEN)  {
- 	  throw Exception("Maximum Word Length was exceeded in your word list input file. Exiting");
-	  //            tempstring = tempstring.substr(0,MAX_WORDLEN);
-        }
-        temp.ARC = 10000000;
-        temp.InverseNcount = 0.0;
-        temp.word = upstring(tempstring);
-        temp.LDRT = tempdouble;
-        wordlist.push_back(temp);
+LoadWords(istream& in, const int wordlistsize, vector<resultdata> &results, const bool normCase) {
+  resultdata temp;
+  vector<resultdata> wordlist;
+  //  bool done_reading_file = false;
+  //    cerr << "Reading in words from wordlist" << endl;
+  while (!in.eof()){
+    if (in.fail()) {
+      throw Exception("Error Reading Input File.. Make sure it is in the correct format. Exiting\n");
     }
-    unsigned int numwords = wordlist.size();
-    cerr << "Got " << numwords << " from word list. " << endl ;
-    if ( numwords< (unsigned int)wordlistsize) {
-        results = wordlist;
+    string tempstring = "";
+    Float tempdouble = 0.0;
+    in >> tempstring;
+    if (tempstring == "---END.OF.DOCUMENT---")
+      break;
+    if (tempstring.length() > MAX_WORDLEN)  {
+      throw Exception("Maximum Word Length was exceeded in your word list input file. Exiting");
+    }
+    temp.ARC = 10000000;
+    temp.InverseNcount = 0.0;
+    if (normCase) {
+      temp.word = upstring(tempstring);
     } else {
-      cerr << " Only " << wordlistsize << " were desired. " << endl;
-      cerr << "Generating random subsample of words." << endl;
-        // Create subsample
-        int seed = time(0);
-        unsigned int randomnumber;
-        srand(seed);
-        set<int> wordset;
-        vector<resultdata> subsamplewordlist;
-        int i;
-        // Generate random set of unique indicies
-        for (i = 0; wordset.size() < (unsigned int)wordlistsize; i++) {
-            randomnumber = (unsigned int)(rand() % numwords);
-            wordset.insert(randomnumber);
-            //      cerr << randomnumber << " " << i <<endl;
-        }
-        // copy random words into new vector
-        set<int>::iterator iter;
-        cerr << endl << "Picked: ";
-        for (iter = wordset.begin(); iter != wordset.end(); iter++) {
-            subsamplewordlist.push_back(wordlist[*iter]);
-            //      cerr << *iter << endl;
-        }
-        results = subsamplewordlist;
+      temp.word = tempstring;
     }
+    temp.LDRT = tempdouble;
+    wordlist.push_back(temp);
+  }
+  unsigned int numwords = wordlist.size();
+  cerr << "Got " << numwords << " from word list. " << endl ;
+  if ( numwords< (unsigned int)wordlistsize) {
+    results = wordlist;
+  } else {
+    cerr << " Only " << wordlistsize << " were desired. " << endl;
+    cerr << "Generating random subsample of words." << endl;
+    // Create subsample
+    int seed = time(0);
+    unsigned int randomnumber;
+    srand(seed);
+    set<int> wordset;
+    vector<resultdata> subsamplewordlist;
+    int i;
+    // Generate random set of unique indicies
+    for (i = 0; wordset.size() < (unsigned int)wordlistsize; i++) {
+      randomnumber = (unsigned int)(rand() % numwords);
+      wordset.insert(randomnumber);
+      //      cerr << randomnumber << " " << i <<endl;
+    }
+      // copy random words into new vector
+    set<int>::iterator iter;
+    cerr << endl << "Picked: ";
+    for (iter = wordset.begin(); iter != wordset.end(); iter++) {
+      subsamplewordlist.push_back(wordlist[*iter]);
+      //      cerr << *iter << endl;
+    }
+    results = subsamplewordlist;
+  }
 }
-
+  
 void addtoresults(vector<resultdata> &results, string word, Float ARC, Float InverseNcount)
 {
   // Add distance data to results vector for later correlation
@@ -216,7 +206,6 @@ void addtoresults(vector<resultdata> &results, string word, Float ARC, Float Inv
     }
   }
 }
-
 
 std::string getcorrelation(vector<resultdata> &results) {
   char buffer[128];
@@ -329,20 +318,23 @@ void
 // and give each a unique numeric value to use for reference in
 // the SDDBAccessors
 //
-build_starting_dict(Dictionary& D, string filename, FrequencyMap& frequencies)
+build_starting_dict(Dictionary& D, string filename, FrequencyMap& frequencies, const bool normCase)
 {
   ifstream inStream(filename.c_str());
   string word;
   bool notEOF;
+  cerr << "normCase = " << normCase << endl;
   if (inStream.good()) {
     notEOF = getWord(inStream, word);
     for(int i = MIN_WORD_VAL; notEOF; i++) {
       if(D.find(word) != D.end()) {
-	cerr << "word, " << word << ", exists in dictionary already" << endl;
+	cerr << "Word, " << word << ", exists in dictionary already" << endl;
 	i--;
       }
       else {
-	word = upstring(word);
+	if (normCase) { 
+	  word = upstring(word);
+	} 
 	D[word] = i;
 	frequencies[i] = 0; 
       }
@@ -939,7 +931,7 @@ wordpair
 // functionality as "cin >> word", excepts it additionally makes sure that
 // the word buffer is not over-run! And it separates possessive endings.
 //
-ExtractWord(string localword)
+ExtractWord(string localword, const bool normCase, const bool englishContractions)
 {
     wordpair output;
     output.main = "";
@@ -947,78 +939,81 @@ ExtractWord(string localword)
     // this is mainly used for holding "'S" since we can't putback
     //uppercase
     
-    for (unsigned int j=0; j < localword.length(); ++j)    {
-      localword[j]=toupper(localword[j]);   
+    if (normCase) {
+      localword = upstring(localword);
     }
     
     //check if the special posessive words are there.
-    if (!((localword == "HE'S") || (localword =="SHE'S") || (localword == "IT'S"))) 
-    {
-        //cout << "Looking for possessive edning for: " << localword << endl;
-        // we have to check if our word ends in "'S" and it is longer than
-        // "'S" alone. If that's the case, we throw back the "'S"
-        string::size_type pos;
-        pos = localword.find (POSSESSIVESUFFIX,0);
-        if ((localword.length() > 2) && (pos != string::npos)) {
+    //    if (!((localword == "HE'S") || (localword =="SHE'S") || (localword == "IT'S"))) 
+    if (englishContractions) {
+      if (!((localword == "HE'S") || (localword =="SHE'S") || (localword == "IT'S") || (localword == "HERE'S") || (localword == "THERE'S") || (localword == "WHAT'S"))) 
+	{
+	  //cout << "Looking for possessive edning for: " << localword << endl;
+	  // we have to check if our word ends in "'S" and it is longer than
+	  // "'S" alone. If that's the case, we throw back the "'S"
+	  string::size_type pos;
+	  pos = localword.find (POSSESSIVESUFFIX,0);
+	  if ((localword.length() > 2) && (pos != string::npos)) {
             output.possessive = POSSESSIVESUFFIX;
             localword.erase(pos,2);
             //cout << "Found possessive ending for: " << localword << endl;
-        }
+	  }
+	}
+      //  cout << "adding word" << localword << endl; 
     }
-    //  cout << "adding word" << localword << endl; 
     output.main = localword;
     return output;
 }
 
 Numpair
-CleanWord(string word, Dictionary& dict)
+CleanWord(string word, Dictionary& dict,const bool normCase, const bool englishContractions)
 {
-    wordpair extractedWords;
-    Numpair cleanedPair;
-    cleanedPair.first = 0;
-    cleanedPair.second = 0;
+  wordpair extractedWords;
+  Numpair cleanedPair;
+  cleanedPair.first = 0;
+  cleanedPair.second = 0;
 
-    if (word.length() < MAX_WORDLEN) { 
-	extractedWords = ExtractWord(word);
-	if (extractedWords.possessive != "") {
-	    cleanedPair.second= dict[extractedWords.possessive];
-	}
-	// If word is not in lexicon
-	if (dict.find(extractedWords.main) == dict.end()) {
-	    // If word is dirty Try stripping non-letters off the sides of the word (like 500Club -> Club)
-	    //	cout << word << endl;
-	    string cleanWord = strip_non_alpha(extractedWords.main, true);
-	    //cout << "Tried cleaning into: " << cleanWord << endl;
-	    if(cleanWord.empty()) {
-		// we encountered no letters ... skip this one
-		return(cleanedPair);
-	    }
-	    else  {
-		// if clean word is in lexicon, add it.
-		if (dict.find(cleanWord) != dict.end()) {
-		    cleanedPair.first = dict[cleanWord];
-		    return(cleanedPair);
-		}
-		else {
-		    // Strip all non letters out.
-		    string newWord = strip_non_alpha(extractedWords.main, false);
-		    if (dict.find(newWord) != dict.end()) {
-			cleanedPair.first = dict[newWord];
-			return(cleanedPair);
-		    }
-		    else {
-			return(cleanedPair);
-		    }
-		}
-	    }
-	} else {
-	    cleanedPair.first = dict[extractedWords.main];
-	    return(cleanedPair);
-	}
+  if (word.length() < MAX_WORDLEN) { 
+    extractedWords = ExtractWord(word,normCase,englishContractions);
+    if (extractedWords.possessive != "") {
+      cleanedPair.second= dict[extractedWords.possessive];
     }
-    else {
+    // If word is not in lexicon
+    if (dict.find(extractedWords.main) == dict.end()) {
+      // If word is dirty Try stripping non-letters off the sides of the word (like 500Club -> Club)
+      //	cout << word << endl;
+      string cleanWord = strip_non_alpha(extractedWords.main, true);
+      //cout << "Tried cleaning into: " << cleanWord << endl;
+      if(cleanWord.empty()) {
+	// we encountered no letters ... skip this one
 	return(cleanedPair);
+      }
+      else  {
+	// if clean word is in lexicon, add it.
+	if (dict.find(cleanWord) != dict.end()) {
+	  cleanedPair.first = dict[cleanWord];
+	  return(cleanedPair);
+	}
+	else {
+	  // Strip all non letters out.
+	  string newWord = strip_non_alpha(extractedWords.main, false);
+	  if (dict.find(newWord) != dict.end()) {
+	    cleanedPair.first = dict[newWord];
+	    return(cleanedPair);
+	  }
+	  else {
+	    return(cleanedPair);
+	  }
+	}
+      }
+    } else {
+      cleanedPair.first = dict[extractedWords.main];
+      return(cleanedPair);
     }
+  }
+  else {
+    return(cleanedPair);
+  }
 }
 
 

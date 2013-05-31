@@ -138,7 +138,7 @@ void SDDB::initialize (const string& dictfile, const int windowLenBehind, const 
         throw Exception(buffer.str());
     }
     
-    build_starting_dict(_dict, dictname, _frequency);
+    build_starting_dict(_dict, dictname, _frequency, _normCase);
     
     size_t entries = _dict.size(); 
     cerr << "Built a lexicon with " << entries << " words\n";
@@ -187,57 +187,57 @@ void SDDB::GetDocuments(istream &in, const int number, vector<string> &documents
 bool SDDB::ConvertADocument(istream& in, vector<int>& wordsInDocument, const size_t behind,
                             const  size_t ahead, const int testmode) 
 {
-    vector<int> processedwords;
-    vector<string> compoundword;
-    string word;
-    Numpair ids;
+  vector<int> processedwords;
+  vector<string> compoundword;
+  string word;
+  Numpair ids;
     // clear last document
-    wordsInDocument.clear();
-    // add empty window to begining of words in document
-    for (size_t i = 0; i < (behind+1); i++ ) {
-            wordsInDocument.push_back(NO_WORD);
+  wordsInDocument.clear();
+  // add empty window to begining of words in document
+  for (size_t i = 0; i < (behind+1); i++ ) {
+    wordsInDocument.push_back(NO_WORD);
+  }
+  // take a word out of the document
+  in >> word;
+  while ((word != _eod) && (in.good())) {    
+    // Clean up the word, including splitting possessives.
+    ids = CleanWord(word,_dict,_normCase,_englishContractions);
+    if (ids.first) {
+      wordsInDocument.push_back(ids.first);
+      if (ids.second) {
+	wordsInDocument.push_back(ids.second);
+      }
+    } else {
+      //            cerr << word << ";" << _dict[word]<< " ";
+      wordsInDocument.push_back(UNRECOGNIZED_WORD);
     }
-    // take a word out of the document
+    _wordNum++;
     in >> word;
-    while ((word != _eod) && (in.good())) {    
-	// Clean up the word, including splitting possessives.
-	ids = CleanWord(word,_dict);
-	if (ids.first) {
-	    wordsInDocument.push_back(ids.first);
-	    if (ids.second) {
-		wordsInDocument.push_back(ids.second);
-	    }
-        } else {
-            //            cerr << word << ";" << _dict[word]<< " ";
-	    wordsInDocument.push_back(UNRECOGNIZED_WORD);
-	}
-        _wordNum++;
-        in >> word;
-    }
-    // add empty window to end of words in document
-    for (size_t i = 0; i < (ahead+2); i++ ) {
+  }
+  // add empty window to end of words in document
+  for (size_t i = 0; i < (ahead+2); i++ ) {
             wordsInDocument.push_back(END_OF_DOCUMENT);
-    }
-    //    cerr << " reached the end of document...It had " << wordsInDocument.size()<< " words.\n";
-
-    // for debugging
-    //    for (vector<int>::iterator i = wordsInDocument.begin(); i != wordsInDocument.end(); ++i ) {
-    //        cerr << *(i) << " ";
-    //    }
-
-    size_t minwords;
-    if (testmode)
-        minwords = 4;
-    else
-        minwords = MIN_WORDS_PER_DOC;
-
-    if (wordsInDocument.size() > minwords)
+  }
+  //    cerr << " reached the end of document...It had " << wordsInDocument.size()<< " words.\n";
+  
+  // for debugging
+  //    for (vector<int>::iterator i = wordsInDocument.begin(); i != wordsInDocument.end(); ++i ) {
+  //        cerr << *(i) << " ";
+  //    }
+  
+  size_t minwords;
+  if (testmode)
+    minwords = 4;
+  else
+    minwords = MIN_WORDS_PER_DOC;
+  
+  if (wordsInDocument.size() > minwords)
     {
-        //        cerr << "Doc of " << wordsInDocument.size() << " words." << endl;
-        return true;
+      //        cerr << "Doc of " << wordsInDocument.size() << " words." << endl;
+      return true;
     }
-    else
-        return false;
+  else
+    return false;
 }
 
 
@@ -460,10 +460,10 @@ void SDDB::setCurrentStep(int step) {
 }
 
 
-void SDDB::setStepSize(Settings settings) {
+void SDDB::setOptions(Settings settings) {
     _stepsize = settings.stepsize;
-    //    _normCase = ;
-    //    _englishContractions = ;
+    _normCase = settings.normCase;;
+    _englishContractions = settings.englishContractions;
 }
 
 pair<string,string> SDDB::createDirectories (const string outputpath, const bool wordsout) {
@@ -541,7 +541,7 @@ void SDDB::printPairs(istream &in,
 
     // Load word pairs
     vector<pairdata> results;
-    LoadPairs(in, results);
+    LoadPairs(in, results,_normCase);
     cerr << "Loaded " << results.size() << " word pairs." << endl;
 
 
@@ -683,7 +683,7 @@ int SDDB::printSDs(istream &in,
     // collect all of the words we'll be printing distances for
     vector<resultdata> results;
     //load words
-    LoadWords(in, wordlistsize, results);
+    LoadWords(in, wordlistsize, results , _normCase);
     cerr << "Loaded " << results.size() << " words." << endl;
 
     vector<resultdata> finalresults;
@@ -958,7 +958,7 @@ int SDDB::printVects(istream &in,
     cerr << "Reading in words of interest" << endl;
     vector<resultdata> results;
     //load words
-    LoadWords(in, wordlistsize, results);
+    LoadWords(in, wordlistsize, results,_normCase);
     cerr << "Read " << results.size() << " lines." << endl;
     vector<resultdata> finalresults;
     //Dictionary *words_of_interest = dictNew(50000);
@@ -1370,195 +1370,6 @@ void SDDB::AggregateVectors(vector<Float*> &vectors, const bool separate, vector
         }
     }
     cerr << "Finished processing all vectors. The GCM is now ready.\nTime is: " << timestamp() << endl;
-}
-
-bool SDDB::acceptable_word_char(char& ch, bool alphaOnly)
-//
-// tells whether a character is an acceptable
-// component of a word or not
-//
-{
-  // spaces separate words
-  if(isspace(ch))
-    return false;
-  else if(!alphaOnly)
-    return true;
-  else
-    return isalpha(ch);
-}
-
-string SDDB::strip_non_alpha(string& word, bool sidesOnly)
-//
-// creates a duplicate of the word, with all or trailing/leading
-// non-alphanumeric characters removed.
-//
-{
-    string stripped = "";
-    size_t wordlength = word.length();
-    //cout << "Stripping word: " << word << endl; 
-    if (sidesOnly) {
-        size_t i, j;
-        // find the starting position...
-        for(i = 0; i < wordlength - 1; i++) {
-            if (isalpha(word[i])) {
-                break; 
-            }
-        }
-        // find the ending position...
-        for (j = wordlength - 1; j > i; j--) {
-            if (isalpha(word[j])) {
-                break; 
-            }
-        }
-        // copy!
-        stripped = word.substr(i,(j-i+1));
-        //cout << "Stripped word: " << stripped << endl; 
-        return stripped;
-    }
-    else {
-        stripped = word;
-        for (size_t i = 0; i < stripped.length(); i++) {
-            if ( !isalpha(stripped[i])) {     
-                stripped.erase(i,1); // remove char
-                i = i - 1;
-            }
-        }
-        //cout << "Stripped word: " << word << endl; 
-        return stripped;
-    }
-}
-
-vector<string> SDDB::iscompound(string& localword){
-  // Decides of a word is a compound.
-  // Currently unused
-    vector<string> output;
-    string::size_type pos;
-
-    pos = localword.find ("-",1);
-    if ((pos != string::npos)) {
-        output.push_back(localword.substr(0, pos));
-        output.push_back(localword.substr(pos, localword.length()));
-        return output;
-    } else {
-        pos = localword.find ("/",1);
-        if ((pos != string::npos)) {
-            output.push_back(localword.substr(0, pos));
-            output.push_back(localword.substr(pos, localword.length()));
-            return output;
-        } 
-    }
-    output.push_back(localword);
-    return output;
-}
-
-
-
-wordpair SDDB::extractWord(string& localword)
-// 
-// Extracts the next word from the input stream. This function has the same
-// functionality as "cin >> word", excepts it additionally makes sure that
-// the word buffer is not over-run! And it separates possessive endings.
-//
-{
-    wordpair output;
-    output.main = "";
-    output.possessive = "";     // this is mainly used for holding "'S" since we can't putback
-
-    size_t localwordlength = localword.length();
-    //uppercase
-    
-    if (_normCase) {
-      for (size_t j=0; j < localwordlength; ++j) {
-	localword[j]=toupper(localword[j]);
-      }
-    }
-    
-    // cout << "localword: " << localword << endl;
-    //check if the special posessive words are there.
-
-    if (_englishContractions) { 
-      if (!((localword == "HE'S") || (localword =="SHE'S") || (localword == "IT'S") || (localword == "HERE'S") || (localword == "THERE'S") || (localword == "WHAT'S"))) {
-        //cout << "Looking for possessive edning for: " << localword << endl;
-        // we have to check if our word ends in "'S" and it is longer than
-        // "'S" alone. If that's the case, we throw back the "'S"
-        string::size_type pos;
-        pos = localword.find (_possessive,0);
-        if ((localwordlength > 2) && (pos != string::npos)) {
-	  output.possessive = _possessive;
-	  localword.erase(pos,2);
-	  //cout << "Found possessive ending for: " << localword << endl;
-        }
-      }
-    }
-    //  cout << "adding word" << localword << endl; 
-    output.main = localword;
-    return output;
-}
-
-
-
-vector<int> SDDB::preprocess(string& word)
-// PREPROCESS:
-// Take a string, and search through it for space-separated
-// strings of letters. Compare them to entries in our dictionary.
-// If the exist, then add them to the output. 
-// add a nonword marker to show that we encountered a nonword.
-//
-{
-    wordpair output;
-    vector<int> words;
-
-    // cout << "working on word: " << word << endl;
-    if ((word.length() < MAX_WORDLEN) || (word.length() > 0)) { 
-        output = extractWord(word);
-    } else {
-        return words;
-    }
-    
-    // If word in Dict
-    if (_dict.find(output.main) != _dict.end()) {
-        //cout << "Found word in dict: " << output.main << endl;
-        words.push_back(_dict[output.main]);
-    } else {
-        // If word is dirty Try stripping non-letters off the sides of the word (like 500Club -> Club)
-        //	cout << word << endl;
-        string cleanWord = strip_non_alpha(output.main, true);
-        // cout << "Tried cleaning into: " << cleanWord << endl;
-        if (cleanWord.empty()) {
-            // we encountered no letters ... skip this
-            // cout << "word was empty after cleaning" << cleanWord << endl;
-            return words; 
-        } else {
-            // try adding clean word to output
-            if (_dict.find(cleanWord) != _dict.end()) {
-                words.push_back(_dict[cleanWord]);
-                // cout << "Found cleaned word in dict: " << cleanWord << endl;
-            } else {
-                // Strip all non letters out.
-                string newWord = strip_non_alpha(output.main, false);
-                // cout << "Tried deep cleaning into: " << newWord << endl;
-                if (newWord.empty()) {
-                    // cout << "word was empty after more cleaning" << newWord << endl;
-                    return words;
-                } else {
-                    if (_dict.find(newWord) != _dict.end()) {
-                        // cout << "Found deepcleaned word in dict: " << newWord << endl;
-                        words.push_back(_dict[newWord]);
-                    } else {
-                        // cout << "Couldn't Find word in dict: " << newWord << endl;
-                        words.push_back(NONWORD_MARKER);
-                    }
-                }
-            }
-        }
-    }
-    if (!output.possessive.empty()) {
-        words.push_back(_dict[output.possessive]);
-    }
-    //    for (vector<int>::iterator i = words.begin(); i != words.end(); ++i) {
-    //        cout << *(i) << endl;
-    //    }
-    return words;
 }
 
 

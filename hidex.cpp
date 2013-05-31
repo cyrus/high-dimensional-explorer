@@ -124,6 +124,8 @@ void create()
          << "Dictionary File Name = " << settings.dictFilename << '\n'
          << "Max Window length Behind = " << settings.maxWindowBehind << '\n'
          << "Max Window length Ahead = " << settings.maxWindowAhead << '\n'
+         << "Case Normalization = " << settings.normCase << '\n'
+         << "English Contraction Normalization = " << settings.englishContractions << '\n'
          << "EOD = " << settings.eod << '\n';
     if(settings.dbpath != "") {
       cerr << "\nSetting Alternate Working Directory Path = " << settings.dbpath << '\n';
@@ -134,6 +136,7 @@ void create()
       }   
     }
     SDDB db(settings.dbname, settings.dbpath);
+    db.setOptions(settings);
     db.initialize(settings.dictFilename, settings.maxWindowBehind, settings.maxWindowAhead, settings.eod);
 }
 
@@ -160,13 +163,13 @@ void update()
     cerr << "stepsize = " << settings.stepsize << '\n'
          << "EOD = " << settings.eod << '\n'
          << "corpus = " << filename << '\n'
-         << "db = " << settings.dbname << '\n';
+         << "db = " << settings.dbname << '\n'
+         << "Case Normalization = " << settings.normCase << '\n'
+         << "English Contraction Normalization = " << settings.englishContractions << '\n';
     SDDB db(settings.dbname, settings.dbpath);
+    db.setOptions(settings);
     db.load(settings.eod, settings.maxMemory);
     db.setCurrentStep(0);
-    db.setStepSize(settings);
-    //    db.setOptions(settings);
-
     
     // reprocess the corpus file in steps until there are no steps left.
     // this is due to the memory limitations in most environments.
@@ -230,6 +233,8 @@ void printSDs()
          << "Use Zscore Thresholds = " << settings.usezscore << '\n'
          << "Percent to sample for Zscore Thresholds = " << settings.percenttosample << '\n'
          << "Separate = " << settings.separate << '\n'
+         << "Case Normalization = " << settings.normCase << '\n'
+         << "English Contraction Normalization = " << settings.englishContractions << '\n'
          << "Word List Size = " << settings.wordlistsize << '\n';
     cerr << buffer.str();
     cerr << "Opening Database...\n";
@@ -275,6 +280,8 @@ void printVectors()
          << "Save GCM = " << settings.saveGCM << '\n'
          << "Neighbourhood Size = " << settings.neighbourhoodSize << '\n'
          << "separate = " << settings.separate << '\n'
+         << "Case Normalization = " << settings.normCase << '\n'
+         << "English Contraction Normalization = " << settings.englishContractions << '\n'
          << "wordlistsize = " << settings.wordlistsize << '\n'
          << "percenttosample = " << settings.percenttosample << '\n';
     cerr << "Opening Database...\n";
