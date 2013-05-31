@@ -239,6 +239,7 @@ void printSDs()
     cerr << buffer.str();
     cerr << "Opening Database...\n";
     SDDB db(settings.dbname, settings.dbpath);
+    db.setOptions(settings);
     db.load(settings.eod, settings.maxMemory);    
     cerr << "Starting to calculate neighborhoods ....\n";
     errorcode = db.printSDs(wordlistfile, settings.contextSize, settings.weightingScheme,
