@@ -58,34 +58,6 @@ using namespace std;
 
 namespace {
   
-  struct Settings
-  {
-    int contextSize;
-    string corpusFilename;
-    string dbname;
-    string dictFilename;
-    string eod;
-    int maxWindowAhead;
-    int maxWindowBehind;
-    int neighbourhoodSize;
-    double percenttosample;
-    bool separate;
-    int stepsize;
-    bool usezscore;
-    int weightingScheme;
-    string metric;
-    bool saveGCM;
-    string normalization;
-    int windowLenAhead;
-    int windowLenBehind;
-    string wordlistfilename;
-    int wordlistsize;
-    string outputpath;
-    string dbpath;
-    string multipleFiles;
-    size_t maxMemory;
-  };
-  
 Settings settings;
 
 void readSettings(const string& configString, string& multi)
@@ -114,6 +86,8 @@ void readSettings(const string& configString, string& multi)
     allowedKeys.push_back("outputpath");
     allowedKeys.push_back("dbpath");
     allowedKeys.push_back("multipleFiles");
+    allowedKeys.push_back("normCase");
+    allowedKeys.push_back("englishContractions");
     ConfigFile cfg(configString, allowedKeys, multi);
     settings.dbname = cfg.get("dbname");
     settings.dictFilename = cfg.get("dictFilename");
@@ -138,6 +112,8 @@ void readSettings(const string& configString, string& multi)
     settings.dbpath = cfg.get("dbpath", "");
     settings.wordlistsize = cfg.getPositiveInt("wordlistsize", 300000000);
     settings.multipleFiles = cfg.get("multipleFiles", "");
+    settings.normCase = cfg.getBool("normCase", true);
+    settings.englishContractions = cfg.getBool("englishContractions", true);
 }
 
 
@@ -188,7 +164,9 @@ void update()
     SDDB db(settings.dbname, settings.dbpath);
     db.load(settings.eod, settings.maxMemory);
     db.setCurrentStep(0);
-    db.setStepSize(settings.stepsize);
+    db.setStepSize(settings);
+    //    db.setOptions(settings);
+
     
     // reprocess the corpus file in steps until there are no steps left.
     // this is due to the memory limitations in most environments.

@@ -460,8 +460,10 @@ void SDDB::setCurrentStep(int step) {
 }
 
 
-void SDDB::setStepSize(int stepsize) {
-    _stepsize = stepsize;
+void SDDB::setStepSize(Settings settings) {
+    _stepsize = settings.stepsize;
+    //    _normCase = ;
+    //    _englishContractions = ;
 }
 
 pair<string,string> SDDB::createDirectories (const string outputpath, const bool wordsout) {
@@ -1465,23 +1467,28 @@ wordpair SDDB::extractWord(string& localword)
     size_t localwordlength = localword.length();
     //uppercase
     
-    for (size_t j=0; j < localwordlength; ++j) {
-      localword[j]=toupper(localword[j]);   
+    if (_normCase) {
+      for (size_t j=0; j < localwordlength; ++j) {
+	localword[j]=toupper(localword[j]);
+      }
     }
     
     // cout << "localword: " << localword << endl;
     //check if the special posessive words are there.
-    if (!((localword == "HE'S") || (localword =="SHE'S") || (localword == "IT'S") || (localword == "HERE'S") || (localword == "THERE'S") || (localword == "WHAT'S"))) {
+
+    if (_englishContractions) { 
+      if (!((localword == "HE'S") || (localword =="SHE'S") || (localword == "IT'S") || (localword == "HERE'S") || (localword == "THERE'S") || (localword == "WHAT'S"))) {
         //cout << "Looking for possessive edning for: " << localword << endl;
         // we have to check if our word ends in "'S" and it is longer than
         // "'S" alone. If that's the case, we throw back the "'S"
         string::size_type pos;
         pos = localword.find (_possessive,0);
         if ((localwordlength > 2) && (pos != string::npos)) {
-            output.possessive = _possessive;
-            localword.erase(pos,2);
-            //cout << "Found possessive ending for: " << localword << endl;
+	  output.possessive = _possessive;
+	  localword.erase(pos,2);
+	  //cout << "Found possessive ending for: " << localword << endl;
         }
+      }
     }
     //  cout << "adding word" << localword << endl; 
     output.main = localword;

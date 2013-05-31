@@ -70,6 +70,38 @@ This file is part of HiDEx.
 #define MAX_WORDLEN                        30
 #define NONWORD_MARKER                    -1
 
+
+struct Settings
+{
+  int contextSize;
+  string corpusFilename;
+  string dbname;
+  string dictFilename;
+  string eod;
+  int maxWindowAhead;
+  int maxWindowBehind;
+  int neighbourhoodSize;
+  double percenttosample;
+  bool separate;
+  int stepsize;
+  bool usezscore;
+  int weightingScheme;
+  string metric;
+  bool saveGCM;
+  string normalization;
+  int windowLenAhead;
+  int windowLenBehind;
+  string wordlistfilename;
+  int wordlistsize;
+  string outputpath;
+  string dbpath;
+  string multipleFiles;
+  size_t maxMemory;
+  bool normCase;
+  bool englishContractions;
+};
+
+
 //typedef float Float;
 typedef float Float;
 
@@ -274,7 +306,7 @@ public:
   // Set the maximum vector num we are collecting co-occurance
   // counts for, where max = currentStep + stepsize - 1
   //
-  void setStepSize(const int stepsize);
+  void setStepSize(const Settings settings);
 
 
   // sets the end of document marker
@@ -416,6 +448,12 @@ public:
 
   //possessive
   string _possessive;
+
+  //norm case?
+  bool _normCase;
+
+  //possessive
+  bool _englishContractions;
 
   //private functions for preprocessing
   bool acceptable_word_char(char& ch, bool alphaOnly);
