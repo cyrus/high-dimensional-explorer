@@ -368,7 +368,7 @@ public:
   void AggregateVectors(vector<Float*> &vectors, const bool separate, vector<int>& context, const int behind, const int ahead, const vector<int> weightScheme, const string normalization);
   
   // Reads in a new document from the corpus file.
-  bool ConvertADocument(istream& in, vector<int>& wordsInDocument, const size_t behind, const size_t ahead, const int testmode);
+  bool ConvertADocument(istream& in, vector<int>& wordsInDocument, const size_t behind, const size_t ahead, const int testmode, string lang);
   
   //get a set of N documents from the corpus
   void GetDocuments(istream &in, const int number, vector<string> &documents);

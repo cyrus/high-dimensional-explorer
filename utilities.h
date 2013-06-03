@@ -94,9 +94,9 @@ bool acceptable_word_char(char ch, bool alphaOnly);
 
 string strip_non_alpha(string word, bool sidesOnly);
 
-wordpair ExtractWord(string localword, const bool normCase, const bool englishContractions);
+wordpair ExtractWord(string localword, const bool normCase, const bool englishContractions, string lang);
 
-Numpair CleanWord(string word, Dictionary& D, const bool normCase, const bool englishContractions);
+Numpair CleanWord(string word, Dictionary& D, const bool normCase, const bool englishContractions, string lang);
 
 void readMetaData(string dbBase, int& numVectors, int& vectorLen, int& windowLenBehind, int& windowLenAhead, long& corpussize);
 
@@ -105,6 +105,8 @@ void writeMetaData(string dbBase, int numVectors, int vectorLen, int windowLenBe
 
 bool GCMexists(const string& dbname);
 
-string downstring(string localword);
+string downstring(string localword, string lang);
+
+string getLang();
 
 #endif // utilities_H

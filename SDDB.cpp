@@ -185,7 +185,7 @@ void SDDB::GetDocuments(istream &in, const int number, vector<string> &documents
 
 // Reads in a new document from the corpus file. Returns false if document is too small.
 bool SDDB::ConvertADocument(istream& in, vector<int>& wordsInDocument, const size_t behind,
-                            const  size_t ahead, const int testmode) 
+                            const  size_t ahead, const int testmode, string lang) 
 {
   vector<int> processedwords;
   vector<string> compoundword;
@@ -201,7 +201,7 @@ bool SDDB::ConvertADocument(istream& in, vector<int>& wordsInDocument, const siz
   in >> word;
   while ((word != _eod) && (in.good())) {    
     // Clean up the word, including splitting possessives.
-    ids = CleanWord(word,_dict,_normCase,_englishContractions);
+    ids = CleanWord(word,_dict,_normCase,_englishContractions, lang);
     if (ids.first) {
       wordsInDocument.push_back(ids.first);
       if (ids.second) {
@@ -337,6 +337,7 @@ void SDDB::update(istream& in, const int testmode) {
     int x = 0;
     _possessive = "'S";
     size_t loopCount = 0;
+    string lang = getLang();
 
     while(in.good()) {
 	loopCount++;
@@ -364,7 +365,7 @@ void SDDB::update(istream& in, const int testmode) {
 	  //	  cerr << ".";
 	  cerr.flush();
         }
-        validDocument = ConvertADocument(in, wordsInDocument, behind, ahead, testmode);
+        validDocument = ConvertADocument(in, wordsInDocument, behind, ahead, testmode, lang);
         if (validDocument) {
             documentCount++;
             makeWindow(window, wordsInDocument);

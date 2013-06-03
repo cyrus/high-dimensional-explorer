@@ -112,30 +112,32 @@ copy_file(const char *source, const char *dest) {
 void 
 // Loads pairs of words to find distances for.
 LoadPairs(istream& in, vector<pairdata> &results, const bool normCase) {
-    pairdata temp;
-    cerr << "Reading in pairs from wordlist" << endl;
-    while (!in.eof()){
-        if (in.fail()) {
-            throw Exception("Error Reading Input File.. Make sure it is in the correct format. Exiting\n");
-        }
-        string tempstring1 = "";
-        string tempstring2 = "";
-        in >> tempstring1 >> tempstring2;
-        if (tempstring1 == "---END.OF.DOCUMENT---")
-            break;
-        if ((tempstring1.length() > MAX_WORDLEN) || (tempstring2.length() > MAX_WORDLEN))   {
-            throw Exception("A Word was too long. Exiting\n");
-        }
-	if (normCase) {
-	  temp.word1 = downstring(tempstring1);
-	  temp.word2 = downstring(tempstring2);
-	} else {
-	  temp.word1 = tempstring1;
-	  temp.word2 = tempstring2;
-	}
-        temp.distance = 0.0;
-        results.push_back(temp);
+  pairdata temp;
+  cerr << "Reading in pairs from wordlist" << endl;
+  
+  string lang = getLang();
+  while (!in.eof()){
+    if (in.fail()) {
+      throw Exception("Error Reading Input File.. Make sure it is in the correct format. Exiting\n");
     }
+    string tempstring1 = "";
+    string tempstring2 = "";
+    in >> tempstring1 >> tempstring2;
+    if (tempstring1 == "---END.OF.DOCUMENT---")
+      break;
+    if ((tempstring1.length() > MAX_WORDLEN) || (tempstring2.length() > MAX_WORDLEN))   {
+      throw Exception("A Word was too long. Exiting\n");
+    }
+    if (normCase) {
+      temp.word1 = downstring(tempstring1,lang);
+      temp.word2 = downstring(tempstring2,lang);
+    } else {
+      temp.word1 = tempstring1;
+      temp.word2 = tempstring2;
+    }
+    temp.distance = 0.0;
+    results.push_back(temp);
+  }
 }
 
 void
@@ -149,6 +151,7 @@ LoadWords(istream& in, const int wordlistsize, vector<resultdata> &results, cons
   vector<resultdata> wordlist;
   //  bool done_reading_file = false;
   //    cerr << "Reading in words from wordlist" << endl;
+  string lang = getLang();
   while (!in.eof()){
     if (in.fail()) {
       throw Exception("Error Reading Input File.. Make sure it is in the correct format. Exiting\n");
@@ -164,7 +167,7 @@ LoadWords(istream& in, const int wordlistsize, vector<resultdata> &results, cons
     temp.ARC = 10000000;
     temp.InverseNcount = 0.0;
     if (normCase) {
-      temp.word = downstring(tempstring);
+      temp.word = downstring(tempstring,lang);
     } else {
       temp.word = tempstring;
     }
@@ -331,6 +334,8 @@ build_starting_dict(Dictionary& D, string filename, FrequencyMap& frequencies, c
   ifstream inStream(filename.c_str());
   string word;
   bool notEOF;
+  string lang = getLang();
+
   cerr << "normCase = " << normCase << endl;
   if (inStream.good()) {
     notEOF = getWord(inStream, word);
@@ -341,7 +346,7 @@ build_starting_dict(Dictionary& D, string filename, FrequencyMap& frequencies, c
       }
       else {
 	if (normCase) { 
-	  word = downstring(word);
+	  word = downstring(word,lang);
 	} 
 	D[word] = i;
 	frequencies[i] = 0; 
@@ -939,7 +944,7 @@ wordpair
 // functionality as "cin >> word", excepts it additionally makes sure that
 // the word buffer is not over-run! And it separates possessive endings.
 //
-ExtractWord(string localword, const bool normCase, const bool englishContractions)
+ExtractWord(string localword, const bool normCase, const bool englishContractions, string lang)
 {
     wordpair output;
     output.main = "";
@@ -948,13 +953,13 @@ ExtractWord(string localword, const bool normCase, const bool englishContraction
     //uppercase
     
     if (normCase) {
-      localword = downstring(localword);
+      localword = downstring(localword,lang);
     }
     
     //check if the special posessive words are there.
     //    if (!((localword == "HE'S") || (localword =="SHE'S") || (localword == "IT'S"))) 
     if (englishContractions) {
-      if (!((localword == "HE'S") || (localword =="SHE'S") || (localword == "IT'S") || (localword == "HERE'S") || (localword == "THERE'S") || (localword == "WHAT'S"))) 
+      if (!((localword == "he's") || (localword =="she's") || (localword == "it's") || (localword == "here's") || (localword == "thers's") || (localword == "what's"))) 
 	{
 	  //cout << "Looking for possessive edning for: " << localword << endl;
 	  // we have to check if our word ends in "'S" and it is longer than
@@ -974,7 +979,7 @@ ExtractWord(string localword, const bool normCase, const bool englishContraction
 }
 
 Numpair
-CleanWord(string word, Dictionary& dict,const bool normCase, const bool englishContractions)
+CleanWord(string word, Dictionary& dict,const bool normCase, const bool englishContractions, string lang)
 {
   wordpair extractedWords;
   Numpair cleanedPair;
@@ -982,7 +987,7 @@ CleanWord(string word, Dictionary& dict,const bool normCase, const bool englishC
   cleanedPair.second = 0;
 
   if (word.length() < MAX_WORDLEN) { 
-    extractedWords = ExtractWord(word,normCase,englishContractions);
+    extractedWords = ExtractWord(word,normCase,englishContractions,lang);
     if (extractedWords.possessive != "") {
       cleanedPair.second= dict[extractedWords.possessive];
     }
@@ -1079,7 +1084,19 @@ void writeMetaData(string dbBase, int numVectors, int vectorLen, int windowLenBe
     out.close();
 }
 
-string downstring(string localword) {
+string getLang() {
+  char* langVar;
+  langVar = getenv("LANG");
+  if (langVar!=NULL) {
+    string output(langVar,2);
+    cerr << "Language is set to: " << output << endl; 
+    return(output);
+  } else {
+    return("en");
+  }
+}
+
+string downstring(string localword, string lang) {
   // old Way to do it, not unicode aware.....
   //
   //  for (unsigned int j=0; j < localword.length(); ++j)    {
@@ -1099,7 +1116,7 @@ string downstring(string localword) {
   // create output length location
   size_t outLength = 200;
   // make lowercase, normalize and put output in the output buffer, length in the outLength variable
-  if (!(u8_tolower(word, length, NULL, UNINORM_NFKD, output, &outLength))) {
+  if (!(u8_tolower(word, length, lang.c_str(), UNINORM_NFKD, output, &outLength))) {
       throw Exception("Word was too long!!! (in downstring)");
     }
   // return a c++ string, using begining and end pointers to the c-style string!
