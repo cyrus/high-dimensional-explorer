@@ -49,6 +49,14 @@ This file is part of HiDEx.
 #include "utilities.h"
 #include "string.h"
 
+#include <unistd.h>
+#include <unistr.h>
+#include <uninorm.h>
+#include <unitypes.h>
+#include <unictype.h>
+#include <unistdio.h>
+#include <unicase.h>
+
 bool
 // 
 // Extracts the next word from the input stream. This function has the same
@@ -119,8 +127,8 @@ LoadPairs(istream& in, vector<pairdata> &results, const bool normCase) {
             throw Exception("A Word was too long. Exiting\n");
         }
 	if (normCase) {
-	  temp.word1 = upstring(tempstring1);
-	  temp.word2 = upstring(tempstring2);
+	  temp.word1 = downstring(tempstring1);
+	  temp.word2 = downstring(tempstring2);
 	} else {
 	  temp.word1 = tempstring1;
 	  temp.word2 = tempstring2;
@@ -156,7 +164,7 @@ LoadWords(istream& in, const int wordlistsize, vector<resultdata> &results, cons
     temp.ARC = 10000000;
     temp.InverseNcount = 0.0;
     if (normCase) {
-      temp.word = upstring(tempstring);
+      temp.word = downstring(tempstring);
     } else {
       temp.word = tempstring;
     }
@@ -333,7 +341,7 @@ build_starting_dict(Dictionary& D, string filename, FrequencyMap& frequencies, c
       }
       else {
 	if (normCase) { 
-	  word = upstring(word);
+	  word = downstring(word);
 	} 
 	D[word] = i;
 	frequencies[i] = 0; 
@@ -940,7 +948,7 @@ ExtractWord(string localword, const bool normCase, const bool englishContraction
     //uppercase
     
     if (normCase) {
-      localword = upstring(localword);
+      localword = downstring(localword);
     }
     
     //check if the special posessive words are there.
@@ -1071,9 +1079,29 @@ void writeMetaData(string dbBase, int numVectors, int vectorLen, int windowLenBe
     out.close();
 }
 
-string upstring(string localword) {
-  for (unsigned int j=0; j < localword.length(); ++j)    {
-    localword[j]=toupper(localword[j]);   
-  }
-  return(localword);
+string downstring(string localword) {
+  // old Way to do it, not unicode aware.....
+  //
+  //  for (unsigned int j=0; j < localword.length(); ++j)    {
+  //    localword[j]=toupper(localword[j]);   
+  //  }
+  //  const uint8_t * word = static_cast<const uint8_t*>(localword.c_str());
+
+
+  // New way to do it using libunicode
+  //
+  //Get string length
+  size_t length = localword.size();
+  // create correct type for c-style unicode string
+  const uint8_t * word = (const uint8_t*)localword.c_str();
+  // create output buffer
+  uint8_t output[200];
+  // create output length location
+  size_t outLength = 200;
+  // make lowercase, normalize and put output in the output buffer, length in the outLength variable
+  if (!(u8_tolower(word, length, NULL, UNINORM_NFKD, output, &outLength))) {
+      throw Exception("Word was too long!!! (in downstring)");
+    }
+  // return a c++ string, using begining and end pointers to the c-style string!
+  return(string((const char *)output,(const char *)output+outLength));
 }

@@ -105,6 +105,6 @@ void writeMetaData(string dbBase, int numVectors, int vectorLen, int windowLenBe
 
 bool GCMexists(const string& dbname);
 
-string upstring(string localword);
+string downstring(string localword);
 
 #endif // utilities_H

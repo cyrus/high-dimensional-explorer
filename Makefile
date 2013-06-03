@@ -67,6 +67,7 @@ CC = g++
 #FLAGS = -Wall -g -O0 -Wextra -fopenmp
 # Debug only 
 FLAGS = -g -O3 -fopenmp -ffast-math -funroll-all-loops -fpeel-loops -ftracer -D NDEBUG
+LIBS =  -lunistring 
 endif
 
 #AIX specific compiler flags. Configured for OpenMP support.
