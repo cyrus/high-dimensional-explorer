@@ -332,29 +332,26 @@ void
 build_starting_dict(Dictionary& D, string filename, FrequencyMap& frequencies, const bool normCase)
 {
   ifstream inStream(filename.c_str());
-  string word;
-  bool notEOF;
+  string word = "";
   string lang = getLang();
-
+  int i = MIN_WORD_VAL;
   cerr << "normCase = " << normCase << endl;
-  if (inStream.good()) {
-    notEOF = getWord(inStream, word);
-    for(int i = MIN_WORD_VAL; notEOF; i++) {
-      if(D.find(word) != D.end()) {
-	cerr << "Word, " << word << ", exists in dictionary already" << endl;
-	i--;
-      }
-      else {
-	if (normCase) { 
-	  word = downstring(word,lang);
-	} 
-	D[word] = i;
-	frequencies[i] = 0; 
-      }
-      notEOF = getWord(inStream, word);
-    }
-  } else {
+  if (!inStream.good()) {
     throw Exception("Dictionary file could not be opened");
+  } else {
+    do {
+      inStream >> word;
+      if (normCase) { 
+	word = downstring(word,lang);
+      } 
+      if(D.find(word) != D.end()) {
+	cerr << "Word, " << word << ", exists in dictionary already... Skipping it." << endl;
+	continue;
+      }
+      D[word] = i;
+      frequencies[i] = 0; 
+      i++;
+    } while (inStream);
   }
 }
 
@@ -946,36 +943,37 @@ wordpair
 //
 ExtractWord(string localword, const bool normCase, const bool englishContractions, string lang)
 {
-    wordpair output;
-    output.main = "";
-    output.possessive = ""; 
-    // this is mainly used for holding "'S" since we can't putback
-    //uppercase
-    
-    if (normCase) {
-      localword = downstring(localword,lang);
-    }
-    
-    //check if the special posessive words are there.
-    //    if (!((localword == "HE'S") || (localword =="SHE'S") || (localword == "IT'S"))) 
-    if (englishContractions) {
-      if (!((localword == "he's") || (localword =="she's") || (localword == "it's") || (localword == "here's") || (localword == "thers's") || (localword == "what's"))) 
-	{
-	  //cout << "Looking for possessive edning for: " << localword << endl;
-	  // we have to check if our word ends in "'S" and it is longer than
-	  // "'S" alone. If that's the case, we throw back the "'S"
-	  string::size_type pos;
-	  pos = localword.find (POSSESSIVESUFFIX,0);
-	  if ((localword.length() > 2) && (pos != string::npos)) {
-            output.possessive = POSSESSIVESUFFIX;
-            localword.erase(pos,2);
-            //cout << "Found possessive ending for: " << localword << endl;
-	  }
+  wordpair output;
+  output.main = "";
+  output.possessive = ""; 
+  // this is mainly used for holding "'S" since we can't put strings back
+
+  // Normalize the case.
+  if (normCase) {
+    localword = downstring(localword,lang);
+  }
+  
+  //check if the special posessive words are there.
+
+  //NOTE: english Contractions currently only works when normCase is TRUE.
+  if (englishContractions) {
+    if (!((localword == "he's") || (localword =="she's") || (localword == "it's") || (localword == "here's") || (localword == "there's") || (localword == "what's") || (localword == "let's") || (localword == "that's") || (localword == "where's") || (localword == "who's"))) 
+      {
+	//cout << "Looking for possessive edning for: " << localword << endl;
+	// we have to check if our word ends in "'S" and it is longer than
+	// "'S" alone. If that's the case, we throw back the "'S"
+	string::size_type pos;
+	pos = localword.find(POSSESSIVESUFFIX,0);
+	if ((localword.length() > 2) && (pos != string::npos)) {
+	  output.possessive = POSSESSIVESUFFIX;
+	  localword.erase(pos,2);
+	  //cout << "Found possessive ending for: " << localword << endl;
 	}
-      //  cout << "adding word" << localword << endl; 
-    }
-    output.main = localword;
-    return output;
+      }
+    //  cout << "adding word" << localword << endl; 
+  }
+  output.main = localword;
+  return output;
 }
 
 Numpair

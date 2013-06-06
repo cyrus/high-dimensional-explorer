@@ -25,7 +25,7 @@ This file is part of HiDEx.
 
 #include "SDDB.h"
 
-#define POSSESSIVESUFFIX       "'S"
+#define POSSESSIVESUFFIX       "'s"
 #define MAX_WORDLEN                      30
 
 struct word_distance_pair

@@ -358,9 +358,8 @@ void SDDB::update(istream& in, const int testmode) {
         //                cerr << "found empty doc " << endl;
         //                continue;
         //            }
-
         // Progress Meter
-        if(((x+1) % 1000) == 0) {
+        if(((x+1) % 10000) == 0) {
 	  cerr << "Reading Doc number: " << loopCount << " " << timestamp() << endl;
 	  //	  cerr << ".";
 	  cerr.flush();
