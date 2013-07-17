@@ -148,8 +148,8 @@ void update()
     cerr << "Entering update processing....\n";
     if (settings.corpusFilename == "")
         throw Exception("  No Corpus file specified in config file");
-    if (settings.stepsize < 1)
-        throw Exception("  A minimum stepsize of 1 is needed");
+    if (settings.stepsize < 1000)
+        throw Exception("  A minimum stepsize of 1000 is needed");
     if (settings.dbpath != "") {
       if (!dir_exists(settings.dbpath)) {
         ostringstream buffer;

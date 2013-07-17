@@ -1111,12 +1111,21 @@ string downstring(string localword, string lang) {
   const uint8_t * word = (const uint8_t*)localword.c_str();
   // create output buffer
   uint8_t output[200];
+  uint8_t * errCode;
+  uint8_t val;
+  errCode = &val;
   // create output length location
   size_t outLength = 200;
   // make lowercase, normalize and put output in the output buffer, length in the outLength variable
-  if (!(u8_tolower(word, length, lang.c_str(), UNINORM_NFKD, output, &outLength))) {
-      throw Exception("Word was too long!!! (in downstring)");
-    }
+  if (u8_check(word, length)) {
+    cerr << "Problem processing the word: "<< word << endl;
+    throw Exception("This is an invalid UTF8 in string. Please make sure that you are using UTF8 encoding in all input files. Exiting.");
+  }
+  if (!u8_tolower(word, length, lang.c_str(), UNINORM_NFKD, output, &outLength))  {
+    cerr << word << endl;
+    throw Exception("Error during case conversion (in downstring) ");
+    //    return(" ");
+  }
   // return a c++ string, using begining and end pointers to the c-style string!
   return(string((const char *)output,(const char *)output+outLength));
 }

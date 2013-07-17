@@ -359,8 +359,8 @@ void SDDB::update(istream& in, const int testmode) {
         //                continue;
         //            }
         // Progress Meter
-        if(((x+1) % 10000) == 0) {
-	  cerr << "Reading Doc number: " << loopCount << " " << timestamp() << endl;
+        if(((x+1) % 100000) == 0) {
+	  cerr << "Reading doc number: " << loopCount << " "  << timestamp() << endl;
 	  //	  cerr << ".";
 	  cerr.flush();
         }
