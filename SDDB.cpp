@@ -1,5 +1,6 @@
 /* 
-Copyright (C) 2004,2005,2006,2007,2008,2009  Cyrus Shaoul and Geoff Hollis 
+
+Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013  Cyrus Shaoul and Geoff Hollis 
 
 This file is part of HiDEx.
 

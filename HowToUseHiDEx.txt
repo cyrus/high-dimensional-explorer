@@ -1,4 +1,4 @@
-Copyright (C) 2008-2010  Cyrus Shaoul 
+Copyright (C) 2008-2013  Cyrus Shaoul 
 
 Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.3
@@ -13,9 +13,9 @@ Free Documentation License" at the end of this file.
 			  How To Use HiDEx
 ****************************************************************************
 
-by Cyrus Shaoul		                            cyrus.shaoul@ualberta.ca
-Document Version 0.05 for HiDEx v. 0.03
-Updated on May 25th, 2010
+by Cyrus Shaoul		                       cyrus.shaoul@uni-tuebingen.de
+Document Version 0.06 for HiDEx v. 0.06
+Updated on July 27th, 2013
 
 Preface: 
 	 This document is split into two parts: Part 1 is the Quick Start
