@@ -33,13 +33,12 @@ Part 1: Quick Start Guide.
 
 1A) Download the latest version of HiDEx from the HiDEx web site:
 
-    http://www.psych.ualberta.ca/~westburylab/projects/HDMoLS.html
+Install GIT and then type this command:
+
+>  git clone https://github.com/cyrus/high-dimensional-explorer.git
 
 NOTE: Make sure that you are on a supported platform and that you have all the
    required software packages.
-
-1B) Unpack the archive. The archive will create a directory called "hidex" with
-all the source code in it.
 
 1C) Compile the software using 
 
@@ -88,6 +87,7 @@ start by reading the following papers listed in the Bibliography:
 Shaoul and Westbury, 2010
 Shaoul and Westbury, 2006
 Bullinaria and Levy, 2008
+Bullinaria and Levy, 2012
 
 HiDEx enables you to define the parameters of a general word-space
 model and then process a corpus of text to create word vectors. It
@@ -179,6 +179,10 @@ English, not legal gobbledygook.
 Step 1: Move the TGZ file that you just downloaded to the correct directory. 
 (I recommend the ~/src directory).
 
+Or get the latest version from the GIT repo:
+
+>  git clone https://github.com/cyrus/high-dimensional-explorer.git
+
 Step 2: Start up a terminal application (Mac OS X: Terminal, Linux:
 xterm). Change to the correct directory:
 
@@ -196,26 +200,26 @@ Step 4: Change directory to the newly created directory:
 Step 5: Compile the program  (Make sure that your system has all the required
 software listed in section 2B first, in particular, the new compiler).
 
-	 	make hidex
+ 	make hidex
 
 Step 6: Create a directory for the binary if you do not already have one. (I
 recommend ~/bin)
 
-		mkdir ~/bin
+	mkdir ~/bin
 
 Step 7: Using a text editor, edit the file called "Makefile" 
 to have the correct value for
 BINDIR (in this case, ~/bin). Then install the program using the
 following command:
 
-	     make install
+     make install
 
 Step 8: Add the BINDIR to the PATH environment variable of your shell,
 if it is not already included. Reload your PATH or start a new
 terminal process.  If you don't much about the shell, and the PATH
 environment variable, please read the following web page:
     
-	http://en.wikipedia.org/wiki/Environment_variable
+     http://en.wikipedia.org/wiki/Environment_variable
 
 That is it! Take a break! Stretch out your tired finger muscles!
 
@@ -223,7 +227,7 @@ WARNING: This is the first public release of HiDEx, so there may still be some
 bugs in the above process. If you get any error messages when doing the above
 steps, please post your questions to Cyrus Shaoul using his web site:
 
-       http://www.ualberta.ca/~cshaoul/
+       http://www.sfs.uni-tuebingen.de/~cshaoul/
 
 
 ****************************************************************************
@@ -270,6 +274,13 @@ tags).
 
 If possible, remove any redundant, non-content text (such as "Courtesy
 of the XYZ News Wire Service") if it is in all the documents.
+
+NEW in version 0.06:
+
+For Unicode support to work, all your corpora and word lists must be
+encoded as UTF-8 in unix-type text files. Legacy encodings are not
+supported. There are many tools for converting files to UTF-8, and I
+have used iconv with some success.
 
 Step 3: If you corpus is contained in many separate files, concatenate them
 into one large file. For example the command:
@@ -319,7 +330,7 @@ are set inside a text file called the configfile. A sample configfile is
 provided with the software. Before doing any work, I recommend copying the
 sample configfile to your work directory:
 
-       cp ~/src/hidex/config.txt ~/work
+       cp ~/src/hidex/sample.config.txt ~/work/config.txt
 
 If no configfile is specified on the command line, a file in the current directory called
 config.txt is used. You can specify an alternate name and location of the
@@ -477,8 +488,8 @@ metrics, please see the references listed in the Bibliography.
 normalization: Choose your method for vector normalization
 here. Default is co-occurrence divided by target word frequency. Other
 possibilities are PPMI (Positive Pointwise Mutual Information) and
-Correlation.  For more information on these normalization methods, please see the
-references listed in the Bibliography.
+Correlation.  For more information on these normalization methods,
+please see the references listed in the Bibliography.
 
 weightingScheme: Code number to choose a weighting scheme. The names are
 fairly self explanatory! The original HAL model used #1, Ramped Linear
@@ -499,11 +510,11 @@ contextSize: The number of dimensions to use in the co-occurrence
 vector. If contextSize is set to N, only the N most frequent word's
 vectors are included in the final GCM.
 
-windowLenBehind: Size of the window behind the target word. Can be any number from
-1 to MaxWindowLenBehind. 
+windowLenBehind: Size of the window behind the target word. Can be any
+number from 1 to MaxWindowLenBehind.
 
-windowLenAhead: Size of the window behind the target word. Can be any number from
-1 to MaxWindowLenAhead. 
+windowLenAhead: Size of the window behind the target word. Can be any
+number from 1 to MaxWindowLenAhead.
 
 useThreshold: Setting to turn on z-score based neighborhood membership
 thresholds (words more that 1 standard deviation similar than the average
@@ -529,11 +540,32 @@ this number is larger than the number of words in the wordlistfile, or
 if the setting is left blank, HiDEx will use all the words in the file
 set by wordlistfilename. 
 
-saveGCM: If this is set to "1", HiDEx will create a large text file called "dbname.gcm"
-in the working directory. This file will be automatically detected the next time a
-GCM is required, and loaded. Depending on the speed of your computer, this may be faster
-or slower than building the GCM on the fly.
+saveGCM: If this is set to "1", HiDEx will create a large text file
+called "dbname.gcm" in the working directory. This file will be
+automatically detected the next time a GCM is required, and
+loaded. Depending on the speed of your computer, this may be faster or
+slower than building the GCM on the fly.
 
+NEW OPTIONS in vesion 0.06:
+---------------------------
+
+With the addition of Unicode support, there are two new options
+
+normCase: Apply case normalization globally. This option will take any
+Unicode character than can have a lower-case glyph, and replace it
+with that glyph. The default mode is 1 (true). To stop case
+normalization, set this to 0 (false). There is one more important
+factor to correct case normalization: your shell's environment variable settings for the LANG variable. HiDEx will check this setting and appy the correct
+normalization only if this is set to the correct language. For
+example, if you are processing German, your LANG setting should be set
+to de_DE.UTF-8
+
+englishContractions: In English, the string "'s" is a contraction
+that can make it difficult for the model to recognize words that
+are possessives.  This defaults to 1 (true), which means that words
+like "ball's" will be split into two words, "ball" and "'s" and
+"can't" will become "can" and "'nt".  
+englishContractions=1
 
 ****************************************************************************
 2I) How do I improve the performance of HiDEx?
@@ -574,7 +606,7 @@ the greater the computation required. I recommend using context sizes of
 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Thanks for reading the manual. If you any comments about it, please send them
-to Cyrus.Shaoul@ualberta.ca
+to cyrus.shaoul@uni-tuebingen.de
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
@@ -589,6 +621,8 @@ space: Neighborhood effects in word recognition. Psychonomic Bulletin & Review,
 Bullinaria, J., & Levy, J. (2007). Extracting semantic representations from word 
 co-occurrence statistics: A computational study. Behavior Research Methods, 
 39, 510-526.
+
+Bullinaria, J.A. & Levy, J.P. (2012). Extracting Semantic Representations from Word Co-occurrence Statistics: Stop-lists, Stemming and SVD. Behavior Research Methods, 44, 890-907. 
 
 Lund, K., & Burgess, C. (1996). Producing high-dimensional semantic spaces 
 from lexical co-occurrence. Behavior Research Methods, Instrumentation, 

@@ -105,3 +105,21 @@ wordlistfilename=words.txt
 ## to use. If this number is larger than the number of words in the
 ## wordlistfile, HiDEx will use all the words in the file.
 wordlistsize=1000
+
+## normCase: Apply case normalization globally. This option will take
+## any Unicode character than can have a lower-case glyph, and replace
+## it with that glyph. The default mode is 1 (true). To stop case
+## normalization, set this to 0 (false). There is one more important
+## factor to correct case normalization: your shell's environment
+## variable settings for the LANG variable. HiDEx will check this
+## setting and appy the correct normalization only if this is set to
+## the correct language. For example, if you are processing German,
+## your LANG setting should be set to de_DE.UTF-8
+normCase=1
+
+## englishContractions: In English, the string "'s" is a contraction
+## that can make it difficult for the model to recognize words that
+## are possessives.  This defaults to 1 (true), which means that words
+## like "ball's" will be split into two words, "ball" and "'s" and
+## "can't" will become "can" and "'nt".  
+englishContractions=1
