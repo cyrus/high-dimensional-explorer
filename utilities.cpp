@@ -1055,7 +1055,7 @@ void readMetaData(string dbBase, int& numVectors, int& vectorLen, int& windowLen
     in.close();
 }
 
-void writeMetaData(string dbBase, int numVectors, int vectorLen, int windowLenBehind, int windowLenAhead, int corpussize) 
+void writeMetaData(string dbBase, int numVectors, int vectorLen, int windowLenBehind, int windowLenAhead, long corpussize) 
 {
     ofstream out;
 

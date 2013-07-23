@@ -167,8 +167,8 @@ void update()
          << "Case Normalization = " << settings.normCase << '\n'
          << "English Contraction Normalization = " << settings.englishContractions << '\n';
     SDDB db(settings.dbname, settings.dbpath);
-    db.setOptions(settings);
     db.load(settings.eod, settings.maxMemory);
+    db.setOptions(settings);
     db.setCurrentStep(0);
     
     // reprocess the corpus file in steps until there are no steps left.
@@ -177,12 +177,14 @@ void update()
     int stepcount = 1;
     while(true)
     {
+	cerr << "Opening corpus file." << endl;
         ifstream in(filename.c_str());
         if (! in.is_open())
             throw Exception("Could not open corpus file: " + filename + " . Exiting.");
         else
             cerr << "Opened corpus file. Processing corpus..." << endl;
         db.update(in,0);
+	cerr << "Closing corpus file." << endl;
         in.close();
         cerr << "Flushing data to disk." << endl;
         db.flush();
@@ -190,8 +192,6 @@ void update()
             break;
         cerr << "Finished step number " << stepcount << "\n";
         stepcount++;
-        in.close();
-	cerr << "Closed corpus file." << endl;
     }
     cerr << "Finished updateing database. Closing database files.\n";
     db.close();

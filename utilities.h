@@ -100,7 +100,7 @@ Numpair CleanWord(string word, Dictionary& D, const bool normCase, const bool en
 
 void readMetaData(string dbBase, int& numVectors, int& vectorLen, int& windowLenBehind, int& windowLenAhead, long& corpussize);
 
-void writeMetaData(string dbBase, int numVectors, int vectorLen, int windowLenBehind, int windowLenAhead, int corpussize);  
+void writeMetaData(string dbBase, int numVectors, int vectorLen, int windowLenBehind, int windowLenAhead, long corpussize);  
 //Float CalcSimilarity(const vector<Float*> &vectors, size_t num_dimensions, int w1, int w2, const string algorithm); 
 
 bool GCMexists(const string& dbname);

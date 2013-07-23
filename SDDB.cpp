@@ -339,29 +339,15 @@ void SDDB::update(istream& in, const int testmode) {
     size_t loopCount = 0;
     string lang = getLang();
 
+    cerr << "Processing data between items " << _currStep   << " and " << _currStep + _stepsize - 1 << endl;
+    _corpussize = 0;
+
     while(in.good()) {
 	loopCount++;
         documents.clear();
-	// Please ignore this stuff.... It didn't work so well......
-	//
-        // get a large number of documents.
-        //        GetDocuments(in,DOC_BATCH_SIZE,documents);
-        //        loopCount = loopCount + DOC_BATCH_SIZE;
-        // Progress Meter
-        //        size_t docBatchSize = documents.size();
-        //        cerr << "Read " << docBatchSize << " documents from disk " << timestamp() << endl;
-        //#pragma omp parallel for
-        //        while (documents[x] != "") {
-        //        for (int x=0; x < static_cast<int>(docBatchSize); x++) {
-        //            string temp = documents[x];
-        //            if (temp.size() < 1) {
-        //                cerr << "found empty doc " << endl;
-        //                continue;
-        //            }
         // Progress Meter
         if(((x+1) % 100000) == 0) {
-	  cerr << "Reading doc number: " << loopCount << " "  << timestamp() << endl;
-	  //	  cerr << ".";
+	  cerr << "Reading doc number: " << loopCount << " " << "Words seen: " << _corpussize << " " << timestamp() << endl ;
 	  cerr.flush();
         }
         validDocument = ConvertADocument(in, wordsInDocument, behind, ahead, testmode, lang);
@@ -372,6 +358,7 @@ void SDDB::update(istream& in, const int testmode) {
                 slideWindow(window, wordsInDocument);
                 //#pragma omp critical
                 addCooccurrences(window, behind);
+		_corpussize++;
             }
         } else {
             badDocumentCount++;
@@ -382,7 +369,7 @@ void SDDB::update(istream& in, const int testmode) {
     //    cerr << endl << " Finished Processing Doc number: " << x << endl;
     
     cerr << "Finished this processing step.\n " ;
-    _corpussize = _wordNum;
+
     
     //for debugging.. show Matrix
     //for (size_t i = 0; i < _dict.size(); i++) {
@@ -434,7 +421,7 @@ void SDDB::close() {
   int vectorLen = _accessor->myVectorLen();
   int windowLenBehind = _accessor->myWindowLenBehind();
   int windowLenAhead = _accessor->myWindowLenAhead();
-  int corpussize = _corpussize;
+  long corpussize = _corpussize;
 
   string dbBase = _dbpath + _dbname + DBINFO_TAG;;
 
