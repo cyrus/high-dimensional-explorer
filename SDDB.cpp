@@ -622,7 +622,7 @@ void SDDB::printPairs(istream &in,
     }
 
     global << outputloc.first << "\t" << context_size << "\t" << weightingScheme << "\t" << windowLenBehind << "\t" <<  windowLenAhead << "\t";
-    global << separate << "\t" << endl;
+    global << separate << "\t" <<  endl;
     global.close();
 
     cerr << "Done writing results.\nBeginning to delete matrix from memory." << endl;
@@ -902,10 +902,15 @@ int SDDB::printSDs(istream &in,
     cerr << endl;
 
     // Write out parameters.
-    global << "OutputDir\tContextSize\tWeightingSheme\tWinBehind\tWinAhead\tSeparate\tPercentToSample\tMetric\tNormalization" << endl;
+    global << "OutputDir\tContextSize\tWeightingSheme\tWinBehind\tWinAhead\tSeparate\tPercentToSample\tMetric\tNormalization\tThreshold" << endl;
     global << outputloc.first << "\t" << context_size << "\t" << weightingScheme << "\t" << windowLenBehind << "\t" <<  windowLenAhead << "\t";
     global << separate << "\t" << percenttosample << "\t";
-    global << metric << "\t" << normalization << endl;
+    global << metric << "\t" << normalization;
+    if (usezscore) {
+      global << threshold << endl;
+    } else {
+      global << end;
+    }
     //    cerr << "Time is: " << timestamp() << endl;
     arcs.close();
     global.close();
@@ -1204,11 +1209,11 @@ Float SDDB::GenerateStandardDev(const Float percenttosample, const vector<Float*
 
   //similarity should be one half stddev below the average
   threshold = (average + (stddev * multiplier));
-  while (threshold >= 1.0) {
-     multiplier = multiplier - 0.25;  
-      cerr << "WARNING: Threshold was too large. Using smaller threshold,  " << multiplier << " STD above the mean." << endl;
-      threshold = (average + (stddev * multiplier));
-    }
+  while (threshold >= 0.75) {
+    multiplier = multiplier - 0.5;  
+    cerr << "WARNING: Threshold was too large. Using smaller threshold,  " << multiplier << " STD above the mean." << endl;
+    threshold = (average + (stddev * multiplier));
+  }
   
 
   //
