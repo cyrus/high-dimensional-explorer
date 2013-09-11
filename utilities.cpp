@@ -1122,7 +1122,7 @@ string downstring(string localword, string lang) {
     cerr << "Problem processing the word: "<< word << endl;
     throw Exception("This is an invalid UTF8 in string. Please make sure that you are using UTF8 encoding in all input files. Exiting.");
   }
-  if (!u8_tolower(word, length, lang.c_str(), UNINORM_NFKD, output, &outLength))  {
+  if (!u8_tolower(word, length, lang.c_str(), UNINORM_NFKC, output, &outLength))  {
     cerr << word << endl;
     throw Exception("Error during case conversion (in downstring) ");
     //    return(" ");
@@ -1130,3 +1130,5 @@ string downstring(string localword, string lang) {
   // return a c++ string, using begining and end pointers to the c-style string!
   return(string((const char *)output,(const char *)output+outLength));
 }
+
+
