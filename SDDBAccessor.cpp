@@ -378,15 +378,12 @@ void SDDBAccessor::flush(const int vectorNum) {
 
   // load up what we've flushed out
   //  cerr << "loading previously flushed data" <<endl;
-
   //  Matrix<int> *m = Matrix<int>::fromFile(filename.str().c_str(), _vectorLen, _windowLenBehind + _windowLenAhead);
-
   // add it to what we've currently got
-
 //  if(m != NULL)
 //    add(vectorNum, m);
-
   // flush everything again
+
   //  cerr << "flush is writing the last version to disk" << endl;
   _vectors[vectorNum]->toFile(filename.str().c_str());
   //  cerr << "Matrix Object Size : " << _vectors[vectorNum]->size() << " for vector " << vectorNum << "\n"; 

@@ -193,8 +193,8 @@ void update()
         cerr << "Finished step number " << stepcount << "\n";
         stepcount++;
     }
-    cerr << "Finished updateing database. Closing database files.\n";
-    db.close();
+    cerr << "Finished updating database. Closing database files.\n";
+    db.close(setttings.useVariance);
 }
 
 

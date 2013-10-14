@@ -54,6 +54,7 @@ This file is part of HiDEx.
 // ****************************************************************************
 #define DBDIR_TAG                      ".data"
 #define DICT_TAG                       ".dict"
+#define VAR_TAG                        ".var"
 #define ACCESSOR_TAG                   ".db"
 #define DBINFO_TAG                     ".dbinfo"
 #define GCM_TAG                        ".gcm"
@@ -294,7 +295,7 @@ public:
   //
   // Close the SDDB
   // 
-  void close();
+  void close(const bool useVariance);
 
   //
   // Set the minimum vector num we are collecting co-occruance
@@ -412,9 +413,15 @@ public:
   /** The dictionary we use to hold word - id key-value mappings */
   Dictionary _dict;
   
-  /** Frequency counts for all of the words */
+  /** Frequency and variance counts for all of the words */
   FrequencyMap _frequency;
-  
+
+  // Variables for calculating variance
+  FrequencyMap _variance;
+  FrequencyMap _mean;
+  FrequencyMap _M2;
+  size_t _elementCount;
+    
   // map from ID back to word.
   idMap _idMap;
   

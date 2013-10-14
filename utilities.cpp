@@ -406,7 +406,7 @@ write_dict_and_freqs(Dictionary& D, string filename, FrequencyMap& frequencies, 
         out.close();
     }
     else {
-        throw Exception("Could not write to the .dict file. Exiting");
+        throw Exception("WRITE_DICT: Could not write the output file. Exiting");
     }
 }
 

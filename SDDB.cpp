@@ -307,7 +307,7 @@ void SDDB::addCooccurrences(vector<int>& window, size_t target) {
                 // we're at the current word ... up its frequency and skip it
                     else {
                         if (i == target){
-                            //                            cerr << "Freq for " << _idMap[window[i]] << " increased by 1" << endl;
+          // cerr << "Freq for " << _idMap[window[i]] << " increased by 1" << endl;
 			  _frequency[window[i]]++;
                         }
                 // otherwise let's update the co-occurance database
@@ -408,7 +408,7 @@ void SDDB::flush() {
 
 
 //called as the close the db and save state to disk
-void SDDB::close() {
+void SDDB::close(useVariance) {
 
   ostringstream dictname;
   dictname << _dbpath << _dbname << DICT_TAG;
@@ -417,6 +417,10 @@ void SDDB::close() {
 
   write_dict_and_freqs(_dict, dictname.str(), _frequency, _eod);
   
+  if (useVariance) {
+    vardictname << _dbpath << _dbname << VAR_TAG;
+    write_dict_and_freqs(_dict, vardictname.str() , _variance, _eod);
+  }
 
   int numVectors = _accessor->myNumVectors();
   int vectorLen = _accessor->myVectorLen();

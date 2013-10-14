@@ -1,7 +1,5 @@
 /* 
 Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013  Cyrus Shaoul and Geoff Hollis 
-
-
 This file is part of HiDEx.
 
     HiDEx is free software: you can redistribute it and/or modify
@@ -213,6 +211,57 @@ Float*computeWeightedCooccurenceVectorSeparate(Matrix<T> *M, const vector<int>& 
   
 }
 
+
+template <class T>
+Float*computeVariance(Matrix<T> *M, 
+		      int realBehind,
+		      int realAhead
+		      )		    
+{
+  //see http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance  
+  //    cerr << "Computing aggregate" << endl;
+  
+  // Sanity check for window ranges.
+  //  bool temp = (ahead <= realAhead);
+  assert(ahead <= realAhead);
+  //  temp = (behind <= realBehind);
+  assert(behind <= realBehind);
+  
+  int windowLen = behind+ahead;
+  int startpoint = realBehind-behind;
+  
+  size_t contextsize = frequentWords.size();
+
+  //    cerr << "converting array"<< endl;
+  int **array = M->toArray();
+  
+  //    cerr << "Make new array of Floats."<< endl;
+  Float *vect = new Float[contextsize];
+  
+  //    cerr << "Start aggregating vectors."<< endl;
+  for(size_t i = 0; i < contextsize; i++) {
+    // branch if using separate forward and backward contexts
+    Float val = 0.0;
+    // collapse all of the columns into a single cell
+    //        cerr << "Check for NULLs."<< endl;
+    if (array[frequentWords[i]] == NULL) {
+      val = 0.0;
+    }
+    else {
+      //            cerr << "Multiply values"<< endl;
+      for (int k = 0; k < windowLen; k++) {
+	//                cerr << " Value : " << i << "," << k << " = " << array[frequentWords[i]][k+startpoint]<< endl;
+	val += static_cast<Float>((array[frequentWords[i]][k+startpoint] * weights[k]));
+      }
+    } 
+    vect[i] = val;
+    //        cerr << "Set aggregated value: " << val << endl;        
+  }
+  //  normalizeWeightedCooccurenceVector(vect, frequentWords.size(), wordfrequency, normalization);
+  //    cerr << "Delete array"<< endl;    
+  delete [] array;
+  return vect;
+}
 
 
 #endif // MatrixUtils_H
