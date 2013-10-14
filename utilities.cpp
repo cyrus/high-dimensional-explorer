@@ -638,15 +638,15 @@ bool GCMexists(const string& dbname) {
 }
 
 
-bool dbReady (const string& dbname) {
-    string dictfilename = dbname + DICT_TAG;
-    string datadirname = dbname + DBDIR_TAG;
-    string dbinfofilename = dbname + DBINFO_TAG;
+bool dbReady (const string& dbname, const string& dbpath ) {
+    string dictfilename = dbpath + dbname + DICT_TAG;
+    string datadirname = dbpath + dbname + DBDIR_TAG;
+    string dbinfofilename = dbpath + dbname + DBINFO_TAG;
 
     if ( file_exists(dbinfofilename) && file_exists(dictfilename) && dir_exists(datadirname)) {
         return true;
     } else {
-      cerr << "Database is not ready. These file and directories are missing: "  << dictfilename << " & " << datadirname << endl;
+      cerr << "Database is not ready. One of these files/directories are missing: \n"  << dbinfofilename << endl <<  dictfilename << endl << datadirname << endl;
         return false;
     }
 }
@@ -1112,9 +1112,9 @@ string downstring(string localword, string lang) {
   const uint8_t * word = (const uint8_t*)localword.c_str();
   // create output buffer
   uint8_t output[200];
-  uint8_t * errCode;
-  uint8_t val;
-  errCode = &val;
+  //  uint8_t * errCode;
+  //  uint8_t val;
+  //  errCode = &val;
   // create output length location
   size_t outLength = 200;
   // make lowercase, normalize and put output in the output buffer, length in the outLength variable
@@ -1122,7 +1122,7 @@ string downstring(string localword, string lang) {
     cerr << "Problem processing the word: "<< word << endl;
     throw Exception("This is an invalid UTF8 in string. Please make sure that you are using UTF8 encoding in all input files. Exiting.");
   }
-  if (!u8_tolower(word, length, lang.c_str(), UNINORM_NFKD, output, &outLength))  {
+  if (!u8_tolower(word, length, lang.c_str(), UNINORM_NFKC, output, &outLength))  {
     cerr << word << endl;
     throw Exception("Error during case conversion (in downstring) ");
     //    return(" ");
@@ -1130,3 +1130,5 @@ string downstring(string localword, string lang) {
   // return a c++ string, using begining and end pointers to the c-style string!
   return(string((const char *)output,(const char *)output+outLength));
 }
+
+

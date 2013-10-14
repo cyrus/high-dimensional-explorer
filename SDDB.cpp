@@ -91,7 +91,7 @@ void SDDB::load(const string eod, const size_t maxMemory) {
     _corpussize = corpussize;
 
     cerr << "Checking for DB......"<< endl;
-    if (!dbReady(_dbname)) {
+    if (!dbReady(_dbname,_dbpath)) {
         ostringstream buffer;
         buffer << "An intact database was not found for " << _dbname << ". Cannot continue without database. Exiting." ;
         throw Exception(buffer.str());
@@ -400,7 +400,7 @@ int SDDB::windowLenBehind() { return _accessor->myWindowLenBehind(); }
 int SDDB::windowLenAhead() { return _accessor->myWindowLenAhead(); }
 
 
-void SDDB::flush() {
+void SDDB::flushDB() {
     assert(_accessor);
     _accessor->flush();
     _wordNum = 0;
@@ -511,130 +511,146 @@ void SDDB::printPairs(istream &in,
 		      const string outputpath,
 		      const string metric,
 		      const string normalization,
-		      const int saveGCM)
+		      const int saveGCM,
+		      const bool useVariance
+		      )
 {
+  size_t pairs_to_print = 0;
+  //    size_t num_dimensions = 0;
+  int behind = min(windowLenBehind, _realBehind);
+  int ahead  = min(windowLenAhead, _realAhead);
+  int windowLen = behind + ahead;
+  
+  // get all words from lexicon, put them in array of strings.
+  idMap words;
+  words = _idMap;
+  
+  // create the directories
+  pair<string,string> outputloc = createDirectories(outputpath,0);
 
-    size_t pairs_to_print = 0;
-    //    size_t num_dimensions = 0;
-    int behind = min(windowLenBehind, _realBehind);
-    int ahead  = min(windowLenAhead, _realAhead);
-    int windowLen = behind + ahead;
-
-    // get all words from lexicon, put them in array of strings.
-    idMap words;
-    words = _idMap;
-
-    // create the directories
-    pair<string,string> outputloc = createDirectories(outputpath,0);
-
-    // collect all of the word pairs we'll be printing distances for
-    cerr << "Time is: " <<  timestamp() << endl;
-    cerr << "Reading in word pairs of interest" << endl;
-
-    // Load word pairs
-    vector<pairdata> results;
-    LoadPairs(in, results,_normCase);
-    cerr << "Loaded " << results.size() << " word pairs." << endl;
-
-
-    vector<pairdata> finalresults;
-
-    // Find words that are not in our lexicon from the word pairs list.
-    vector<pairdata>::iterator results_iter;
-    for (results_iter=results.begin(); results_iter != results.end(); results_iter++) {
-        string key1 = (*results_iter).word1;
-        string key2 = (*results_iter).word2;
-        if ( _dict.find(key1) == _dict.end() ) {
-            cerr << "Skipping Words " << key1 << " & " << key2 << ". Word " << key1 << " does not exist in our dictionary." << endl;
-        } else {
-            if ( _dict.find(key2) == _dict.end()) {
-                cerr << "Skipping Words " << key1 << " & " << key2 << ". Word " << key2 << " does not exist in our dictionary." << endl;
-            } else { 
-                if ((_frequency[_dict[key1]] > 0) && (_frequency[_dict[key2]] > 0)) {
-                    pairs_to_print++;
-                    finalresults.push_back(*results_iter);
-                }
-                else {
-                    cerr << "Skipping Words " << key1 << " & " << key2 <<". A Word did not appear in the corpus." << endl;
-                }
-            }
-        }
-    }
-    results = finalresults;
-    cerr << pairs_to_print << " target word pairs found" << endl;
-
-    vector<Float*> vectors(_numwords);
-    if (GCMexists(_dbname)) {
-      LoadMatrix(vectors);
+  // collect all of the word pairs we'll be printing distances for
+  cerr << "Time is: " <<  timestamp() << endl;
+  cerr << "Reading in word pairs of interest" << endl;
+  
+  // Load word pairs
+  vector<pairdata> results;
+  LoadPairs(in, results,_normCase);
+  cerr << "Loaded " << results.size() << " word pairs." << endl;
+  
+  
+  vector<pairdata> finalresults;
+  
+  // Find words that are not in our lexicon from the word pairs list.
+  vector<pairdata>::iterator results_iter;
+  for (results_iter=results.begin(); results_iter != results.end(); results_iter++) {
+    string key1 = (*results_iter).word1;
+    string key2 = (*results_iter).word2;
+    if ( _dict.find(key1) == _dict.end() ) {
+      cerr << "Skipping Words " << key1 << " & " << key2 << ". Word " << key1 << " does not exist in our dictionary." << endl;
     } else {
-      //create weighting scheme
-      vector<int> weightScheme = createWeightScheme(windowLen, behind, weightingScheme);
-      //create context vector
-      vector<int> context = GenerateContext(context_size, separate);
-      //Aggregate Vectors
-      AggregateVectors(vectors, separate, context, behind, ahead, weightScheme, normalization);
-      if (saveGCM) {
-	SaveMatrix(vectors);
+      if ( _dict.find(key2) == _dict.end()) {
+	cerr << "Skipping Words " << key1 << " & " << key2 << ". Word " << key2 << " does not exist in our dictionary." << endl;
+      } else { 
+	if ((_frequency[_dict[key1]] > 0) && (_frequency[_dict[key2]] > 0)) {
+	  pairs_to_print++;
+	  finalresults.push_back(*results_iter);
+	}
+	else {
+	  cerr << "Skipping Words " << key1 << " & " << key2 <<". A Word did not appear in the corpus." << endl;
+	}
       }
     }
-
-    //start calculating distances
-    for (results_iter=results.begin(); results_iter != results.end(); results_iter++) {
-        string word1 = (*results_iter).word1;
-        string word2 = (*results_iter).word2;
-        
-        int id1 = _dict[word1]; 
-        int id2 = _dict[word2]; 
-        
-        if ((vectors[id1] == NULL) || (vectors[id2] == NULL)) {
-            cerr << "Tried to print SDs for, " << word1 << " and " << word2 << ", but we did not have a vector!" << endl;
-            continue;
-        }
-	// get inter-word distance 
-        (*results_iter).distance  = CalcSimilarity(vectors, id1, id2, metric);
+  }
+  results = finalresults;
+  cerr << pairs_to_print << " target word pairs found" << endl;
+  
+  vector<Float*> vectors(_numwords);
+  if (GCMexists(_dbname)) {
+    LoadMatrix(vectors);
+  } else {
+    //create weighting scheme
+    vector<int> weightScheme = createWeightScheme(windowLen, behind, weightingScheme);
+    //create context vector
+    vector<int> context = GenerateContext(context_size, separate, useVariance, vectors);
+    //Aggregate Vectors
+    AggregateVectors(vectors, separate, context, behind, ahead, weightScheme, normalization);
+    if (saveGCM) {
+      SaveMatrix(vectors);
     }
+  }
 
-    string currenttime;
-    wait((rand()%10)+5);
-    currenttime = timestamp();
-    string filename = outputloc.first + "/" + "pair.dists." + currenttime + ".txt";
-    ofstream dists;
-    dists.open(filename.c_str());
-    if(!dists.good()) {
-        ostringstream buffer;
-        buffer << "Could not create output file: " << filename << " ...Exiting.";
-        throw Exception(buffer.str());
+  //start calculating distances
+  
+  //Do in parallel!!!
+  int id;
+  size_t count = 0;
+  size_t numresults = results.size();
+#pragma omp parallel firstprivate(count) shared(results) private(id)
+  {
+#pragma omp for
+    for (size_t i=0; i < numresults; i++) {
+    //    for (results_iter=results.begin(); results_iter != results.end(); results_iter++) {
+      string word1 = results[i].word1;
+      string word2 = results[i].word2;
+      int id1 = _dict[word1]; 
+      int id2 = _dict[word2]; 
+      if ((vectors[id1] == NULL) || (vectors[id2] == NULL)) {
+	cerr << "Tried to print SDs for, " << word1 << " and " << word2 << ", but we did not have a vector for one of them!" << endl << flush;
+	continue;
+      }
+      count++;
+      // show progress
+      if(((count) % 10000) == 0) {
+	id = omp_get_thread_num();
+	cerr <<" Processing pair number " << count << " for thread #" << id <<endl << flush;
+      }
+      // get inter-word distance 
+      results[i].distance  = CalcSimilarity(vectors, id1, id2, metric);
     }
-    dists << "WORD1\tWORD2\tDIST" << endl;
+  }
 
-    for (results_iter=results.begin(); results_iter != results.end(); results_iter++) {
-        string word1 = (*results_iter).word1;
-        string word2 = (*results_iter).word2;
-        Float distance = (*results_iter).distance;
-        dists << word1 << "\t" << word2 << "\t" << distance << endl; 
-    }
-    dists.close();
-
-    // Open global output file.
-    filename = outputloc.first + "/global.txt";
-    ofstream global;
-    global.open(filename.c_str());
-    if(!global.good()) {
-        ostringstream buffer;
-        buffer << "Could not create output file " << filename <<" Exiting.";
-        throw Exception(buffer.str());
-    }
-
-    global << outputloc.first << "\t" << context_size << "\t" << weightingScheme << "\t" << windowLenBehind << "\t" <<  windowLenAhead << "\t";
-    global << separate << "\t" <<  endl;
-    global.close();
-
-    cerr << "Done writing results.\nBeginning to delete matrix from memory." << endl;
-    for(size_t i = 0; i < _numwords; i++)
-        if(vectors[i] != NULL)
-            delete [] vectors[i];
-    cerr << "Success. Finished processing pairs at " << timestamp() << endl;
-    return;
+  
+  string currenttime;
+  wait((rand()%10)+5);
+  currenttime = timestamp();
+  string filename = outputloc.first + "/" + "pair.dists." + currenttime + ".txt";
+  ofstream dists;
+  dists.open(filename.c_str());
+  if(!dists.good()) {
+    ostringstream buffer;
+    buffer << "Could not create output file: " << filename << " ...Exiting.";
+    throw Exception(buffer.str());
+  }
+  dists << "WORD1\tWORD2\tDIST" << endl;
+  
+  for (results_iter=results.begin(); results_iter != results.end(); results_iter++) {
+    string word1 = (*results_iter).word1;
+    string word2 = (*results_iter).word2;
+    Float distance = (*results_iter).distance;
+    dists << word1 << "\t" << word2 << "\t" << distance << endl; 
+  }
+  dists.close();
+  
+  // Open global output file.
+  filename = outputloc.first + "/global.txt";
+  ofstream global;
+  global.open(filename.c_str());
+  if(!global.good()) {
+    ostringstream buffer;
+    buffer << "Could not create output file " << filename <<" Exiting.";
+    throw Exception(buffer.str());
+  }
+  
+  global << outputloc.first << "\t" << context_size << "\t" << weightingScheme << "\t" << windowLenBehind << "\t" <<  windowLenAhead << "\t";
+  global << separate << "\t" <<  endl;
+  global.close();
+  
+  cerr << "Done writing results.\nBeginning to delete matrix from memory." << endl;
+  for(size_t i = 0; i < _numwords; i++)
+    if(vectors[i] != NULL)
+      delete [] vectors[i];
+  cerr << "Success. Finished processing pairs at " << timestamp() << endl;
+  return;
 }
 
 
@@ -649,7 +665,8 @@ int SDDB::printSDs(istream &in,
 		   const double percenttosample, const int wordlistsize,
 		   const string outputpath, 	       
 		   const int saveGCM, 
-		   const string configdata
+		   const string configdata,
+		   const bool useVariance
 		   )
 {
     int words_to_print = 0;
@@ -719,7 +736,7 @@ int SDDB::printSDs(istream &in,
         return -1;
       }
       // Create context vector
-      vector<int> context = GenerateContext(context_size, separate);
+      vector<int> context = GenerateContext(context_size, separate, useVariance, vectors);
       // Aggregate all the raw vectors in the database, and create a GCM.
       AggregateVectors(vectors, separate, context, behind, ahead, weightScheme, normalization);
       // If the user desires, save the CGM for later re-use.
@@ -913,7 +930,7 @@ int SDDB::printSDs(istream &in,
     if (usezscore) {
       global << threshold << endl;
     } else {
-      global << end;
+      global << endl;
     }
     //    cerr << "Time is: " << timestamp() << endl;
     arcs.close();
@@ -934,7 +951,9 @@ int SDDB::printVects(istream &in,
                      const int windowLenBehind, const int windowLenAhead,
                      const int wordlistsize, 
                      const int separate, const string outputpath, const string normalization, 	       
-		     const int saveGCM)
+		     const int saveGCM,
+		     const bool useVariance
+		     )
 {
     int words_to_print = 0;
     int behind = min(windowLenBehind, _realBehind);
@@ -997,7 +1016,7 @@ int SDDB::printVects(istream &in,
       }
       //    return -7;
       //create context vector
-      vector<int> context = GenerateContext(context_size, separate);
+      vector<int> context = GenerateContext(context_size, separate, useVariance, vectors);
       //    cerr << "Actual Context size = " << context.size() << endl;
       AggregateVectors(vectors, separate, context, behind, ahead, weightScheme, normalization);
       cerr << "Writing vectors to disk." << endl;
@@ -1239,11 +1258,12 @@ void removeAllFiles(const string& dbname, const string& dbpath) {
 }
 
 
-vector<int> SDDB::GenerateContext(const size_t context_size, const bool separate)
+vector<int> SDDB::GenerateContext(const size_t context_size, const bool separate, const bool useVariance, vector<Float*> &vectors)
 {
   // get a list of all our words
-  //  keep only the N most frequent
-  //  
+  //  keep either: 
+  //      only the N most frequent
+  //      only the N most variant
   cerr << "Number of words in lexicon = " << _numwords << endl;
 
   if (_numwords < context_size) {
@@ -1252,51 +1272,70 @@ vector<int> SDDB::GenerateContext(const size_t context_size, const bool separate
     throw Exception(buffer.str());
   }
 
+  ContextSorter SortedVectors;
+
   // Sort our words by frequency
-  cerr << "Sorting words in lexicon by frequency" << endl;
-  //  cerr << "Time is: " << timestamp() << endl;
-
-  FrequencySorter SortedByFreq;
-
+  // if (useVariance) {
+  //   cerr << "Sorting words in lexicon by variance." << endl;
+  //    cerr << "Sorting words in lexicon by frequency" << endl;
+  //   //calculating the average
+  //   for (size_t i = 0; i < _numwords; i++) {
+  //     Float average = 0.0;
+  //     Float SumSquares = 0.0;
+  //     Float variance = 0.0;
+  //     for(size_t k = 0; k < _numdimensions; k++) {
+  // 	average += vectors[i][k];
+  //     }
+  //     average = average / static_cast<Float>(_numdimensions);
+  //     //calculating the variance:  variance = (ss/N)
+  //     for(size_t k = 0; k < _numdimensions; k++) {
+  // 	SumSquares += ((vectors[i][k] - average) * (vectors[i][k] - average));
+  //     }
+  //     variance = (SumSquares / static_cast<Float>(_numdimensions));
+  //     SortedVectors.push_back(ContextEntry(variance,i));
+  //   }
+  // } else {
   for(FrequencyMap::iterator i = _frequency.begin(); i != _frequency.end() ; ++i) {
     if (i->second > 0 ) {
-      SortedByFreq.push_back(FrequencyEntry(i->second,i->first));
+      SortedVectors.push_back(ContextEntry(static_cast<Float>(i->second),i->first));
     }
   }
-  cerr << "Size of Non-zero frequency word list = " << SortedByFreq.size() << endl;
+  
+  cerr << "Size of Non-zero word list = " << SortedVectors.size() << endl;
   // checking for sufficient data for context size
   
-  if (SortedByFreq.size() < context_size) {
+  if (SortedVectors.size() < context_size) {
     ostringstream buffer;
-    buffer << "The size of your context, " << context_size << " is larger than the size of of the number of words used in the corpus, "  <<  SortedByFreq.size() <<"." ;
+    buffer << "The size of your context, " << context_size << " is larger than the size of of the number of words used in the corpus, "  <<  SortedVectors.size() <<"." ;
     throw Exception(buffer.str());
   }
-
-  sort(SortedByFreq.begin(), SortedByFreq.end(), FreqSort2());
-
+  
+  sort(SortedVectors.begin(), SortedVectors.end(), FreqSort2());
+  
   // Double the size of vectors for original HAL (seperate forward and back vectors.)
   cerr << "Building vector context, " ;
-  if (((2*context_size) > SortedByFreq.size()) & separate) {
+  if (((2*context_size) > SortedVectors.size()) & separate) {
     ostringstream buffer;
-    buffer << "You need a smaller context size to use separate forward and backward contexts. Please edit the config file and reduce your context size to something below " <<  SortedByFreq.size()/2 <<" words." ;
+    buffer << "You need a smaller context size to use separate forward and backward contexts. Please edit the config file and reduce your context size to something below " <<  SortedVectors.size()/2 <<" words." ;
     throw Exception(buffer.str());
   }
+  
   if (separate) {
     cerr << "Using separate forward and backward contexts.\n";
     _numdimensions = 2 * context_size;
   }   else {
     _numdimensions = context_size;
   }
-    
+  
   cerr << "Context size is " << context_size << " words " << endl;
   cerr << "Size of Global Co-occurrence Matrix is " << _numwords << " by " << _numdimensions << ", containing " << _numwords * _numdimensions << " elements."  << endl;
 
   // build context array. Put in all id's for more frequent words
   //    vector<int> context;
   vector<int> context(context_size,0);
-
+  
   size_t z = 0;
-  for(FrequencySorter::iterator i = SortedByFreq.begin(); i != SortedByFreq.end(); i++) {
+  for(ContextSorter::iterator i = SortedVectors.begin(); i != SortedVectors.end(); i++) {
     if (z < context_size) {
       context[z] = (i->second);
     } else {
@@ -1304,13 +1343,6 @@ vector<int> SDDB::GenerateContext(const size_t context_size, const bool separate
     }
     z++;
   }
-  //  cerr << "The context vector is size: " << context.size() << endl;
-  //  cerr << "The context is : [";
-  // FOR DEBUGGING... print context.
-  //  for (size_t i=0; i < context.size(); i++) {
-  //    cerr << i << " : " << _idMap[context[i]] << "\n";
-  //  } 
-  //  cerr  << "]" << endl;
   return context;
 }
 

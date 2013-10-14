@@ -101,6 +101,7 @@ struct Settings
   size_t maxMemory;
   bool normCase;
   bool englishContractions;
+  bool useVariance;
 };
 
 
@@ -160,10 +161,11 @@ typedef map<string, int> Dictionary;
 
 // Maps word to their frequencies
 typedef map<int, size_t> FrequencyMap;
+typedef map<Float, size_t> VarianceMap;
 
-//Frequency sorter is for sorting words by frequency
-typedef pair<int, size_t> FrequencyEntry;
-typedef vector<FrequencyEntry> FrequencySorter;
+//Context type for sorting words by frequency or variance
+typedef pair<Float, size_t> ContextEntry;
+typedef vector<ContextEntry> ContextSorter;
 
 //idMap has keys of IDs and values of words (For reverse lookup)
 typedef map<int,string> idMap;
@@ -202,7 +204,7 @@ public:
 class FreqSort2
 {
 public:
-    bool operator() (const FrequencyEntry & a, const FrequencyEntry & b) const
+    bool operator() (const ContextEntry & a, const ContextEntry & b) const
     {
         return a.first > b.first;
     }
@@ -290,7 +292,7 @@ public:
   //
   // Flush all pending actions
   //
-  void flush();
+  void flushDB();
 
   //
   // Close the SDDB
@@ -332,7 +334,9 @@ public:
                   const string outputpath,
 		  const string metric, 
 		  const string normalization,
-		  const int saveGCM);
+		  const int saveGCM,
+		  const bool useVariance
+		  );
 
   int printSDs(istream &in,
 	       const int context_size, 
@@ -343,13 +347,13 @@ public:
 	       const int windowLenAhead,
 	       const size_t neighbourhood_size,
 	       const int usezscore,
-	       //	       const int useldrt,
 	       const int separate,
 	       const double percenttosample, 
 	       const int wordlistsize, 
 	       const string outputpath,
 	       const int saveGCM,
-	       const string configdata
+	       const string configdata,
+	       const bool useVariance
 	       ); 
 
   int printVects(istream &in,
@@ -359,13 +363,15 @@ public:
                  const int wordlistsize, 
                  const int separate, const string outputpath,
 		 const string normalization,		     
-		 const int saveGCM);
+		 const int saveGCM,
+		 const bool useVariance
+		 );
   
   Float GenerateStandardDev(const Float percenttosample, 
                             const vector<Float*> &vectors, Float &average, Float &stddev,
 			    const string metric);
   
-  vector<int> GenerateContext(const size_t context_size, const bool separate);
+  vector<int> GenerateContext(const size_t context_size, const bool separate, const bool useVariance, vector<Float*> &vectors);
   
   void AggregateVectors(vector<Float*> &vectors, const bool separate, vector<int>& context, const int behind, const int ahead, const vector<int> weightScheme, const string normalization);
   
