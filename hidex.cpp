@@ -88,6 +88,7 @@ void readSettings(const string& configString, string& multi)
     allowedKeys.push_back("multipleFiles");
     allowedKeys.push_back("normCase");
     allowedKeys.push_back("englishContractions");
+    allowedKeys.push_back("useVariance");
     ConfigFile cfg(configString, allowedKeys, multi);
     settings.dbname = cfg.get("dbname");
     settings.dictFilename = cfg.get("dictFilename");
@@ -114,6 +115,7 @@ void readSettings(const string& configString, string& multi)
     settings.multipleFiles = cfg.get("multipleFiles", "");
     settings.normCase = cfg.getBool("normCase", true);
     settings.englishContractions = cfg.getBool("englishContractions", true);
+    settings.useVariance = cfg.getBool("useVariance", false);
 }
 
 
@@ -165,6 +167,7 @@ void update()
          << "corpus = " << filename << '\n'
          << "db = " << settings.dbname << '\n'
          << "Case Normalization = " << settings.normCase << '\n'
+         << "Max Memory = " << settings.maxMemory << '\n'
          << "English Contraction Normalization = " << settings.englishContractions << '\n';
     SDDB db(settings.dbname, settings.dbpath);
     db.load(settings.eod, settings.maxMemory);
@@ -187,7 +190,7 @@ void update()
 	cerr << "Closing corpus file." << endl;
         in.close();
         cerr << "Flushing data to disk." << endl;
-        db.flush();
+        db.flushDB();
         if(! db.stepUp())
             break;
         cerr << "Finished step number " << stepcount << "\n";
@@ -235,6 +238,7 @@ void printSDs()
          << "Separate = " << settings.separate << '\n'
          << "Case Normalization = " << settings.normCase << '\n'
          << "English Contraction Normalization = " << settings.englishContractions << '\n'
+         << "Using Variance for context selection = " << settings.useVariance << '\n'
          << "Word List Size = " << settings.wordlistsize << '\n';
     cerr << buffer.str();
     cerr << "Opening Database...\n";
@@ -248,7 +252,11 @@ void printSDs()
 			    settings.neighbourhoodSize, settings.usezscore,
 			    settings.separate,
 			    settings.percenttosample, settings.wordlistsize, 
-			    settings.outputpath, settings.saveGCM, buffer.str());
+			    settings.outputpath, 
+			    settings.saveGCM, 
+			    buffer.str(),
+			    settings.useVariance
+			    );
     if (errorcode != 0)
         cerr << "ErrorCode was: " << errorcode << endl;
 }
@@ -284,6 +292,7 @@ void printVectors()
          << "Case Normalization = " << settings.normCase << '\n'
          << "English Contraction Normalization = " << settings.englishContractions << '\n'
          << "wordlistsize = " << settings.wordlistsize << '\n'
+         << "Using Variance for context selection = " << settings.useVariance << '\n'
          << "percenttosample = " << settings.percenttosample << '\n';
     cerr << "Opening Database...\n";
     SDDB db(settings.dbname, settings.dbpath);
@@ -295,7 +304,9 @@ void printVectors()
                               settings.separate,
                               settings.outputpath,
 			      settings.normalization,
-			      settings.saveGCM);
+			      settings.saveGCM,
+			      settings.useVariance
+			      );
     if (errorcode != 0)
         cerr << "ErrorCode was: " << errorcode << endl;
 }
@@ -321,6 +332,7 @@ void printPairs()
          << "Similarity Metric = " << settings.metric << '\n'
          << "Normalization Method = " << settings.normalization << '\n'
          << "Separate F/B Windows= " << settings.separate << '\n'
+         << "Using Variance for context selection = " << settings.useVariance << '\n'
          << "Save GCM = " << settings.saveGCM << '\n';
     cerr << "Opening Database...\n";
     SDDB db(settings.dbname, settings.dbpath);
@@ -331,7 +343,9 @@ void printPairs()
                   settings.separate, settings.outputpath,
 		  settings.metric,
 		  settings.normalization, 
-		  settings.saveGCM);
+		  settings.saveGCM, 
+		  settings.useVariance
+		  );
 }
 
 void printmulti(const string& configFilename)
@@ -407,8 +421,10 @@ void usage(ostream& out, const char* programName)
 
 void warranty()
 {
-  
-cerr <<  "**HiDEx Copyright (C) 2004,2005,2006,2007,2008,2009,2010  Cyrus Shaoul and Geoff Hollis \n**This program comes with ABSOLUTELY NO WARRANTY\n**This is free software, and you are welcome to redistribute it\n**under certain conditions; see the included file COPYING.txt for details.\n**(This is program is covered by the GPLv3).\n\nThe authors kindly request that if you report any findings that involved\nthe use of this software, please make sure to cite this\nsoftware in your report. For the correct way to cite this software,\nplease see the documentation.\nBeginning execution.\n\n" << endl; 
+  // Rember to change this when changing the version number
+  Float versionNumber = 0.06;
+
+  cerr <<  "**HiDEx Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013  Cyrus Shaoul and Geoff Hollis \n**This is HiDEx Version " << versionNumber << "\n**This program comes with ABSOLUTELY NO WARRANTY\n**This is free software, and you are welcome to redistribute it\n**under certain conditions; see the included file COPYING.txt for details.\n**(This is program is covered by the GPLv3).\n\nThe authors kindly request that if you report any findings that involved\nthe use of this software, please make sure to cite this\nsoftware in your report. For the correct way to cite this software,\nplease see the documentation.\nBeginning execution.\n\n" << endl; 
   
 }
 

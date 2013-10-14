@@ -87,7 +87,7 @@ void add_smallest(word_distance_pair *entries, int len, int id, Float distance);
 
 bool dbExists(const string& dbname);
 
-bool dbReady (const string& dbname);
+bool dbReady (const string& dbname, const string& dbpath );
 
 void removeDBFiles (const string& dbname, const string& dbpath);
 
