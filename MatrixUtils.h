@@ -213,54 +213,47 @@ Float*computeWeightedCooccurenceVectorSeparate(Matrix<T> *M, const vector<int>& 
 
 
 template <class T>
-Float*computeVariance(Matrix<T> *M, 
+Float computeVariance(Matrix<T> *M, 
 		      int realBehind,
-		      int realAhead
+		      int realAhead,
+		      size_t numdimensions
 		      )		    
 {
   //see http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance  
-  //    cerr << "Computing aggregate" << endl;
-  
-  // Sanity check for window ranges.
-  //  bool temp = (ahead <= realAhead);
-  assert(ahead <= realAhead);
-  //  temp = (behind <= realBehind);
-  assert(behind <= realBehind);
-  
-  int windowLen = behind+ahead;
-  int startpoint = realBehind-behind;
-  
-  size_t contextsize = frequentWords.size();
+  // for info on algorithm.
 
+  //  cerr << "Computing Variance." << endl;
+  
   //    cerr << "converting array"<< endl;
   int **array = M->toArray();
   
-  //    cerr << "Make new array of Floats."<< endl;
-  Float *vect = new Float[contextsize];
+  //    initialize variables.
+  Float variance = 0.0;
+  Float n = 0.0;
+  Float mean = 0.0;
+  Float M2 = 0.0;
+  Float delta = 0.0;
+  Float x = 0.0;
   
+  int windowLen = realBehind+realAhead;
+
   //    cerr << "Start aggregating vectors."<< endl;
-  for(size_t i = 0; i < contextsize; i++) {
-    // branch if using separate forward and backward contexts
-    Float val = 0.0;
+  for(size_t i = 0; i < numdimensions; i++) {
     // collapse all of the columns into a single cell
-    //        cerr << "Check for NULLs."<< endl;
-    if (array[frequentWords[i]] == NULL) {
-      val = 0.0;
-    }
-    else {
-      //            cerr << "Multiply values"<< endl;
-      for (int k = 0; k < windowLen; k++) {
-	//                cerr << " Value : " << i << "," << k << " = " << array[frequentWords[i]][k+startpoint]<< endl;
-	val += static_cast<Float>((array[frequentWords[i]][k+startpoint] * weights[k]));
+    for (int k = 0; k < windowLen; k++) {
+      n++;
+      x = static_cast<Float>(array[i][k]);
+      delta = x - mean;
+      mean = mean + (delta/n);
+      M2 = M2 + (delta * (x - mean));
       }
-    } 
-    vect[i] = val;
-    //        cerr << "Set aggregated value: " << val << endl;        
   }
-  //  normalizeWeightedCooccurenceVector(vect, frequentWords.size(), wordfrequency, normalization);
+  variance = M2/(n-1);
+  cerr << "Variance = " << variance << endl;        
+  }
   //    cerr << "Delete array"<< endl;    
   delete [] array;
-  return vect;
+  return variance;
 }
 
 
