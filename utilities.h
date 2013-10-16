@@ -80,6 +80,8 @@ void build_starting_dict(Dictionary& D, string filename,  FrequencyMap& frequenc
 
 void build_dict_and_freqs(Dictionary& D, string filename, FrequencyMap& frequencies, const string eod);
 
+void build_variance(string filename, VarianceMap& variances, const string eod); 
+
 void build_idMap(Dictionary& D, idMap& words);
 //void value_sort(const DictPair *pairs[], const int size);
 

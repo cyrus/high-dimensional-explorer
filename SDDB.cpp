@@ -111,10 +111,15 @@ void SDDB::load(const string eod, const size_t maxMemory) {
     ostringstream dictname;
     dictname << _dbpath << _dbname << DICT_TAG;
     cerr << "Lexicon to be used = " << dictname.str() << endl;
-
     build_dict_and_freqs(_dict, dictname.str(), _frequency, eod);
-    
     build_idMap(_dict, _idMap);
+
+    if (_useVariance) {
+      ostringstream vardictname;
+      vardictname << _dbpath << _dbname << VAR_TAG;
+      cerr << "Variance Data to be used = " << vardictname.str() << endl;
+      build_variance(vardictname.str(), _variance, eod);
+    }
 
     _numwords = _dict.size();
     cerr << "Number of words in Dictionary = " << _numwords << endl;

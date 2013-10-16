@@ -383,6 +383,41 @@ build_dict_and_freqs(Dictionary& D, string filename, FrequencyMap& frequencies, 
     }
 }
 
+void
+//
+// Builds a dictionary and gives each word an id. Also fills frequencies
+// up with the counts of the words
+//
+build_variance(string filename, VarianceMap& variances, const string eod) 
+{
+  
+  if (!file_exists(filename)) {
+    ostringstream message;
+    message << "Could not open variance file " << filename << " . This could be because you did not create the database using variance mode. Please rebuild the database with useVariance set to 1 and then try this again." << endl;
+    throw Exception(message.str());
+  }
+    
+  
+  ifstream inStream(filename.c_str());
+  
+  string word;
+  int id;
+  Float variance;
+  while (inStream.good()){
+    id = 0;
+    variance = 0.0;
+    inStream >> word;
+    if (word == eod) {
+      break;
+    }
+    inStream >> id;
+    inStream >> variance;
+    variances[id] = variance;
+    //        cerr << "Got Word:" << word << " id:" << id << " Freq:" << freq << endl;
+  }
+}
+
+
 void build_idMap(Dictionary& D, idMap& words) {
   for(Dictionary::iterator i = D.begin(); i != D.end() ; ++i) {
     words[i->second] = i->first;

@@ -334,8 +334,9 @@ void printPairs()
          << "Save GCM = " << settings.saveGCM << '\n';
     cerr << "Opening Database...\n";
     SDDB db(settings.dbname, settings.dbpath);
+    db.setOptions(settings);
     db.load(settings.eod, settings.maxMemory);    
-    cerr << "Printing Pairs ....\n";
+    cerr << "Starting to calculate word pair similarity ....\n";
     db.printPairs(wordlistfile, settings.contextSize, settings.weightingScheme,
                   settings.windowLenBehind, settings.windowLenAhead, 
                   settings.separate, settings.outputpath,
