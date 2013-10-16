@@ -161,7 +161,7 @@ typedef map<string, int> Dictionary;
 
 // Maps word to their frequencies
 typedef map<int, size_t> FrequencyMap;
-typedef map<Float, size_t> VarianceMap;
+typedef map<int, Float> VarianceMap;
 
 //Context type for sorting words by frequency or variance
 typedef pair<Float, size_t> ContextEntry;
@@ -297,7 +297,7 @@ public:
   //
   // Close the SDDB
   // 
-  void close(const bool useVariance);
+  void close();
 
   //
   // Set the minimum vector num we are collecting co-occruance
@@ -334,8 +334,7 @@ public:
                   const string outputpath,
 		  const string metric, 
 		  const string normalization,
-		  const int saveGCM,
-		  const bool useVariance
+		  const int saveGCM
 		  );
 
   int printSDs(istream &in,
@@ -352,8 +351,7 @@ public:
 	       const int wordlistsize, 
 	       const string outputpath,
 	       const int saveGCM,
-	       const string configdata,
-	       const bool useVariance
+	       const string configdata
 	       ); 
 
   int printVects(istream &in,
@@ -363,15 +361,14 @@ public:
                  const int wordlistsize, 
                  const int separate, const string outputpath,
 		 const string normalization,		     
-		 const int saveGCM,
-		 const bool useVariance
+		 const int saveGCM
 		 );
   
   Float GenerateStandardDev(const Float percenttosample, 
                             const vector<Float*> &vectors, Float &average, Float &stddev,
 			    const string metric);
   
-  vector<int> GenerateContext(const size_t context_size, const bool separate, const bool useVariance, vector<Float*> &vectors);
+  vector<int> GenerateContext(const size_t context_size, const bool separate);
   
   void AggregateVectors(vector<Float*> &vectors, const bool separate, vector<int>& context, const int behind, const int ahead, const vector<int> weightScheme, const string normalization);
   
@@ -423,10 +420,7 @@ public:
   FrequencyMap _frequency;
 
   // Variables for calculating variance
-  FrequencyMap _variance;
-  FrequencyMap _mean;
-  FrequencyMap _M2;
-  size_t _elementCount;
+  VarianceMap _variance;
     
   // map from ID back to word.
   idMap _idMap;
@@ -467,6 +461,9 @@ public:
 
   //possessive
   bool _englishContractions;
+
+  //possessive
+  bool _useVariance;
 
 
 };

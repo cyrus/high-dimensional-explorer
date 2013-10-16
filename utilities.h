@@ -59,6 +59,8 @@ template<class T> void binary_sort(T array[], int len);
 
 void write_dict_and_freqs(Dictionary& D, string filename, FrequencyMap& frequencies, const string eod);
 
+void write_vars(Dictionary& D, string filename, VarianceMap& frequencies, const string eod);
+
 int makeDir (const string& dirName); 
 
 void wait ( size_t seconds );

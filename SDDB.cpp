@@ -290,12 +290,7 @@ void SDDB::addCooccurrences(vector<int>& window, size_t target) {
     if(window[target] != UNRECOGNIZED_WORD) {
         // exclude words that are not in current step.
         if ((window[target] >= _currStep) && (window[target] < (_currStep + _stepsize - 1))) {
-            //load matrix for target word into RAM if it is not already in RAM
-            //            cerr << window[target]  << " must be between" <<  _currStep<< " and " << _currStep + _stepsize - 1 << endl;
-            //_accessor->loadToRAM(window[target]);
-            
             for(size_t i = 0; (i < window.size()) && (window[i] != END_OF_DOCUMENT); i++){
-                
                 // we still haven't moved far enough into the 
                 // file to have a behind window
                 if(window[i] == NO_WORD)
@@ -340,7 +335,7 @@ void SDDB::update(istream& in, const int testmode) {
     size_t loopCount = 0;
     string lang = getLang();
 
-    cerr << "Processing data between items " << _currStep   << " and " << _currStep + _stepsize - 1 << endl;
+    cerr << "Processing data between words " << _currStep   << " and " << _currStep + _stepsize - 1 << endl;
     _corpussize = 0;
 
     while(in.good()) {
@@ -406,9 +401,8 @@ void SDDB::flushDB() {
     _wordNum = 0;
 }
 
-
 //called as the close the db and save state to disk
-void SDDB::close(useVariance) {
+void SDDB::close() {
 
   ostringstream dictname;
   dictname << _dbpath << _dbname << DICT_TAG;
@@ -417,10 +411,20 @@ void SDDB::close(useVariance) {
 
   write_dict_and_freqs(_dict, dictname.str(), _frequency, _eod);
   
-  if (useVariance) {
+  if (_useVariance) {
+    // Calculate the vector variance for all words.
+    cerr << "Calculating Variances." << endl;
+#pragma omp parallel for 
+    for (size_t i = 0; i < _numwords ; i++) {
+      Matrix<int> *M = _accessor->getMatrix(i,_realBehind,_realAhead);
+      _variance[i] = computeVariance(M,_realBehind,_realAhead,_numwords);
+      //      cerr << "Variance for " << i << " was " << _variance[i] << endl;
+    }
+    ostringstream vardictname;
     vardictname << _dbpath << _dbname << VAR_TAG;
-    write_dict_and_freqs(_dict, vardictname.str() , _variance, _eod);
+    write_vars(_dict, vardictname.str(), _variance, _eod);
   }
+
 
   int numVectors = _accessor->myNumVectors();
   int vectorLen = _accessor->myVectorLen();
@@ -456,6 +460,7 @@ void SDDB::setOptions(Settings settings) {
     _stepsize = settings.stepsize;
     _normCase = settings.normCase;;
     _englishContractions = settings.englishContractions;
+    _useVariance = settings.useVariance;;
 }
 
 pair<string,string> SDDB::createDirectories (const string outputpath, const bool wordsout) {
@@ -511,8 +516,7 @@ void SDDB::printPairs(istream &in,
 		      const string outputpath,
 		      const string metric,
 		      const string normalization,
-		      const int saveGCM,
-		      const bool useVariance
+		      const int saveGCM
 		      )
 {
   size_t pairs_to_print = 0;
@@ -571,7 +575,7 @@ void SDDB::printPairs(istream &in,
     //create weighting scheme
     vector<int> weightScheme = createWeightScheme(windowLen, behind, weightingScheme);
     //create context vector
-    vector<int> context = GenerateContext(context_size, separate, useVariance, vectors);
+    vector<int> context = GenerateContext(context_size, separate);
     //Aggregate Vectors
     AggregateVectors(vectors, separate, context, behind, ahead, weightScheme, normalization);
     if (saveGCM) {
@@ -665,8 +669,7 @@ int SDDB::printSDs(istream &in,
 		   const double percenttosample, const int wordlistsize,
 		   const string outputpath, 	       
 		   const int saveGCM, 
-		   const string configdata,
-		   const bool useVariance
+		   const string configdata
 		   )
 {
     int words_to_print = 0;
@@ -736,7 +739,7 @@ int SDDB::printSDs(istream &in,
         return -1;
       }
       // Create context vector
-      vector<int> context = GenerateContext(context_size, separate, useVariance, vectors);
+      vector<int> context = GenerateContext(context_size, separate);
       // Aggregate all the raw vectors in the database, and create a GCM.
       AggregateVectors(vectors, separate, context, behind, ahead, weightScheme, normalization);
       // If the user desires, save the CGM for later re-use.
@@ -945,14 +948,14 @@ int SDDB::printSDs(istream &in,
     return 0;
 }
 
+
 int SDDB::printVects(istream &in,
                      const int context_size, 
                      int weightingScheme, 
                      const int windowLenBehind, const int windowLenAhead,
                      const int wordlistsize, 
                      const int separate, const string outputpath, const string normalization, 	       
-		     const int saveGCM,
-		     const bool useVariance
+		     const int saveGCM
 		     )
 {
     int words_to_print = 0;
@@ -1016,7 +1019,7 @@ int SDDB::printVects(istream &in,
       }
       //    return -7;
       //create context vector
-      vector<int> context = GenerateContext(context_size, separate, useVariance, vectors);
+      vector<int> context = GenerateContext(context_size, separate);
       //    cerr << "Actual Context size = " << context.size() << endl;
       AggregateVectors(vectors, separate, context, behind, ahead, weightScheme, normalization);
       cerr << "Writing vectors to disk." << endl;
@@ -1258,7 +1261,7 @@ void removeAllFiles(const string& dbname, const string& dbpath) {
 }
 
 
-vector<int> SDDB::GenerateContext(const size_t context_size, const bool separate, const bool useVariance, vector<Float*> &vectors)
+vector<int> SDDB::GenerateContext(const size_t context_size, const bool separate)
 {
   // get a list of all our words
   //  keep either: 
@@ -1274,30 +1277,19 @@ vector<int> SDDB::GenerateContext(const size_t context_size, const bool separate
 
   ContextSorter SortedVectors;
 
-  // Sort our words by frequency
-  // if (useVariance) {
-  //   cerr << "Sorting words in lexicon by variance." << endl;
-  //    cerr << "Sorting words in lexicon by frequency" << endl;
-  //   //calculating the average
-  //   for (size_t i = 0; i < _numwords; i++) {
-  //     Float average = 0.0;
-  //     Float SumSquares = 0.0;
-  //     Float variance = 0.0;
-  //     for(size_t k = 0; k < _numdimensions; k++) {
-  // 	average += vectors[i][k];
-  //     }
-  //     average = average / static_cast<Float>(_numdimensions);
-  //     //calculating the variance:  variance = (ss/N)
-  //     for(size_t k = 0; k < _numdimensions; k++) {
-  // 	SumSquares += ((vectors[i][k] - average) * (vectors[i][k] - average));
-  //     }
-  //     variance = (SumSquares / static_cast<Float>(_numdimensions));
-  //     SortedVectors.push_back(ContextEntry(variance,i));
-  //   }
-  // } else {
-  for(FrequencyMap::iterator i = _frequency.begin(); i != _frequency.end() ; ++i) {
-    if (i->second > 0 ) {
-      SortedVectors.push_back(ContextEntry(static_cast<Float>(i->second),i->first));
+  if (_useVariance) {
+    cerr << "Using variance-based context." <<endl;
+    for(VarianceMap::iterator i = _variance.begin(); i != _variance.end() ; ++i) {
+      if (i->second > 0 ) {
+	SortedVectors.push_back(ContextEntry(i->second,i->first));
+      }
+    }
+  } else {
+    cerr << "Using frequency-based context." <<endl;
+    for(FrequencyMap::iterator i = _frequency.begin(); i != _frequency.end() ; ++i) {
+      if (i->second > 0 ) {
+	SortedVectors.push_back(ContextEntry(static_cast<Float>(i->second),i->first));
+      }
     }
   }
   

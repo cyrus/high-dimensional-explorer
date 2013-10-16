@@ -410,6 +410,27 @@ write_dict_and_freqs(Dictionary& D, string filename, FrequencyMap& frequencies, 
     }
 }
 
+void
+//
+// Write a dictionary and the word frequencies to file
+//
+write_vars(Dictionary& D, string filename, VarianceMap& frequencies, const string eod)
+{
+    //    cerr << eod << " is the EOD" << endl;
+    ofstream out(filename.c_str());
+    if (out.good()) 
+    {
+        for (Dictionary::iterator i = D.begin(); i != D.end(); i++) {
+            out << i->first << "\t" << i->second << "\t" << frequencies[i->second] << endl;
+        }
+        out << eod << endl;
+        out.close();
+    }
+    else {
+        throw Exception("WRITE_DICT: Could not write the output file. Exiting");
+    }
+}
+
 
 
 //

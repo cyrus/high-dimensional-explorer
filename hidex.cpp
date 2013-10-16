@@ -168,6 +168,7 @@ void update()
          << "db = " << settings.dbname << '\n'
          << "Case Normalization = " << settings.normCase << '\n'
          << "Max Memory = " << settings.maxMemory << '\n'
+         << "Calculate Word Vector Variances = " << settings.useVariance << '\n'
          << "English Contraction Normalization = " << settings.englishContractions << '\n';
     SDDB db(settings.dbname, settings.dbpath);
     db.load(settings.eod, settings.maxMemory);
@@ -197,9 +198,8 @@ void update()
         stepcount++;
     }
     cerr << "Finished updating database. Closing database files.\n";
-    db.close(setttings.useVariance);
+    db.close();
 }
-
 
 
 /** Print out neighborhoods for a set of specified words. */
@@ -254,8 +254,7 @@ void printSDs()
 			    settings.percenttosample, settings.wordlistsize, 
 			    settings.outputpath, 
 			    settings.saveGCM, 
-			    buffer.str(),
-			    settings.useVariance
+			    buffer.str()
 			    );
     if (errorcode != 0)
         cerr << "ErrorCode was: " << errorcode << endl;
@@ -304,8 +303,7 @@ void printVectors()
                               settings.separate,
                               settings.outputpath,
 			      settings.normalization,
-			      settings.saveGCM,
-			      settings.useVariance
+			      settings.saveGCM
 			      );
     if (errorcode != 0)
         cerr << "ErrorCode was: " << errorcode << endl;
@@ -343,8 +341,7 @@ void printPairs()
                   settings.separate, settings.outputpath,
 		  settings.metric,
 		  settings.normalization, 
-		  settings.saveGCM, 
-		  settings.useVariance
+		  settings.saveGCM
 		  );
 }
 
