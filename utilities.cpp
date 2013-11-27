@@ -628,9 +628,9 @@ get_magnitude(Float *vect, int context_size) {
 void removeDBFiles (const string& dbname, const string& dbpath) {
     string dbBase = dbpath + dbname + DBINFO_TAG;
     string dictfilename = dbpath + dbname + DICT_TAG;
-    bool errorState = false;
     string datadirname = dbpath + dbname + DBDIR_TAG;
     string gcmfilename = dbpath + dbname + GCM_TAG;
+    bool errorState = false;
     
     cerr << "Removing all relevant files now....Please be patient."<< endl;
 

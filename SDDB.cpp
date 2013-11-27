@@ -1236,15 +1236,20 @@ Float SDDB::GenerateStandardDev(const Float percenttosample, const vector<Float*
       
   cerr << "STDEV is : " << stddev << endl;
   Float threshold = 0.0;
-  Float multiplier = 2.0;
+  //  Float multiplier = 2.0;
 
   //similarity should be one half stddev below the average
-  threshold = (average + (stddev * multiplier));
-  while (threshold >= 0.75) {
-    multiplier = multiplier - 0.5;  
-    cerr << "WARNING: Threshold was too large. Using smaller threshold,  " << multiplier << " STD above the mean." << endl;
-    threshold = (average + (stddev * multiplier));
-  }
+
+  // New way
+  threshold = average;
+
+  //  Old Way:
+  //  threshold = (average + (stddev * multiplier));
+  //  while (threshold >= 0.75) {
+  //    multiplier = multiplier - 0.5;  
+  //    cerr << "WARNING: Threshold was too large. Using smaller threshold,  " << multiplier << " STD above the mean." << endl;
+  //    threshold = (average + (stddev * multiplier));
+  //  }
   
 
   //
@@ -1253,8 +1258,11 @@ Float SDDB::GenerateStandardDev(const Float percenttosample, const vector<Float*
   //  unsigned int indx = static_cast<unsigned int>(numSimilarities * rank );
   //  threshold = scores[indx];
 
-  cerr << "Threshold  was " << threshold << ", which is " << multiplier << " standard deviations above the mean. " << endl;
-  //  cerr << "Threshold  is set to " << threshold << ", which is in the top " << rank * 100  << "% of the distances." << endl;
+  cerr << "Threshold  was " << threshold << endl;
+
+  // Old Way
+  // cerr << "Which is " << multiplier << " standard deviations above the mean. " << endl;
+
   cerr << "Finished Threshold Calculations"<< endl;
 
   // Send back the threshold,

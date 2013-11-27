@@ -64,7 +64,7 @@ This file is part of HiDEx.
 #define END_OF_DOCUMENT                   -2
 #define NO_WORD                           -3
 #define SCALEFACTOR                       10.0 
-#define MAXNEIGHBOURS                     10000
+#define MAXNEIGHBOURS                     80000
 #define BLOCKSIZE                         8
 #define DOC_BATCH_SIZE                    100000
 #define MIN_WORDS_PER_DOC                 40
@@ -106,7 +106,7 @@ struct Settings
 
 
 //typedef float Float;
-typedef float Float;
+typedef double Float;
 
 //structs
 struct resultdata {

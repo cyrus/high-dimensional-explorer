@@ -281,9 +281,9 @@ void printVectors()
     cerr << "Database Name = " << settings.dbname << "\n"
 	 << "Database Path = " << settings.dbpath << "\n"
          << "Wordlist FileName = " << settings.wordlistfilename << '\n'
-         << "context size = " << settings.contextSize << '\n'
-         << "Window length Behind " << settings.windowLenBehind << '\n'
-         << "Window length Ahead = " << settings.windowLenAhead << '\n'
+         << "Context size = " << settings.contextSize << '\n'
+         << "Window length behind = " << settings.windowLenBehind << '\n'
+         << "Window length ahead = " << settings.windowLenAhead << '\n'
          << "Weighting scheme = " << settings.weightingScheme << '\n'
          << "Save GCM = " << settings.saveGCM << '\n'
          << "Neighbourhood Size = " << settings.neighbourhoodSize << '\n'
@@ -323,8 +323,8 @@ void printPairs()
     cerr << "Database Name = " << settings.dbname << "\n"
 	 << "Database Path = " << settings.dbpath << "\n"
          << "Wordlist FileName = " << settings.wordlistfilename << '\n'
-         << "context size = " << settings.contextSize << '\n'
-         << "Window length Behind " << settings.windowLenBehind << '\n'
+         << "Context size = " << settings.contextSize << '\n'
+         << "Window length Behind = " << settings.windowLenBehind << '\n'
          << "Window length Ahead = " << settings.windowLenAhead << '\n'
          << "Weighting scheme = " << settings.weightingScheme << '\n'
          << "Similarity Metric = " << settings.metric << '\n'
