@@ -78,6 +78,8 @@ std::string itoa(int value, unsigned int base);
 
 void build_starting_dict(Dictionary& D, string filename,  FrequencyMap& frequencies, const bool normCase);
 
+void build_starting_variance(Dictionary& D, string filename, const string eod);
+
 void build_dict_and_freqs(Dictionary& D, string filename, FrequencyMap& frequencies, const string eod);
 
 void build_variance(string filename, VarianceMap& variances, const string eod); 

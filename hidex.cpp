@@ -392,8 +392,7 @@ void PrintMultiPairs(const string& configFilename)
     cerr << "Fishined Multi Batch from file " << configFilename << endl;
 }
 
-/** Update the co-occurance counts of an SDDB with data a corpus files.
-*/
+/** Update the co-occurance counts of an SDDB with data a corpus files.*/
 void remove()
 {
     cout << "Are you sure you want to remove the database called " << settings.dbname << "?" << endl;

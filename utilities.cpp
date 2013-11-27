@@ -466,6 +466,26 @@ write_vars(Dictionary& D, string filename, VarianceMap& frequencies, const strin
     }
 }
 
+void
+//
+// Write initial zero variances....
+//
+build_starting_variance(Dictionary& D, string filename, const string eod)
+{
+  ofstream out(filename.c_str());
+  if (out.good()) 
+    {
+      for (Dictionary::iterator i = D.begin(); i != D.end(); i++) {
+	out << i->first << "\t" << i->second << "\t" << 0.0 << endl;
+      }
+      out << eod << endl;
+      out.close();
+    }
+  else {
+    throw Exception("Saving initial Variance file: Could not write the output file. Exiting");
+  }
+}
+
 
 
 //
@@ -630,6 +650,7 @@ void removeDBFiles (const string& dbname, const string& dbpath) {
     string dictfilename = dbpath + dbname + DICT_TAG;
     string datadirname = dbpath + dbname + DBDIR_TAG;
     string gcmfilename = dbpath + dbname + GCM_TAG;
+    string varfilename = dbpath + dbname + VAR_TAG;
     bool errorState = false;
     
     cerr << "Removing all relevant files now....Please be patient."<< endl;
@@ -656,11 +677,19 @@ void removeDBFiles (const string& dbname, const string& dbpath) {
         errorState = true;
     }
     
+    if (unlink(varfilename) == 0) {
+        cerr << "Removed " << varfilename << endl;
+    } else {
+        cerr << "Could not remove " << varfilename << ". File does not exist" << endl;
+        errorState = true;
+    }
+
     if (unlink(gcmfilename) == 0) {
         cerr << "Removed " << gcmfilename << endl;
     } else {
         cerr << "Could not remove " << gcmfilename << ". File does not exist" << endl;
     }
+
     
     if (errorState) {
         throw Exception("There were errors detected. Database files were not able to be successfully removed.");

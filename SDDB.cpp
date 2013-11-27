@@ -137,7 +137,7 @@ void SDDB::initialize (const string& dictfile, const int windowLenBehind, const 
     string dbBase = _dbpath + _dbname + DBINFO_TAG;
 
     string dictname = _dbpath + dictfile;
-    
+
     if (dbExists(dbBase)) {
         ostringstream buffer;
         buffer << "A database called " << _dbname << " cannot be initializeed. A file called : "<< dbBase <<" alread exists. Please remove the old data before creating a new database. Exiting." ;
@@ -154,10 +154,12 @@ void SDDB::initialize (const string& dictfile, const int windowLenBehind, const 
     makeDir(accname.str());
     
     ostringstream LexiconFileName;
-    
     LexiconFileName << _dbpath << _dbname << DICT_TAG;
-    
     write_dict_and_freqs(_dict, LexiconFileName.str() , _frequency, _eod);
+
+    ostringstream vardictname;    
+    vardictname << _dbpath << _dbname << VAR_TAG;
+    build_starting_variance(_dict, vardictname.str(), eod);
     
     _wordNum = 0;
     
