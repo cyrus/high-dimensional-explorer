@@ -112,7 +112,7 @@ typedef double Float;
 struct resultdata {
   string word;
   Float LDRT;
-  Float ARC;
+  Float ANS;
   Float InverseNcount;
 };
 
@@ -120,8 +120,8 @@ struct pairdata {
   string word1;
   string word2;
   Float distance;
-  Float ARC1;
-  Float ARC2;
+  Float ANS1;
+  Float ANS2;
   Float InverseNcount1;
   Float InverseNcount2;
 };
@@ -481,7 +481,7 @@ Float * collapseMatrix(Matrix<T> *M,
 
 
 /* 
-void addtoresults(vector<resultdata> &results, string word, double ARC, int Ncount);
+void addtoresults(vector<resultdata> &results, string word, double ANS, int Ncount);
 std::string getcorrelation(vector<resultdata> &results);
 */
 

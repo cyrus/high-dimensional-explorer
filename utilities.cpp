@@ -165,7 +165,7 @@ LoadWords(istream& in, const int wordlistsize, vector<resultdata> &results, cons
     if (tempstring.length() > MAX_WORDLEN)  {
       throw Exception("Maximum Word Length was exceeded in your word list input file. Exiting");
     }
-    temp.ARC = 10000000;
+    temp.ANS = 10000000;
     temp.InverseNcount = 0.0;
     if (normCase) {
       temp.word = downstring(tempstring,lang);
@@ -206,13 +206,13 @@ LoadWords(istream& in, const int wordlistsize, vector<resultdata> &results, cons
   }
 }
   
-void addtoresults(vector<resultdata> &results, string word, Float ARC, Float InverseNcount)
+void addtoresults(vector<resultdata> &results, string word, Float ANS, Float InverseNcount)
 {
   // Add distance data to results vector for later correlation
   vector<resultdata>::iterator results_iter;
   for (results_iter=results.begin(); results_iter != results.end(); results_iter++) {
     if ((*results_iter).word == word) {
-      (*results_iter).ARC = ARC;
+      (*results_iter).ANS = ANS;
       (*results_iter).InverseNcount = InverseNcount;
       break;
     }
@@ -224,8 +224,8 @@ std::string getcorrelation(vector<resultdata> &results) {
   vector<resultdata>::iterator results_iter;
   Float size = static_cast<Float>(results.size());
   // sum of scores, sum of squared scores sss
-  Float sumARC = 0.0;
-  Float sssARC = 0.0;
+  Float sumANS = 0.0;
+  Float sssANS = 0.0;
   Float sumNcount = 0.0;
   Float sssNcount = 0.0;
   Float sumLDRT = 0.0;
@@ -235,24 +235,24 @@ std::string getcorrelation(vector<resultdata> &results) {
   Float sign = 1.0;
   // calculate all the sums.
   for (results_iter=results.begin(); results_iter != results.end(); results_iter++) {
-    sumARC += (*results_iter).ARC ;
-    sssARC += (*results_iter).ARC * (*results_iter).ARC;
+    sumANS += (*results_iter).ANS ;
+    sssANS += (*results_iter).ANS * (*results_iter).ANS;
     sumNcount += (*results_iter).InverseNcount;
     sssNcount += (*results_iter).InverseNcount * (*results_iter).InverseNcount;
     sumLDRT += (*results_iter).LDRT ;
     sssLDRT += (*results_iter).LDRT * (*results_iter).LDRT ;
-    sumprodAL += (*results_iter).ARC  * (*results_iter).LDRT ;
+    sumprodAL += (*results_iter).ANS  * (*results_iter).LDRT ;
     sumprodNL += (*results_iter).InverseNcount * (*results_iter).LDRT ;
   }
 
-  // calculate corr btween ARC and LDRT
+  // calculate corr btween ANS and LDRT
   Float numeratorAL = 0.0;
   Float denominatorAL = 0.0;
-  numeratorAL = (size * sumprodAL ) - (sumARC * sumLDRT);
+  numeratorAL = (size * sumprodAL ) - (sumANS * sumLDRT);
   if (numeratorAL < 0)
     sign = -1.0;
   numeratorAL *= numeratorAL;
-  denominatorAL = ((size * sssARC) - (sumARC * sumARC)) * ((size * sssLDRT) - (sumLDRT * sumLDRT));
+  denominatorAL = ((size * sssANS) - (sumANS * sumANS)) * ((size * sssLDRT) - (sumLDRT * sumLDRT));
   Float r2AL = numeratorAL / denominatorAL;
   Float rAL  = sqrt(r2AL) * sign;
 
@@ -271,7 +271,7 @@ std::string getcorrelation(vector<resultdata> &results) {
   Float rNL  = sqrt(r2NL) * sign;
 
   string reply = "";
-  //  string reply = "The correlation between ARC and LDRT: r2 = ";
+  //  string reply = "The correlation between ANS and LDRT: r2 = ";
   sprintf(buffer,"%.4f\t%.4f\t%.4f\t%.4f", r2AL, rAL, r2NL, rNL);
   reply += buffer;
   

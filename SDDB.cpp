@@ -803,7 +803,7 @@ int SDDB::printSDs(istream &in,
         buffer << "Could not create output file." << filename << "  Exiting.";
         throw Exception(buffer.str()); 
     }
-    arcs << "WORD\tOFREQ\tARC\tNCount\tInverseNCount" << endl;
+    arcs << "WORD\tOFREQ\tANS\tNCount\tInverseNCount" << endl;
     // set precision
     arcs.precision(15);
 
@@ -872,7 +872,7 @@ int SDDB::printSDs(istream &in,
         Float freqpermillion = 0;
 	//        Float word_magnitude = 0;
         int clustercount = neighbourhood_size;
-        Float ARC = 0;
+        Float ANS = 0;
         if (!usezscore) {
 	  nbrs << "WORD\tNEIGHBOR\tOFREQ\tSIMILARITY" << endl;
 	  // Get standard neighborhood
@@ -909,17 +909,17 @@ int SDDB::printSDs(istream &in,
                 }
             }
         }
-        // Calculate ARC
+        // Calculate ANS
         if (clustercount == 0) {
-            ARC = neighbours[0].first;
-            // Get ARC Zscore
-            //      ARC = (ARC - average)/stddev;
+            ANS = neighbours[0].first;
+            // Get ANS Zscore
+            //      ANS = (ANS - average)/stddev;
         } 
         else {
             if (!usezscore) {
-                ARC = ( neighbourhood_distance / static_cast<Float>(neighbourhood_size) ) ;
+                ANS = ( neighbourhood_distance / static_cast<Float>(neighbourhood_size) ) ;
             } else {
-                ARC = ( neighbourhood_distance / static_cast<Float>(clustercount) ) ;
+                ANS = ( neighbourhood_distance / static_cast<Float>(clustercount) ) ;
             }
         }
         nbrs.close();
@@ -927,7 +927,7 @@ int SDDB::printSDs(istream &in,
         // print log entry
         Float inverseclustercount = 1.0 / (1.0 + static_cast<Float>(clustercount));
 	//#pragma omp critical
-        arcs << word << "\t" << (static_cast<Float>(_frequency[id]) / PerMillionDivisor) << "\t" << ARC << "\t" << clustercount << "\t" << inverseclustercount << endl;
+        arcs << word << "\t" << (static_cast<Float>(_frequency[id]) / PerMillionDivisor) << "\t" << ANS << "\t" << clustercount << "\t" << inverseclustercount << endl;
 	cerr << word << " , ";
     }
     cerr << endl;
@@ -1184,9 +1184,6 @@ Float SDDB::GenerateStandardDev(const Float percenttosample, const vector<Float*
 
   //  delete listpairs;
   listpairs.clear();
-  // allocate memory for scores
-  vector<Float> scores;
-  scores.reserve(10000);
   
 
   //  ofstream out;
@@ -1195,13 +1192,18 @@ Float SDDB::GenerateStandardDev(const Float percenttosample, const vector<Float*
   //  int loopcount = 0;
   int pairvectorsize = static_cast<int>(pairvector.size());
 
+  // allocate memory for scores
+  vector<Float> scores;
+  scores.reserve(pairvector.size());
+
 #pragma omp parallel for reduction(+:total)
   for (int pindex = 0; pindex < pairvectorsize; ++pindex) {
 
       //#pragma omp atomic
       //      loopcount++;
       if (!pindex || ((pindex+1) % 100000 == 0)) {
-          cerr << "Calculated cooccurring pair similarity " << pindex + 1 << endl; 
+          cerr << "Calculated cooccurring pair similarity " 
+	       << pindex + 1 << endl; 
       }
       int num1 = pairvector[pindex].first;
       int num2 = pairvector[pindex].second;
@@ -1237,29 +1239,42 @@ Float SDDB::GenerateStandardDev(const Float percenttosample, const vector<Float*
   stddev = sqrt(SumSquares / static_cast<Float>(numSimilarities));
       
   cerr << "STDEV is : " << stddev << endl;
-  Float threshold = 0.0;
-  //  Float multiplier = 2.0;
 
+  
   //similarity should be one half stddev below the average
 
   // New way
-  threshold = average;
+  //  threshold = average;
+
+  Float median;
+  size_t size = scores.size();
+  sort(scores.begin(), scores.end());
+  if (size  % 2 == 0)  {
+      median = (scores[size / 2 - 1] + scores[size / 2]) / 2;
+  }  else   {
+      median = scores[size / 2];
+  }
+
+  cerr << "Median is: " << median << endl;
+
+  Float threshold = 0.0;
 
   //  Old Way:
-  //  threshold = (average + (stddev * multiplier));
-  //  while (threshold >= 0.75) {
-  //    multiplier = multiplier - 0.5;  
-  //    cerr << "WARNING: Threshold was too large. Using smaller threshold,  " << multiplier << " STD above the mean." << endl;
-  //    threshold = (average + (stddev * multiplier));
-  //  }
+  // Float multiplier = 2.0;
+  // threshold = (average + (stddev * multiplier));
+  // while (threshold >= 0.75) {
+  //   multiplier = multiplier - 0.5;  
+  //   cerr << "WARNING: Threshold was too large. Using smaller threshold,  " << multiplier << " STD above the mean." << endl;
+  //   threshold = (average + (stddev * multiplier));
+  // }
   
 
   //
   //find threshold in the top 1%
-  //  Float rank = 0.000001;
-  //  unsigned int indx = static_cast<unsigned int>(numSimilarities * rank );
-  //  threshold = scores[indx];
-
+  Float rank = 0.999;
+  size_t indx = static_cast<unsigned int>(scores.size() * rank );
+  threshold = scores[indx];
+  cerr << "Using 99.9% as similarity threshold. " << indx << " out of " << scores.size()<<  endl;
   cerr << "Threshold  was " << threshold << endl;
 
   // Old Way
