@@ -159,6 +159,11 @@ Text Editor:
 +Rec:     Mac OS X: TextWrangler, BBEdit or any other text editor.
 +Rec:     Linux, AIX: emacs, vi or other text editor
 
+Dependent Software Libraries:
+The GNU Unicode String Libraries
+On Linux, please install this package:
+
+% sudo apt-get install libunistring-dev
 
 ****************************************************************************
 2C) How do I obtain HiDEx?
