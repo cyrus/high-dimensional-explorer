@@ -395,6 +395,11 @@ following example:
 
 	  hidex -m getneighbors 
 
+NOTE: There are two numbers reported for each word of interest: 1)
+ANS: Average Neighbour Similarity (The average similarity between the
+word and its neighbors that are defined by the threshold.  2)
+InvNCOUNT: The inverse of the number of neighbors (+1).
+
 To find the similarity between pairs of words, use the "getsimilarity":
 
 	  hidex -m getsimilarity
@@ -550,10 +555,11 @@ normCase: Apply case normalization globally. This option will take any
 Unicode character than can have a lower-case glyph, and replace it
 with that glyph. The default mode is 1 (true). To stop case
 normalization, set this to 0 (false). There is one more important
-factor to correct case normalization: your shell's environment variable settings for the LANG variable. HiDEx will check this setting and appy the correct
-normalization only if this is set to the correct language. For
-example, if you are processing German, your LANG setting should be set
-to de_DE.UTF-8
+factor to correct case normalization: your shell's environment
+variable settings for the LANG variable. HiDEx will check this setting
+and appy the correct normalization only if this is set to the correct
+language. For example, if you are processing German, your LANG setting
+should be set to de_DE.UTF-8
 
 englishContractions: In English, the string "'s" is a contraction
 that can make it difficult for the model to recognize words that
@@ -633,7 +639,9 @@ Bullinaria, J., & Levy, J. (2007). Extracting semantic representations from word
 co-occurrence statistics: A computational study. Behavior Research Methods, 
 39, 510-526.
 
-Bullinaria, J.A. & Levy, J.P. (2012). Extracting Semantic Representations from Word Co-occurrence Statistics: Stop-lists, Stemming and SVD. Behavior Research Methods, 44, 890-907. 
+Bullinaria, J.A. & Levy, J.P. (2012). Extracting Semantic
+Representations from Word Co-occurrence Statistics: Stop-lists,
+Stemming and SVD. Behavior Research Methods, 44, 890-907.
 
 Lund, K., & Burgess, C. (1996). Producing high-dimensional semantic spaces 
 from lexical co-occurrence. Behavior Research Methods, Instrumentation, 
