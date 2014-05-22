@@ -795,17 +795,17 @@ int SDDB::printSDs(istream &in,
     parms.close();
 
     // Open arc output file.
-    filename = outputloc.first + "/arcs.txt";
-    ofstream arcs;
-    arcs.open(filename.c_str());
-    if(!arcs.good()) {
+    filename = outputloc.first + "/ans.txt";
+    ofstream ans;
+    ans.open(filename.c_str());
+    if(!ans.good()) {
         ostringstream buffer;
         buffer << "Could not create output file." << filename << "  Exiting.";
         throw Exception(buffer.str()); 
     }
-    arcs << "WORD\tOFREQ\tANS\tNCount\tInverseNCount" << endl;
+    ans << "WORD\tOFREQ\tANS\tNCount\tInverseNCount" << endl;
     // set precision
-    arcs.precision(15);
+    ans.precision(15);
 
     // Open global output file.
     filename = outputloc.first + "/global.txt";
@@ -927,7 +927,7 @@ int SDDB::printSDs(istream &in,
         // print log entry
         Float inverseclustercount = 1.0 / (1.0 + static_cast<Float>(clustercount));
 	//#pragma omp critical
-        arcs << word << "\t" << (static_cast<Float>(_frequency[id]) / PerMillionDivisor) << "\t" << ANS << "\t" << clustercount << "\t" << inverseclustercount << endl;
+        ans << word << "\t" << (static_cast<Float>(_frequency[id]) / PerMillionDivisor) << "\t" << ANS << "\t" << clustercount << "\t" << inverseclustercount << endl;
 	cerr << word << " , ";
     }
     cerr << endl;
@@ -943,7 +943,7 @@ int SDDB::printSDs(istream &in,
       global << endl;
     }
     //    cerr << "Time is: " << timestamp() << endl;
-    arcs.close();
+    ans.close();
     global.close();
 
     //    delete [] neighbours, vectors;
