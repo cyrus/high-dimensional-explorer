@@ -47,7 +47,7 @@ void LoadPairs(istream& in, vector<pairdata> &results, const bool normCase);
 
 void LoadWords(istream& in, const int wordlistsize, vector<resultdata> &results,const bool normCase);
 
-void addtoresults(vector<resultdata> &results, string word, Float ARC, Float InverseNcount);
+void addtoresults(vector<resultdata> &results, string word, Float ANS, Float InverseNcount);
 
 std::string getcorrelation(vector<resultdata> &results);
 

@@ -67,7 +67,7 @@ CC = g++
 # Debug only 
 #FLAGS = -Wall -g -O0 -Wextra -fopenmp
 # Normal Flags
-FLAGS = -g -O3 -fopenmp -ffast-math -funroll-all-loops -fpeel-loops -ftracer -D NDEBUG
+FLAGS = -g -O3 -fopenmp -ffast-math -mtune=native -D NDEBUG
 LIBS =  -lunistring 
 endif
 
