@@ -1,6 +1,6 @@
 /* 
 
-Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013  Cyrus Shaoul and Geoff Hollis 
+Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014  Cyrus Shaoul and Geoff Hollis 
 
 This file is part of HiDEx.
 
@@ -632,7 +632,7 @@ void SDDB::printPairs(istream &in,
     buffer << "Could not create output file: " << filename << " ...Exiting.";
     throw Exception(buffer.str());
   }
-  dists << "WORD1\tWORD2\tDIST" << endl;
+  dists << "WORD1\tWORD2\tSIMILARITY" << endl;
   
   for (results_iter=results.begin(); results_iter != results.end(); results_iter++) {
     string word1 = (*results_iter).word1;
