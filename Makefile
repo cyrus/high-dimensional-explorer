@@ -55,10 +55,8 @@ UNAME= $(shell uname)
 #Mac OS X PPC specific comiler flags. DEFAULT: Configured for OpenMP support.
 ifeq ($(UNAME), Darwin)
 CC = g++
-FLAGS = -Wall -g -gfull -O3 -falign-loops=16 -D NDEBUG -fopenmp
-#To remove OpenMP support, use this line:
-#FLAGS = -Wall -g -gfull -O3 -falign-loops=16 -D NDEBUG 
-LIBS =  -lm -lunistring 
+FLAGS = -Wall -g -gfull -O3 -D NDEBUG -fopenmp
+LIBS = -L/opt/local/lib -lm -lunistring 
 endif
 
 # Linux Specific compiler Flags. Configured for OpenMP support. Remove OpenMP flags if you don't need parallel support.
