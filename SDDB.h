@@ -64,7 +64,7 @@ This file is part of HiDEx.
 #define END_OF_DOCUMENT                   -2
 #define NO_WORD                           -3
 #define SCALEFACTOR                       10.0 
-#define MAXNEIGHBOURS                     10000
+#define MAXNEIGHBOURS                     80000
 #define BLOCKSIZE                         8
 #define DOC_BATCH_SIZE                    100000
 #define MIN_WORDS_PER_DOC                 40
@@ -101,17 +101,18 @@ struct Settings
   size_t maxMemory;
   bool normCase;
   bool englishContractions;
+  bool useVariance;
 };
 
 
 //typedef float Float;
-typedef float Float;
+typedef double Float;
 
 //structs
 struct resultdata {
   string word;
   Float LDRT;
-  Float ARC;
+  Float ANS;
   Float InverseNcount;
 };
 
@@ -119,8 +120,8 @@ struct pairdata {
   string word1;
   string word2;
   Float distance;
-  Float ARC1;
-  Float ARC2;
+  Float ANS1;
+  Float ANS2;
   Float InverseNcount1;
   Float InverseNcount2;
 };
@@ -160,10 +161,11 @@ typedef map<string, int> Dictionary;
 
 // Maps word to their frequencies
 typedef map<int, size_t> FrequencyMap;
+typedef map<int, Float> VarianceMap;
 
-//Frequency sorter is for sorting words by frequency
-typedef pair<int, size_t> FrequencyEntry;
-typedef vector<FrequencyEntry> FrequencySorter;
+//Context type for sorting words by frequency or variance
+typedef pair<Float, size_t> ContextEntry;
+typedef vector<ContextEntry> ContextSorter;
 
 //idMap has keys of IDs and values of words (For reverse lookup)
 typedef map<int,string> idMap;
@@ -202,7 +204,7 @@ public:
 class FreqSort2
 {
 public:
-    bool operator() (const FrequencyEntry & a, const FrequencyEntry & b) const
+    bool operator() (const ContextEntry & a, const ContextEntry & b) const
     {
         return a.first > b.first;
     }
@@ -290,12 +292,12 @@ public:
   //
   // Flush all pending actions
   //
-  void flush();
+  void flushDB();
 
   //
   // Close the SDDB
   // 
-  void close(const bool useVariance);
+  void close();
 
   //
   // Set the minimum vector num we are collecting co-occruance
@@ -332,7 +334,8 @@ public:
                   const string outputpath,
 		  const string metric, 
 		  const string normalization,
-		  const int saveGCM);
+		  const int saveGCM
+		  );
 
   int printSDs(istream &in,
 	       const int context_size, 
@@ -343,7 +346,6 @@ public:
 	       const int windowLenAhead,
 	       const size_t neighbourhood_size,
 	       const int usezscore,
-	       //	       const int useldrt,
 	       const int separate,
 	       const double percenttosample, 
 	       const int wordlistsize, 
@@ -359,7 +361,8 @@ public:
                  const int wordlistsize, 
                  const int separate, const string outputpath,
 		 const string normalization,		     
-		 const int saveGCM);
+		 const int saveGCM
+		 );
   
   Float GenerateStandardDev(const Float percenttosample, 
                             const vector<Float*> &vectors, Float &average, Float &stddev,
@@ -417,10 +420,7 @@ public:
   FrequencyMap _frequency;
 
   // Variables for calculating variance
-  FrequencyMap _variance;
-  FrequencyMap _mean;
-  FrequencyMap _M2;
-  size_t _elementCount;
+  VarianceMap _variance;
     
   // map from ID back to word.
   idMap _idMap;
@@ -462,6 +462,9 @@ public:
   //possessive
   bool _englishContractions;
 
+  //possessive
+  bool _useVariance;
+
 
 };
 
@@ -478,7 +481,7 @@ Float * collapseMatrix(Matrix<T> *M,
 
 
 /* 
-void addtoresults(vector<resultdata> &results, string word, double ARC, int Ncount);
+void addtoresults(vector<resultdata> &results, string word, double ANS, int Ncount);
 std::string getcorrelation(vector<resultdata> &results);
 */
 

@@ -165,7 +165,7 @@ LoadWords(istream& in, const int wordlistsize, vector<resultdata> &results, cons
     if (tempstring.length() > MAX_WORDLEN)  {
       throw Exception("Maximum Word Length was exceeded in your word list input file. Exiting");
     }
-    temp.ARC = 10000000;
+    temp.ANS = 10000000;
     temp.InverseNcount = 0.0;
     if (normCase) {
       temp.word = downstring(tempstring,lang);
@@ -206,13 +206,13 @@ LoadWords(istream& in, const int wordlistsize, vector<resultdata> &results, cons
   }
 }
   
-void addtoresults(vector<resultdata> &results, string word, Float ARC, Float InverseNcount)
+void addtoresults(vector<resultdata> &results, string word, Float ANS, Float InverseNcount)
 {
   // Add distance data to results vector for later correlation
   vector<resultdata>::iterator results_iter;
   for (results_iter=results.begin(); results_iter != results.end(); results_iter++) {
     if ((*results_iter).word == word) {
-      (*results_iter).ARC = ARC;
+      (*results_iter).ANS = ANS;
       (*results_iter).InverseNcount = InverseNcount;
       break;
     }
@@ -224,8 +224,8 @@ std::string getcorrelation(vector<resultdata> &results) {
   vector<resultdata>::iterator results_iter;
   Float size = static_cast<Float>(results.size());
   // sum of scores, sum of squared scores sss
-  Float sumARC = 0.0;
-  Float sssARC = 0.0;
+  Float sumANS = 0.0;
+  Float sssANS = 0.0;
   Float sumNcount = 0.0;
   Float sssNcount = 0.0;
   Float sumLDRT = 0.0;
@@ -235,24 +235,24 @@ std::string getcorrelation(vector<resultdata> &results) {
   Float sign = 1.0;
   // calculate all the sums.
   for (results_iter=results.begin(); results_iter != results.end(); results_iter++) {
-    sumARC += (*results_iter).ARC ;
-    sssARC += (*results_iter).ARC * (*results_iter).ARC;
+    sumANS += (*results_iter).ANS ;
+    sssANS += (*results_iter).ANS * (*results_iter).ANS;
     sumNcount += (*results_iter).InverseNcount;
     sssNcount += (*results_iter).InverseNcount * (*results_iter).InverseNcount;
     sumLDRT += (*results_iter).LDRT ;
     sssLDRT += (*results_iter).LDRT * (*results_iter).LDRT ;
-    sumprodAL += (*results_iter).ARC  * (*results_iter).LDRT ;
+    sumprodAL += (*results_iter).ANS  * (*results_iter).LDRT ;
     sumprodNL += (*results_iter).InverseNcount * (*results_iter).LDRT ;
   }
 
-  // calculate corr btween ARC and LDRT
+  // calculate corr btween ANS and LDRT
   Float numeratorAL = 0.0;
   Float denominatorAL = 0.0;
-  numeratorAL = (size * sumprodAL ) - (sumARC * sumLDRT);
+  numeratorAL = (size * sumprodAL ) - (sumANS * sumLDRT);
   if (numeratorAL < 0)
     sign = -1.0;
   numeratorAL *= numeratorAL;
-  denominatorAL = ((size * sssARC) - (sumARC * sumARC)) * ((size * sssLDRT) - (sumLDRT * sumLDRT));
+  denominatorAL = ((size * sssANS) - (sumANS * sumANS)) * ((size * sssLDRT) - (sumLDRT * sumLDRT));
   Float r2AL = numeratorAL / denominatorAL;
   Float rAL  = sqrt(r2AL) * sign;
 
@@ -271,7 +271,7 @@ std::string getcorrelation(vector<resultdata> &results) {
   Float rNL  = sqrt(r2NL) * sign;
 
   string reply = "";
-  //  string reply = "The correlation between ARC and LDRT: r2 = ";
+  //  string reply = "The correlation between ANS and LDRT: r2 = ";
   sprintf(buffer,"%.4f\t%.4f\t%.4f\t%.4f", r2AL, rAL, r2NL, rNL);
   reply += buffer;
   
@@ -383,6 +383,41 @@ build_dict_and_freqs(Dictionary& D, string filename, FrequencyMap& frequencies, 
     }
 }
 
+void
+//
+// Builds a dictionary and gives each word an id. Also fills frequencies
+// up with the counts of the words
+//
+build_variance(string filename, VarianceMap& variances, const string eod) 
+{
+  
+  if (!file_exists(filename)) {
+    ostringstream message;
+    message << "Could not open variance file " << filename << " . This could be because you did not create the database using variance mode. Please rebuild the database with useVariance set to 1 and then try this again." << endl;
+    throw Exception(message.str());
+  }
+    
+  
+  ifstream inStream(filename.c_str());
+  
+  string word;
+  int id;
+  Float variance;
+  while (inStream.good()){
+    id = 0;
+    variance = 0.0;
+    inStream >> word;
+    if (word == eod) {
+      break;
+    }
+    inStream >> id;
+    inStream >> variance;
+    variances[id] = variance;
+    //        cerr << "Got Word:" << word << " id:" << id << " Freq:" << freq << endl;
+  }
+}
+
+
 void build_idMap(Dictionary& D, idMap& words) {
   for(Dictionary::iterator i = D.begin(); i != D.end() ; ++i) {
     words[i->second] = i->first;
@@ -408,6 +443,47 @@ write_dict_and_freqs(Dictionary& D, string filename, FrequencyMap& frequencies, 
     else {
         throw Exception("WRITE_DICT: Could not write the output file. Exiting");
     }
+}
+
+void
+//
+// Write a dictionary and the word frequencies to file
+//
+write_vars(Dictionary& D, string filename, VarianceMap& frequencies, const string eod)
+{
+    //    cerr << eod << " is the EOD" << endl;
+    ofstream out(filename.c_str());
+    if (out.good()) 
+    {
+        for (Dictionary::iterator i = D.begin(); i != D.end(); i++) {
+            out << i->first << "\t" << i->second << "\t" << frequencies[i->second] << endl;
+        }
+        out << eod << endl;
+        out.close();
+    }
+    else {
+        throw Exception("WRITE_DICT: Could not write the output file. Exiting");
+    }
+}
+
+void
+//
+// Write initial zero variances....
+//
+build_starting_variance(Dictionary& D, string filename, const string eod)
+{
+  ofstream out(filename.c_str());
+  if (out.good()) 
+    {
+      for (Dictionary::iterator i = D.begin(); i != D.end(); i++) {
+	out << i->first << "\t" << i->second << "\t" << 0.0 << endl;
+      }
+      out << eod << endl;
+      out.close();
+    }
+  else {
+    throw Exception("Saving initial Variance file: Could not write the output file. Exiting");
+  }
 }
 
 
@@ -572,9 +648,10 @@ get_magnitude(Float *vect, int context_size) {
 void removeDBFiles (const string& dbname, const string& dbpath) {
     string dbBase = dbpath + dbname + DBINFO_TAG;
     string dictfilename = dbpath + dbname + DICT_TAG;
-    bool errorState = false;
     string datadirname = dbpath + dbname + DBDIR_TAG;
     string gcmfilename = dbpath + dbname + GCM_TAG;
+    string varfilename = dbpath + dbname + VAR_TAG;
+    bool errorState = false;
     
     cerr << "Removing all relevant files now....Please be patient."<< endl;
 
@@ -600,11 +677,19 @@ void removeDBFiles (const string& dbname, const string& dbpath) {
         errorState = true;
     }
     
+    if (unlink(varfilename) == 0) {
+        cerr << "Removed " << varfilename << endl;
+    } else {
+        cerr << "Could not remove " << varfilename << ". File does not exist" << endl;
+        errorState = true;
+    }
+
     if (unlink(gcmfilename) == 0) {
         cerr << "Removed " << gcmfilename << endl;
     } else {
         cerr << "Could not remove " << gcmfilename << ". File does not exist" << endl;
     }
+
     
     if (errorState) {
         throw Exception("There were errors detected. Database files were not able to be successfully removed.");
@@ -638,15 +723,15 @@ bool GCMexists(const string& dbname) {
 }
 
 
-bool dbReady (const string& dbname) {
-    string dictfilename = dbname + DICT_TAG;
-    string datadirname = dbname + DBDIR_TAG;
-    string dbinfofilename = dbname + DBINFO_TAG;
+bool dbReady (const string& dbname, const string& dbpath ) {
+    string dictfilename = dbpath + dbname + DICT_TAG;
+    string datadirname = dbpath + dbname + DBDIR_TAG;
+    string dbinfofilename = dbpath + dbname + DBINFO_TAG;
 
     if ( file_exists(dbinfofilename) && file_exists(dictfilename) && dir_exists(datadirname)) {
         return true;
     } else {
-      cerr << "Database is not ready. These file and directories are missing: "  << dictfilename << " & " << datadirname << endl;
+      cerr << "Database is not ready. One of these files/directories are missing: \n"  << dbinfofilename << endl <<  dictfilename << endl << datadirname << endl;
         return false;
     }
 }
@@ -1112,9 +1197,9 @@ string downstring(string localword, string lang) {
   const uint8_t * word = (const uint8_t*)localword.c_str();
   // create output buffer
   uint8_t output[200];
-  uint8_t * errCode;
-  uint8_t val;
-  errCode = &val;
+  //  uint8_t * errCode;
+  //  uint8_t val;
+  //  errCode = &val;
   // create output length location
   size_t outLength = 200;
   // make lowercase, normalize and put output in the output buffer, length in the outLength variable
@@ -1122,7 +1207,7 @@ string downstring(string localword, string lang) {
     cerr << "Problem processing the word: "<< word << endl;
     throw Exception("This is an invalid UTF8 in string. Please make sure that you are using UTF8 encoding in all input files. Exiting.");
   }
-  if (!u8_tolower(word, length, lang.c_str(), UNINORM_NFKD, output, &outLength))  {
+  if (!u8_tolower(word, length, lang.c_str(), UNINORM_NFKC, output, &outLength))  {
     cerr << word << endl;
     throw Exception("Error during case conversion (in downstring) ");
     //    return(" ");
@@ -1130,3 +1215,5 @@ string downstring(string localword, string lang) {
   // return a c++ string, using begining and end pointers to the c-style string!
   return(string((const char *)output,(const char *)output+outLength));
 }
+
+

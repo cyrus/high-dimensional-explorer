@@ -14,8 +14,8 @@ Free Documentation License" at the end of this file.
 ****************************************************************************
 
 by Cyrus Shaoul		                       cyrus.shaoul@uni-tuebingen.de
-Document Version 0.06 for HiDEx v. 0.06
-Updated on July 27th, 2013
+Document Version 0.07 for HiDEx v. 0.07
+Updated on Dec 5th, 2013
 
 Preface: 
 	 This document is split into two parts: Part 1 is the Quick Start
@@ -159,6 +159,11 @@ Text Editor:
 +Rec:     Mac OS X: TextWrangler, BBEdit or any other text editor.
 +Rec:     Linux, AIX: emacs, vi or other text editor
 
+Dependent Software Libraries:
+The GNU Unicode String Libraries
+On Linux, please install this package:
+
+% sudo apt-get install libunistring-dev
 
 ****************************************************************************
 2C) How do I obtain HiDEx?
@@ -546,9 +551,6 @@ automatically detected the next time a GCM is required, and
 loaded. Depending on the speed of your computer, this may be faster or
 slower than building the GCM on the fly.
 
-NEW OPTIONS in vesion 0.06:
----------------------------
-
 With the addition of Unicode support, there are two new options
 
 normCase: Apply case normalization globally. This option will take any
@@ -566,6 +568,22 @@ are possessives.  This defaults to 1 (true), which means that words
 like "ball's" will be split into two words, "ball" and "'s" and
 "can't" will become "can" and "'nt".  
 englishContractions=1
+
+NEW OPTIONS in vesion 0.07:
+---------------------------
+
+useVariance: In previous versions of HiDEx, the context was created
+from the N most frequent words in the corpus. In the original HAL
+paper (Lund & Burgess, 1996), the vectors for the N most variant words
+were used instead. This feature implements the method from Lund &
+Burgess (1996). 
+
+The default value for this is "0", meaning that variance will not be
+used. If it is set to "1", it must be enabled at the time of creation
+of the co-occurrence database. It will not work with databases created
+with versions of HiDEx before version 0.06, or with new databases that
+were not created with useVariance = 1.
+
 
 ****************************************************************************
 2I) How do I improve the performance of HiDEx?

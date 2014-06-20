@@ -59,6 +59,8 @@ template<class T> void binary_sort(T array[], int len);
 
 void write_dict_and_freqs(Dictionary& D, string filename, FrequencyMap& frequencies, const string eod);
 
+void write_vars(Dictionary& D, string filename, VarianceMap& frequencies, const string eod);
+
 int makeDir (const string& dirName); 
 
 void wait ( size_t seconds );
@@ -76,7 +78,11 @@ std::string itoa(int value, unsigned int base);
 
 void build_starting_dict(Dictionary& D, string filename,  FrequencyMap& frequencies, const bool normCase);
 
+void build_starting_variance(Dictionary& D, string filename, const string eod);
+
 void build_dict_and_freqs(Dictionary& D, string filename, FrequencyMap& frequencies, const string eod);
+
+void build_variance(string filename, VarianceMap& variances, const string eod); 
 
 void build_idMap(Dictionary& D, idMap& words);
 //void value_sort(const DictPair *pairs[], const int size);
@@ -87,7 +93,7 @@ void add_smallest(word_distance_pair *entries, int len, int id, Float distance);
 
 bool dbExists(const string& dbname);
 
-bool dbReady (const string& dbname);
+bool dbReady (const string& dbname, const string& dbpath );
 
 void removeDBFiles (const string& dbname, const string& dbpath);
 

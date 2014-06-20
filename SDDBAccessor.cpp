@@ -51,6 +51,7 @@ This file is part of HiDEx.
 #include <cstdlib>
 #include "utilities.h"
 #include "SDDBAccessor.h"
+#include "SDDB.h"
 
 using namespace std;
 
@@ -239,7 +240,7 @@ bool SDDBAccessor::NeedToDumpData() {
     size_t matrixCount = 0;
 
     _MemorySize = 0;
-    //    cerr << "\n NeedToDump:: Getting Sizes:" << timestamp() << "\n";
+    //cerr << "\n NeedToDump:: Getting Sizes:" << timestamp() << "\n";
     for(int i = 0; i < _numVectors; i++) {
         if (_vectors[i] != NULL) {
             matrixCount++;
@@ -272,7 +273,7 @@ void SDDBAccessor::DumpLowestFreqData(){
     _MatrixCache.clear();
     for(int i = 0; i < _numVectors; i++) {
         if (_freq[i] != 0) {
-            _MatrixCache.push_back(FrequencyEntry(_freq[i],i));
+	  _MatrixCache.push_back(FreqEntry(_freq[i],i));
             //            sum += static_cast<Float>(i->second);
         }
     }
