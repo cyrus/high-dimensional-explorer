@@ -54,7 +54,8 @@ UNAME= $(shell uname)
 
 #Mac OS X PPC specific comiler flags. DEFAULT: Configured for OpenMP support.
 ifeq ($(UNAME), Darwin)
-CC = g++
+#CC = g++
+CC = g++-mp-4.9
 FLAGS = -Wall -g -gfull -O3 -D NDEBUG -fopenmp
 LIBS = -L/opt/local/lib -lm -lunistring 
 endif
