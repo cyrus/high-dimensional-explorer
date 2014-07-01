@@ -1299,9 +1299,19 @@ vector<int> SDDB::GenerateContext(const size_t context_size, const bool separate
   //      only the N most variant
   cerr << "Number of words in lexicon = " << _numwords << endl;
 
-  if (_numwords < context_size) {
+  // This little hack will allow Jeff Kieth do to what he really wants to do with HiDEx. 
+  // More power to you, Jeff!
+  size_t numdim;
+  if (separate) {
+    numdim = 2 * _numwords;
+  } else {
+    numdim = _numwords;
+  }    
+
+  // Check the context size.
+  if (context_size > numdim ) {
     ostringstream buffer;
-    buffer << "Context Size ("<< context_size << "is too large. Must be less than number of words in lexicon (" << _numwords << ". Please change your settings.";
+    buffer << "Context Size ("<< context_size << ") is too large. Must be less than number of dimensions in the GCM (" << numdim << ". Please change your settings and try again.";
     throw Exception(buffer.str());
   }
 
