@@ -295,6 +295,7 @@ void printVectors()
          << "percenttosample = " << settings.percenttosample << '\n';
     cerr << "Opening Database...\n";
     SDDB db(settings.dbname, settings.dbpath);
+    db.setOptions(settings);
     db.load(settings.eod, settings.maxMemory);    
     cerr << "Printing Vectors ....\n";
     errorcode = db.printVects(wordlistfile, settings.contextSize, settings.weightingScheme,
