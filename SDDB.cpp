@@ -1346,9 +1346,9 @@ vector<int> SDDB::GenerateContext(const size_t context_size, const bool separate
   
   // Double the size of vectors for original HAL (seperate forward and back vectors.)
   cerr << "Building vector context, " ;
-  if ((context_size > SortedVectors.size()) & separate) {
+  if (((2*context_size) > SortedVectors.size()) & separate) {
     ostringstream buffer;
-    buffer << "You need a smaller context size to use separate forward and backward contexts. Please edit the config file and reduce your context size to something below " <<  SortedVectors.size() <<" words." ;
+    buffer << "You need a smaller context size to use separate forward and backward contexts. Please edit the config file and reduce your context size to something below " <<  SortedVectors.size()/2 <<" words." ;
     throw Exception(buffer.str());
   }
   
