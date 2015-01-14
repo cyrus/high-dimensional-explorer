@@ -420,7 +420,7 @@ void usage(ostream& out, const char* programName)
 void warranty()
 {
   // Rember to change this when changing the version number
-  Float versionNumber = 0.091;
+  Float versionNumber = 0.092;
 
   cerr <<  "**HiDEx Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014  Cyrus Shaoul and Geoff Hollis \n**This is HiDEx Version " << versionNumber << "\n**This program comes with ABSOLUTELY NO WARRANTY\n**This is free software, and you are welcome to redistribute it\n**under certain conditions; see the included file COPYING.txt for details.\n**(This is program is covered by the GPLv3).\n\nThe authors kindly request that if you report any findings that involved\nthe use of this software, please make sure to cite this\nsoftware in your report. For the correct way to cite this software,\nplease see the documentation.\nBeginning execution.\n\n" << endl; 
   
