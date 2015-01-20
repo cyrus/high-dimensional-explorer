@@ -349,8 +349,8 @@ void SDDB::update(istream& in, const int testmode) {
 	loopCount++;
         documents.clear();
         // Progress Meter
-        if(((x+1) % 10000) == 0) {
-	  cerr << "\rReading doc number: " << loopCount << " " << "Words seen: " << _corpussize << " " << timestamp() << endl ;
+        if(((x+1) % 1000) == 0) {
+	  cerr << "Reading doc number: " << loopCount << " " << "Words seen: " << _corpussize << " " << timestamp() << "\r" ;
 	  cerr.flush();
         }
         validDocument = ConvertADocument(in, wordsInDocument, behind, ahead, testmode, lang);
@@ -371,7 +371,7 @@ void SDDB::update(istream& in, const int testmode) {
     }
     //    cerr << endl << " Finished Processing Doc number: " << x << endl;
     
-    cerr << "Finished this processing step.\n " ;
+    cerr << "\nFinished this processing step.\n " ;
 
     
     //for debugging.. show Matrix
