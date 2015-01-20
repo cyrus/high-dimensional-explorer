@@ -640,44 +640,44 @@ void removeDBFiles (const string& dbname, const string& dbpath) {
     bool errorState = false;
     
     cerr << "Removing all relevant files now....Please be patient."<< endl;
-
+    
     if (unlink(dbBase) == 0) {
-        cerr << "Removed " << dbBase << endl;
+      cerr << "Removed " << dbBase << endl;
     } else {
-        cerr << "Could not remove " << dbBase << ". File does not exist" << endl;
-        errorState = true;
+      cerr << "Could not remove " << dbBase << ". File does not exist" << endl;
+      errorState = true;
     }
-
-     if (unlink(dictfilename) == 0) {
-         cerr << "Removed " << dictfilename << endl;
-     } else {
-         cerr << "Could not remove " << dictfilename << ". File does not exist" << endl;
-         errorState = true;
-     }
-
+    
+    if (unlink(dictfilename) == 0) {
+      cerr << "Removed " << dictfilename << endl;
+    } else {
+      cerr << "Could not remove " << dictfilename << ". File does not exist" << endl;
+      errorState = true;
+    }
+    
     
     if (rmdir(datadirname) == 0) {
-        cerr << "Removed " << datadirname << endl;
+      cerr << "Removed " << datadirname << endl;
     } else {
-        cerr << "Could not remove " << datadirname << ". Directory does not exist" << endl;
-        errorState = true;
+      cerr << "Could not remove " << datadirname << ". Directory does not exist" << endl;
+      errorState = true;
     }
     
     if (unlink(varfilename) == 0) {
-        cerr << "Removed " << varfilename << endl;
+      cerr << "Removed " << varfilename << endl;
     } else {
-        cerr << "Could not remove " << varfilename << ". File does not exist" << endl;
-        errorState = true;
+      cerr << "Could not remove " << varfilename << ". File does not exist" << endl;
+      errorState = true;
     }
-
+    
     if (unlink(gcmfilename) == 0) {
-        cerr << "Removed " << gcmfilename << endl;
+      cerr << "Removed " << gcmfilename << endl;
     } else {
-        cerr << "Could not remove " << gcmfilename << ". File does not exist" << endl;
+      cerr << "Could not remove " << gcmfilename << ". File does not exist" << endl;
     }
-
+    
     if (errorState) {
-        throw Exception("There were errors detected, but they usually be ignored. If you are still having problems, delete the files and folders manually.");
+      cerr << "=====!!!!!!!!!!======\nOops! There were errors detected while deleting the data. They usually be ignored. \nIf you are still having problems, delete the above files and folders manually." << endl;
     }
     
 }
