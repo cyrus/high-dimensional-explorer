@@ -1207,6 +1207,7 @@ Float SDDB::GenerateStandardDev(const Float percenttosample, const vector<Float*
       if (!pindex || ((pindex+1) % 10000 == 0)) {
 	int flipper = 42 + (rand() % 3 + 1);
 	cerr << "Calculating cooccurring pair similarities (multi-threaded): " << (char) flipper << "\r"; 
+	cerr.flush();
       }
       int num1 = pairvector[pindex].first;
       int num2 = pairvector[pindex].second;
