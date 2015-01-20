@@ -38,6 +38,7 @@ This file is part of HiDEx.
 #include <fstream>
 #include <cstdlib>
 #include <string>
+#include <locale>
 #include <list>
 #include <set>
 #include <sstream>
@@ -480,34 +481,18 @@ Float * collapseMatrix(Matrix<T> *M,
                         const Float wordfrequency, const int separate);
 
 
+
+template<class T>
+std::string FormatWithCommas(T value)
+{
+    std::stringstream ss;
+    ss.imbue(std::locale(""));
+    ss << std::fixed << value;
+    return ss.str();
+}
 /* 
 void addtoresults(vector<resultdata> &results, string word, double ANS, int Ncount);
 std::string getcorrelation(vector<resultdata> &results);
 */
 
 #endif // SDDB_H
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

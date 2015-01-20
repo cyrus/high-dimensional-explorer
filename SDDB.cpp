@@ -350,7 +350,7 @@ void SDDB::update(istream& in, const int testmode) {
         documents.clear();
         // Progress Meter
         if(((x+1) % 1000) == 0) {
-	  cerr << "Reading doc number: " << loopCount << " " << "Words seen: " << _corpussize << " " << timestamp() << "\r" ;
+	  cerr << "Documents completed: " << FormatWithCommas(loopCount) << " _ Total Word Count: " << FormatWithCommas(_corpussize) << " _ Time: " << timestamp() << "\r" ;
 	  cerr.flush();
         }
         validDocument = ConvertADocument(in, wordsInDocument, behind, ahead, testmode, lang);
