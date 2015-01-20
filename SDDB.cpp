@@ -767,7 +767,7 @@ int SDDB::printSDs(istream &in,
     if (usezscore) {
         cerr << "Generating random distances. Time is: " << timestamp() << endl;
         threshold = GenerateStandardDev(percenttosample,vectors,average,stddev,metric);
-        cerr << " Got Threshold, it is: " << threshold  <<  " . Time is: " << timestamp() << endl;
+        cerr << "Got similarity threshold for neighbors, it is: " << threshold  <<  " . Time is: " << timestamp() << endl;
     }
     else    {
         threshold = 0.0;
@@ -1118,7 +1118,8 @@ Float SDDB::GenerateStandardDev(const Float percenttosample, const vector<Float*
     // Skipping every two to reduce memory footprint.
       Numpair newpair;
       if ((x % 5000) == 0) {
-          cerr << "Finished looking for cooccuring words in column: " << x << "." << endl; 
+	cerr << "Finished looking for cooccuring words in column: " << x << "." << "\r"; 
+	cerr.flush();
       }
       if (vectors[x] == NULL)
           continue;
@@ -1138,20 +1139,21 @@ Float SDDB::GenerateStandardDev(const Float percenttosample, const vector<Float*
           }
       }
   }
+  cerr << endl;
 
   size_t NumPairs = listpairs.size();
-  cerr << "Number of Pairs found: "<< NumPairs <<endl;
+  cerr << "Number of Pairs found: "<< FormatWithCommas(NumPairs) << endl;
   cerr << "Time is: " << timestamp() << endl;
   
   Float numpossible;
   numpossible = static_cast<Float>(_numwords) * static_cast<Float>(_numdimensions);
-  cerr << "Number of possible : "<< numpossible << ", percent of space with data: " << static_cast<Float>(NumPairs)/numpossible <<endl;
+  cerr << "Number of possible : "<< FormatWithCommas(static_cast<size_t>(numpossible)) << ", percent of space with data: " << static_cast<Float>(NumPairs)/numpossible <<endl;
   
   
   // Calculate the amount to calculate based on the percent to sample.
   size_t NumDesired = static_cast<size_t>(NumPairs * percenttosample);
   cerr << "Percent to Sample: "<< percenttosample << endl; 
-  cerr << "Number Desired to find similarity for: "<< NumDesired << endl; 
+  cerr << "Number Desired to find similarity for: "<< FormatWithCommas(NumDesired) << endl; 
   
   // make random subsampling of set of possible pairs.
   //seed random number generator
@@ -1172,7 +1174,8 @@ Float SDDB::GenerateStandardDev(const Float percenttosample, const vector<Float*
       i++;
       setsize = pairvector.size();
       if(!i || (i+1) % 10000000 == 0) {
-          cerr << "Choosing Random Pair number " << (i+1) << ", Setsize = " << setsize << endl;
+          cerr << "Choosing Random Pair number " << (i+1) << ", Setsize = " << setsize << "\r";
+	  cerr.flush();
       }
       randompairnumber = static_cast<size_t>(rand() % NumPairs);
       Numpair newpair;
@@ -1181,7 +1184,7 @@ Float SDDB::GenerateStandardDev(const Float percenttosample, const vector<Float*
       pairvector.push_back(newpair);
   }
 
-  cerr << "Found " << setsize << " pairs" << endl;
+  cerr << "Found " << FormatWithCommas(setsize) << " pairs" << endl;
   cerr << "Time is: " << timestamp() << endl;
 
   //  delete listpairs;
@@ -1201,11 +1204,9 @@ Float SDDB::GenerateStandardDev(const Float percenttosample, const vector<Float*
 #pragma omp parallel for reduction(+:total)
   for (int pindex = 0; pindex < pairvectorsize; ++pindex) {
 
-      //#pragma omp atomic
-      //      loopcount++;
-      if (!pindex || ((pindex+1) % 100000 == 0)) {
-          cerr << "Calculated cooccurring pair similarity " 
-	       << pindex + 1 << endl; 
+      if (!pindex || ((pindex+1) % 10000 == 0)) {
+	int flipper = 42 + (rand() % 3 + 1);
+	cerr << "Calculating cooccurring pair similarities (multi-threaded): " << (char) flipper << "\r"; 
       }
       int num1 = pairvector[pindex].first;
       int num2 = pairvector[pindex].second;
@@ -1216,6 +1217,7 @@ Float SDDB::GenerateStandardDev(const Float percenttosample, const vector<Float*
       scores.push_back(similarity);
       total += similarity;
   }
+  cerr << endl;
 
   //  out.close();
   //  delete pairset;
@@ -1276,8 +1278,9 @@ Float SDDB::GenerateStandardDev(const Float percenttosample, const vector<Float*
   Float rank = 0.999;
   size_t indx = static_cast<unsigned int>(scores.size() * rank );
   threshold = scores[indx];
-  cerr << "Using 99.9% as similarity threshold. " << indx << " out of " << scores.size()<<  endl;
-  cerr << "Threshold  was " << threshold << endl;
+  cerr << "Threshold is being chosen by looking at the similarities of the top 0.1% of the random pairs." << endl;
+  cerr << "In this case, it was the similarity of word pair # " << (scores.size() - indx) << " out of " << scores.size() << " pairs."<<  endl;
+  cerr << "The threshold was " << threshold << endl;
 
   // Old Way
   // cerr << "Which is " << multiplier << " standard deviations above the mean. " << endl;
@@ -1381,58 +1384,59 @@ vector<int> SDDB::GenerateContext(const size_t context_size, const bool separate
 }
 
 
+// Collect raw counts and create word vectors from them!
 void SDDB::AggregateVectors(vector<Float*> &vectors, const bool separate, vector<int> &context, const int behind, const int ahead, const vector<int> weightScheme, const string normalization)
-  // Collect raw counts and create word vectors from them!
 {
-    // ***STEPS***
-    // 1. get a matrix in array form
-    // 2. apply weights to raw data in matrix
-    // 3. copy data to our collapsed vector
-    // 4. normalize vector
-    cerr << "Processing word matrices." << endl;
-    cerr << "Loading, Aggregating and Normalizing vectors..." << endl;
-    cerr << "Time is: " << timestamp() << endl;
-    cerr << "Printing one dot per 1000 vectors aggregated: ";
-
-    // Much speeded by parallel execution!
-    #pragma omp parallel for
-    for(int i = 0; i < static_cast<int>(_numwords); i++) {
-        if(!i || (i+1) % 1000 == 0)
-            cerr << "." ;
-        Matrix<int> *M = _accessor->getMatrix(i,_realBehind,_realAhead);
-        if(!M) 
-        {
-            vectors[i] = NULL;
-            continue;
-        }
-        if (separate) {
-            vectors[i] = computeWeightedCooccurenceVectorSeparate(M, 
-                                                                  weightScheme,
-                                                                  _realBehind, behind,
-                                                                  _realAhead, ahead,
-                                                                  context);
-        } else 
-        {
-            vectors[i] = computeWeightedCooccurenceVectorUnified(M, 
-                                                                 weightScheme,
-                                                                 _realBehind, behind,
-                                                                 _realAhead, ahead,
-                                                                 context);
-        }        
-	// Normalize the vector, using the correct normalization algorithm
-	normalizeRawVector(i, vectors[i], normalization, context, separate);
-        //  Free up some memory and delete the raw matrix.
-        delete M;
+  // ***STEPS***
+  // 1. get a matrix in array form
+  // 2. apply weights to raw data in matrix
+  // 3. copy data to our collapsed vector
+  // 4. normalize vector
+  cerr << "Processing word matrices." << endl;
+  cerr << "Loading, Aggregating and Normalizing vectors..." << endl;
+  cerr << "Time is: " << timestamp() << endl;
+  // Much speeded by parallel execution!
+#pragma omp parallel for
+  for(int i = 0; i < static_cast<int>(_numwords); i++) {
+    if (!i || (i+1) % 1000 == 0) {
+      int flipper = 42 + (rand() % 3 + 1);
+      cerr << "Aggregating Vectors (multi-threaded): " << char(flipper) <<" \r";   
+      cerr.flush();
     }
-
-    cerr << endl;
-    //    cerr << "Count of Words with Matricies "<< tempcounter << endl;
-    for (size_t j=0; j < _numwords; j++) {
-        if (vectors[j] == NULL) {
-            cerr << "Found null vector number = " << j << endl;
-        }
+    Matrix<int> *M = _accessor->getMatrix(i,_realBehind,_realAhead);
+    if(!M) 
+      {
+	vectors[i] = NULL;
+	continue;
+      }
+    if (separate) {
+      vectors[i] = computeWeightedCooccurenceVectorSeparate(M, 
+							    weightScheme,
+							    _realBehind, behind,
+							    _realAhead, ahead,
+							    context);
+    } else 
+      {
+	vectors[i] = computeWeightedCooccurenceVectorUnified(M, 
+							     weightScheme,
+							     _realBehind, behind,
+							     _realAhead, ahead,
+							     context);
+      }        
+    // Normalize the vector, using the correct normalization algorithm
+    normalizeRawVector(i, vectors[i], normalization, context, separate);
+    //  Free up some memory and delete the raw matrix.
+    delete M;
+  }
+  
+  cerr << endl;
+  //    cerr << "Count of Words with Matricies "<< tempcounter << endl;
+  for (size_t j=0; j < _numwords; j++) {
+    if (vectors[j] == NULL) {
+      cerr << "Found null vector number = " << j << endl;
     }
-    cerr << "Finished processing all vectors. The GCM is now ready.\nTime is: " << timestamp() << endl;
+  }
+  cerr << "Finished processing all vectors. The GCM is now ready.\nTime is: " << timestamp() << endl;
 }
 
 

@@ -141,29 +141,90 @@ LoadPairs(istream& in, vector<pairdata> &results, const bool normCase) {
   }
 }
 
+// void
+// //
+// // Loadwords: loads a file with target words for similarity measurements.
+// // Will generate a random subsample if desired.
+// //
+// // 
+// LoadWordsOld(istream& in, const int wordlistsize, vector<resultdata> &results, const bool normCase) {
+//   resultdata temp;
+//   vector<resultdata> wordlist;
+//   //  bool done_reading_file = false;
+//   //    cerr << "Reading in words from wordlist" << endl;
+//   string lang = getLang();
+//   while (!in.eof()){
+//     if (in.fail()) {
+//       throw Exception("Error Reading Input File.. Make sure it is in the correct format. Exiting\n");
+//     }
+//     string tempstring = "";
+//     Float tempdouble = 0.0;
+//     in >> tempstring;
+//     if (tempstring == "---END.OF.DOCUMENT---")
+//       break;
+//     if (tempstring.length() > MAX_WORDLEN)  {
+//       throw Exception("Maximum Word Length was exceeded in your word list input file. Exiting");
+//     }
+//     temp.ANS = 10000000;
+//     temp.InverseNcount = 0.0;
+//     if (normCase) {
+//       temp.word = downstring(tempstring,lang);
+//     } else {
+//       temp.word = tempstring;
+//     }
+//     temp.LDRT = tempdouble;
+//     wordlist.push_back(temp);
+//   }
+//   unsigned int numwords = wordlist.size();
+//   cerr << "Got " << numwords << " from word list. " << endl ;
+//   if ( numwords< (unsigned int)wordlistsize) {
+//     results = wordlist;
+//   } else {
+//     cerr << " Only " << wordlistsize << " were desired. " << endl;
+//     cerr << "Generating random subsample of words." << endl;
+//     // Create subsample
+//     int seed = time(0);
+//     unsigned int randomnumber;
+//     srand(seed);
+//     set<int> wordset;
+//     vector<resultdata> subsamplewordlist;
+//     int i;
+//     // Generate random set of unique indicies
+//     for (i = 0; wordset.size() < (unsigned int)wordlistsize; i++) {
+//       randomnumber = (unsigned int)(rand() % numwords);
+//       wordset.insert(randomnumber);
+//       //      cerr << randomnumber << " " << i <<endl;
+//     }
+//       // copy random words into new vector
+//     set<int>::iterator iter;
+//     cerr << endl << "Picked: ";
+//     for (iter = wordset.begin(); iter != wordset.end(); iter++) {
+//       subsamplewordlist.push_back(wordlist[*iter]);
+//       //      cerr << *iter << endl;
+//     }
+//     results = subsamplewordlist;
+//   }
+// }
+
+
 void
 //
 // Loadwords: loads a file with target words for similarity measurements.
 // Will generate a random subsample if desired.
 //
-//LoadWords(istream& in, const int useldrt, const int wordlistsize, vector<resultdata> &results) {
+// 
 LoadWords(istream& in, const int wordlistsize, vector<resultdata> &results, const bool normCase) {
   resultdata temp;
   vector<resultdata> wordlist;
   //  bool done_reading_file = false;
   //    cerr << "Reading in words from wordlist" << endl;
   string lang = getLang();
-  while (!in.eof()){
-    if (in.fail()) {
-      throw Exception("Error Reading Input File.. Make sure it is in the correct format. Exiting\n");
-    }
-    string tempstring = "";
+  string tempstring = "";
+  while (in >> tempstring) {
     Float tempdouble = 0.0;
-    in >> tempstring;
-    if (tempstring == "---END.OF.DOCUMENT---")
-      break;
     if (tempstring.length() > MAX_WORDLEN)  {
-      throw Exception("Maximum Word Length was exceeded in your word list input file. Exiting");
+      cerr << "Yikes!!! This word was too long: " << tempstring << endl;
+      throw Exception("Maximum Word Length was exceeded in your word list input file. Please remove it and try again.");
     }
     temp.ANS = 10000000;
     temp.InverseNcount = 0.0;
@@ -174,6 +235,9 @@ LoadWords(istream& in, const int wordlistsize, vector<resultdata> &results, cons
     }
     temp.LDRT = tempdouble;
     wordlist.push_back(temp);
+    if (in.fail()) {
+      throw Exception("Error Reading Input File.. Not sure what went wrong!\n");
+    }
   }
   unsigned int numwords = wordlist.size();
   cerr << "Got " << numwords << " from word list. " << endl ;
