@@ -332,27 +332,26 @@ void
 //
 build_starting_dict(Dictionary& D, string filename, FrequencyMap& frequencies, const bool normCase)
 {
-  ifstream inStream(filename.c_str());
   string word = "";
   string lang = getLang();
   int i = MIN_WORD_VAL;
-  cerr << "normCase = " << normCase << endl;
+  cerr << "Case Normalization = " << normCase << endl;
+  ifstream inStream(filename.c_str());
   if (!inStream.good()) {
     throw Exception("Dictionary file could not be opened");
   } else {
-    do {
-      inStream >> word;
+    while (inStream >> word) {
       if (normCase) { 
 	word = downstring(word,lang);
       } 
-      if(D.find(word) != D.end()) {
+      if (D.find(word) != D.end()) {
 	cerr << "Word, " << word << ", exists in dictionary already... Skipping it." << endl;
 	continue;
       }
       D[word] = i;
       frequencies[i] = 0; 
       i++;
-    } while (inStream);
+    }
   }
 }
 
