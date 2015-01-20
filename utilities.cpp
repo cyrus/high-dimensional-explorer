@@ -676,9 +676,8 @@ void removeDBFiles (const string& dbname, const string& dbpath) {
         cerr << "Could not remove " << gcmfilename << ". File does not exist" << endl;
     }
 
-    
     if (errorState) {
-        throw Exception("There were errors detected. Database files were not able to be successfully removed.");
+        throw Exception("There were errors detected, but they usually be ignored. If you are still having problems, delete the files and folders manually.");
     }
     
 }
