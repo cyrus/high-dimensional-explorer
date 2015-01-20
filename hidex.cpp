@@ -167,12 +167,11 @@ void update()
          << "corpus = " << filename << '\n'
          << "db = " << settings.dbname << '\n'
          << "Case Normalization = " << settings.normCase << '\n'
-         << "Max Memory = " << settings.maxMemory << '\n'
          << "Calculate Word Vector Variances = " << settings.useVariance << '\n'
          << "English Contraction Normalization = " << settings.englishContractions << '\n';
     SDDB db(settings.dbname, settings.dbpath);
-    db.load(settings.eod, settings.maxMemory);
     db.setOptions(settings);
+    db.load(settings.eod, settings.maxMemory);
     db.setCurrentStep(0);
     
     // reprocess the corpus file in steps until there are no steps left.
