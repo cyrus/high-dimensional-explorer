@@ -76,7 +76,7 @@ class SDDBAccessor {
   SDDBAccessor(const char *accessorName, const int numVectors,
 	       const int vectorLen, 
 	       const int windowLenBehind, 
-	       const int windowLenAhead, const size_t maxMemory);
+	       const int windowLenAhead);
 
   //
   // Close/delete the SDDBAccessor
@@ -141,7 +141,7 @@ class SDDBAccessor {
   bool vectorInRAM(const int vectorNum);
 
   // Flush the Cache if it is too big.
-  void FlushCache();
+  //  void FlushCache();
 
   //
   // These functions return a copy of the corresponding private variables
@@ -219,9 +219,9 @@ class SDDBAccessor {
 
   bool entryInRAM(const int entry);
 
-  bool NeedToDumpData();
+  //  bool NeedToDumpData();
 
-  void DumpLowestFreqData();
+  //  void DumpLowestFreqData();
 
   
 };

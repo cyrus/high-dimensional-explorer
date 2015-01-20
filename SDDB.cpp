@@ -103,7 +103,7 @@ void SDDB::load(const string eod, const size_t maxMemory) {
     accname = _dbpath + _dbname + DBDIR_TAG + "/" + _dbname + ACCESSOR_TAG;
 
     _accessor = new SDDBAccessor(accname.c_str(), numVectors, vectorLen, 
-                                 windowLenBehind, windowLenAhead, maxMemory);
+                                 windowLenBehind, windowLenAhead);
 
     _realAhead = windowLenAhead;
     _realBehind = windowLenBehind; 
@@ -157,9 +157,11 @@ void SDDB::initialize (const string& dictfile, const int windowLenBehind, const 
     LexiconFileName << _dbpath << _dbname << DICT_TAG;
     write_dict_and_freqs(_dict, LexiconFileName.str() , _frequency);
 
-    ostringstream vardictname;    
-    vardictname << _dbpath << _dbname << VAR_TAG;
-    build_starting_variance(_dict, vardictname.str());
+    if (_useVariance) {
+      ostringstream vardictname;    
+      vardictname << _dbpath << _dbname << VAR_TAG;
+      build_starting_variance(_dict, vardictname.str());
+    }
     
     _wordNum = 0;
     

@@ -108,7 +108,7 @@ using namespace std;
 SDDBAccessor::SDDBAccessor(const char *accessorName, const int numVectors,
 			   const int vectorLen, 
 			   const int windowLenBehind, 
-			   const int windowLenAhead, const size_t maxMemory) {
+			   const int windowLenAhead) {
 
   //cerr << "SDDBAccessor::SDDBAccessor()" << endl;
     
@@ -118,7 +118,7 @@ SDDBAccessor::SDDBAccessor(const char *accessorName, const int numVectors,
     _windowLenAhead  = windowLenAhead;
     _windowLenBehind = windowLenBehind;
     _name = accessorName;
-    _maxMemory = maxMemory;
+    //    _maxMemory = maxMemory;
 
     _vectors = new Matrix<int> *[_numVectors];
 
@@ -203,11 +203,11 @@ bool SDDBAccessor::entryInRAM(const int entry) {
         return false;
 }
 
-void SDDBAccessor::FlushCache() {
-    if (NeedToDumpData()) {
-        DumpLowestFreqData();
-    }
-}
+// void SDDBAccessor::FlushCache() {
+//     if (NeedToDumpData()) {
+//         DumpLowestFreqData();
+//     }
+// }
 
 // Manage Matrix Cache.
 void SDDBAccessor::loadToRAM(const int vectorNum) {
@@ -236,72 +236,72 @@ void SDDBAccessor::loadToRAM(const int vectorNum) {
     }
 }
 
-bool SDDBAccessor::NeedToDumpData() {
-    size_t matrixCount = 0;
+// bool SDDBAccessor::NeedToDumpData() {
+//     size_t matrixCount = 0;
 
-    _MemorySize = 0;
-    //cerr << "\n NeedToDump:: Getting Sizes:" << timestamp() << "\n";
-    for(int i = 0; i < _numVectors; i++) {
-        if (_vectors[i] != NULL) {
-            matrixCount++;
-            size_t MatrixSize =  _vectors[i]->size();
-            _MemorySize += MatrixSize;
-            _MatrixSizes[i] = MatrixSize;
-            //            cerr << ".";
-        }
-    }
-    //    cerr << "NeedToDump:: Got Memory Usage:" << timestamp() << "\n";
-    //    cerr << "NeedToDump:: No. of matricies in RAM =" << matrixCount << ", memory used= " << _MemorySize << "Max = " << _maxMemory <<endl;
-    if (_MemorySize > _maxMemory) {
-        //    if (static_cast<Float>(matrixCount) > (static_cast<Float>(_numVectors)*1)) {
-        cerr << "NeedToDump:: No. of matricies in RAM =" << matrixCount << ", memory used= " << _MemorySize << ", Max = " << _maxMemory <<endl;
-        return true;
-        }
-    else {
-        return false;
-    }
-}
+//     _MemorySize = 0;
+//     //cerr << "\n NeedToDump:: Getting Sizes:" << timestamp() << "\n";
+//     for(int i = 0; i < _numVectors; i++) {
+//         if (_vectors[i] != NULL) {
+//             matrixCount++;
+//             size_t MatrixSize =  _vectors[i]->size();
+//             _MemorySize += MatrixSize;
+//             _MatrixSizes[i] = MatrixSize;
+//             //            cerr << ".";
+//         }
+//     }
+//     //    cerr << "NeedToDump:: Got Memory Usage:" << timestamp() << "\n";
+//     //    cerr << "NeedToDump:: No. of matricies in RAM =" << matrixCount << ", memory used= " << _MemorySize << "Max = " << _maxMemory <<endl;
+//     if (_MemorySize > _maxMemory) {
+//         //    if (static_cast<Float>(matrixCount) > (static_cast<Float>(_numVectors)*1)) {
+//         cerr << "NeedToDump:: No. of matricies in RAM =" << matrixCount << ", memory used= " << _MemorySize << ", Max = " << _maxMemory <<endl;
+//         return true;
+//         }
+//     else {
+//         return false;
+//     }
+// }
 
-void SDDBAccessor::DumpLowestFreqData(){
+// void SDDBAccessor::DumpLowestFreqData(){
     
-    cerr << "DumpLowest::Dumping excess data from Cache" << endl;
-    //    cerr << "DumpLowest::Sorting cache by usage frequency " << timestamp() <<  endl;
+//     cerr << "DumpLowest::Dumping excess data from Cache" << endl;
+//     //    cerr << "DumpLowest::Sorting cache by usage frequency " << timestamp() <<  endl;
     
-    //Collect Matrix Sizes
+//     //Collect Matrix Sizes
 
-    // if memory is too big, drop low freq matricies
-    _MatrixCache.clear();
-    for(int i = 0; i < _numVectors; i++) {
-        if (_freq[i] != 0) {
-	  _MatrixCache.push_back(FreqEntry(_freq[i],i));
-            //            sum += static_cast<Float>(i->second);
-        }
-    }
+//     // if memory is too big, drop low freq matricies
+//     _MatrixCache.clear();
+//     for(int i = 0; i < _numVectors; i++) {
+//         if (_freq[i] != 0) {
+// 	  _MatrixCache.push_back(FreqEntry(_freq[i],i));
+//             //            sum += static_cast<Float>(i->second);
+//         }
+//     }
     
-    // sort matricies by frequency of usage.
-    sort(_MatrixCache.begin(), _MatrixCache.end(), FreqSort3());
-    // << "DumpLowest::Finished sort: " << timestamp() << endl;
+//     // sort matricies by frequency of usage.
+//     sort(_MatrixCache.begin(), _MatrixCache.end(), FreqSort3());
+//     // << "DumpLowest::Finished sort: " << timestamp() << endl;
     
-    size_t counter = 0;
-    size_t dumped = 0;
-    for (FreqSorter::iterator i = _MatrixCache.begin(); i !=  _MatrixCache.end(); i++) {
-        //        if (static_cast<Float>(i->first) < threshold) {
-        // subject matrix size from total memory usage
-        _MemorySize -= _MatrixSizes[i->second];
-        dumped +=  _MatrixSizes[i->second];
-        if (_MemorySize > _maxMemory) {
-            counter++;
-            flush(i->second);
-            //                cerr << "DumpLowest::Dropping Matrix " << i->second << " from cache with Freq = " << i->first  << " current MemorySize =" << MemorySize << " Max is: " << MAX_MEMORY<<"\n";
-        } else 
-            break;
-    }
-    Float percentage = static_cast<Float>(counter) / static_cast<Float>(_numVectors);
-    cerr << "DumpLowest:: Dropped " << counter << " vectors = " << dumped  << " bytes.\n DumpLowest:: I dumped ";
-    cerr.precision(10); 
-    cerr << percentage * 100.0;
-    cerr << " percent of the vectors " << endl;
-}
+//     size_t counter = 0;
+//     size_t dumped = 0;
+//     for (FreqSorter::iterator i = _MatrixCache.begin(); i !=  _MatrixCache.end(); i++) {
+//         //        if (static_cast<Float>(i->first) < threshold) {
+//         // subject matrix size from total memory usage
+//         _MemorySize -= _MatrixSizes[i->second];
+//         dumped +=  _MatrixSizes[i->second];
+//         if (_MemorySize > _maxMemory) {
+//             counter++;
+//             flush(i->second);
+//             //                cerr << "DumpLowest::Dropping Matrix " << i->second << " from cache with Freq = " << i->first  << " current MemorySize =" << MemorySize << " Max is: " << MAX_MEMORY<<"\n";
+//         } else 
+//             break;
+//     }
+//     Float percentage = static_cast<Float>(counter) / static_cast<Float>(_numVectors);
+//     cerr << "DumpLowest:: Dropped " << counter << " vectors = " << dumped  << " bytes.\n DumpLowest:: I dumped ";
+//     cerr.precision(10); 
+//     cerr << percentage * 100.0;
+//     cerr << " percent of the vectors " << endl;
+// }
 
 
 
