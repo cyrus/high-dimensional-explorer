@@ -111,14 +111,14 @@ void SDDB::load(const string eod, const size_t maxMemory) {
     ostringstream dictname;
     dictname << _dbpath << _dbname << DICT_TAG;
     cerr << "Lexicon to be used = " << dictname.str() << endl;
-    build_dict_and_freqs(_dict, dictname.str(), _frequency, eod);
+    build_dict_and_freqs(_dict, dictname.str(), _frequency);
     build_idMap(_dict, _idMap);
 
     if (_useVariance) {
       ostringstream vardictname;
       vardictname << _dbpath << _dbname << VAR_TAG;
       cerr << "Variance Data to be used = " << vardictname.str() << endl;
-      build_variance(vardictname.str(), _variance, eod);
+      build_variance(vardictname.str(), _variance);
     }
 
     _numwords = _dict.size();
@@ -155,11 +155,11 @@ void SDDB::initialize (const string& dictfile, const int windowLenBehind, const 
     
     ostringstream LexiconFileName;
     LexiconFileName << _dbpath << _dbname << DICT_TAG;
-    write_dict_and_freqs(_dict, LexiconFileName.str() , _frequency, _eod);
+    write_dict_and_freqs(_dict, LexiconFileName.str() , _frequency);
 
     ostringstream vardictname;    
     vardictname << _dbpath << _dbname << VAR_TAG;
-    build_starting_variance(_dict, vardictname.str(), eod);
+    build_starting_variance(_dict, vardictname.str());
     
     _wordNum = 0;
     
@@ -416,7 +416,7 @@ void SDDB::close() {
 
   cerr << "Writing out current lexicon and frequencies." << endl;
 
-  write_dict_and_freqs(_dict, dictname.str(), _frequency, _eod);
+  write_dict_and_freqs(_dict, dictname.str(), _frequency);
   
   if (_useVariance) {
     // Calculate the vector variance for all words.
@@ -429,7 +429,7 @@ void SDDB::close() {
     }
     ostringstream vardictname;
     vardictname << _dbpath << _dbname << VAR_TAG;
-    write_vars(_dict, vardictname.str(), _variance, _eod);
+    write_vars(_dict, vardictname.str(), _variance);
   }
 
 

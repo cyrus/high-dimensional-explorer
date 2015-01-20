@@ -67,7 +67,7 @@ This file is part of HiDEx.
 #define MAXNEIGHBOURS                     80000
 #define BLOCKSIZE                         8
 #define DOC_BATCH_SIZE                    100000
-#define MIN_WORDS_PER_DOC                 40
+#define MIN_WORDS_PER_DOC                 2
 //for preprocessor
 #define MAX_WORDLEN                        40
 #define NONWORD_MARKER                    -1

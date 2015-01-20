@@ -57,9 +57,9 @@ template<class T> int array_place(T *array, T elem, int len);
 
 template<class T> void binary_sort(T array[], int len);
 
-void write_dict_and_freqs(Dictionary& D, string filename, FrequencyMap& frequencies, const string eod);
+void write_dict_and_freqs(Dictionary& D, string filename, FrequencyMap& frequencies);
 
-void write_vars(Dictionary& D, string filename, VarianceMap& frequencies, const string eod);
+void write_vars(Dictionary& D, string filename, VarianceMap& frequencies);
 
 int makeDir (const string& dirName); 
 
@@ -78,11 +78,11 @@ std::string itoa(int value, unsigned int base);
 
 void build_starting_dict(Dictionary& D, string filename,  FrequencyMap& frequencies, const bool normCase);
 
-void build_starting_variance(Dictionary& D, string filename, const string eod);
+void build_starting_variance(Dictionary& D, string filename);
 
-void build_dict_and_freqs(Dictionary& D, string filename, FrequencyMap& frequencies, const string eod);
+void build_dict_and_freqs(Dictionary& D, string filename, FrequencyMap& frequencies);
 
-void build_variance(string filename, VarianceMap& variances, const string eod); 
+void build_variance(string filename, VarianceMap& variances); 
 
 void build_idMap(Dictionary& D, idMap& words);
 //void value_sort(const DictPair *pairs[], const int size);

@@ -362,25 +362,21 @@ void
 // Builds a dictionary and gives each word an id. Also fills frequencies
 // up with the counts of the words
 //
-build_dict_and_freqs(Dictionary& D, string filename, FrequencyMap& frequencies, const string eod) 
+build_dict_and_freqs(Dictionary& D, string filename, FrequencyMap& frequencies) 
 {
     ifstream inStream(filename.c_str());
     string word;
     int id;
     int freq;
-    while (inStream.good()){
-        id = 0;
-        freq = 0;
-        inStream >> word;
-        if (word == eod) {
-            break;
-        }
-        inStream >> id;
-        inStream >> freq;
-        D[word] = id;
-        frequencies[id] = freq;
-        //        cerr << "Got Word:" << word << " id:" << id << " Freq:" << freq << endl;
-    }
+    do {
+      id = 0;
+      freq = 0;
+      inStream >> word;
+      inStream >> id;
+      inStream >> freq;
+      D[word] = id;
+      frequencies[id] = freq;
+    } while (inStream);
 }
 
 void
@@ -388,33 +384,29 @@ void
 // Builds a dictionary and gives each word an id. Also fills frequencies
 // up with the counts of the words
 //
-build_variance(string filename, VarianceMap& variances, const string eod) 
+build_variance(string filename, VarianceMap& variances) 
 {
   
   if (!file_exists(filename)) {
     ostringstream message;
-    message << "Could not open variance file " << filename << " . This could be because you did not create the database using variance mode. Please rebuild the database with useVariance set to 1 and then try this again." << endl;
+    message << "Could not open variance file " << filename << " . This could be because you did not create the database using variance mode. Please do a 'remove' then recreate and update the database with useVariance set to 1 in the config file." << endl;
     throw Exception(message.str());
   }
     
-  
   ifstream inStream(filename.c_str());
   
   string word;
   int id;
   Float variance;
-  while (inStream.good()){
+  do {
     id = 0;
     variance = 0.0;
     inStream >> word;
-    if (word == eod) {
-      break;
-    }
     inStream >> id;
     inStream >> variance;
     variances[id] = variance;
     //        cerr << "Got Word:" << word << " id:" << id << " Freq:" << freq << endl;
-  }
+  } while (inStream);
 }
 
 
@@ -428,16 +420,14 @@ void
 //
 // Write a dictionary and the word frequencies to file
 //
-write_dict_and_freqs(Dictionary& D, string filename, FrequencyMap& frequencies, const string eod)
+write_dict_and_freqs(Dictionary& D, string filename, FrequencyMap& frequencies)
 {
-    //    cerr << eod << " is the EOD" << endl;
     ofstream out(filename.c_str());
     if (out.good()) 
     {
         for (Dictionary::iterator i = D.begin(); i != D.end(); i++) {
             out << i->first << "\t" << i->second << "\t" << frequencies[i->second] << endl;
         }
-        out << eod << endl;
         out.close();
     }
     else {
@@ -449,20 +439,18 @@ void
 //
 // Write a dictionary and the word frequencies to file
 //
-write_vars(Dictionary& D, string filename, VarianceMap& frequencies, const string eod)
+write_vars(Dictionary& D, string filename, VarianceMap& frequencies)
 {
-    //    cerr << eod << " is the EOD" << endl;
     ofstream out(filename.c_str());
     if (out.good()) 
     {
         for (Dictionary::iterator i = D.begin(); i != D.end(); i++) {
             out << i->first << "\t" << i->second << "\t" << frequencies[i->second] << endl;
         }
-        out << eod << endl;
         out.close();
     }
     else {
-        throw Exception("WRITE_DICT: Could not write the output file. Exiting");
+        throw Exception("WRITE_VARIANCES: Could not write the output file. Exiting");
     }
 }
 
@@ -470,7 +458,7 @@ void
 //
 // Write initial zero variances....
 //
-build_starting_variance(Dictionary& D, string filename, const string eod)
+build_starting_variance(Dictionary& D, string filename)
 {
   ofstream out(filename.c_str());
   if (out.good()) 
@@ -478,7 +466,6 @@ build_starting_variance(Dictionary& D, string filename, const string eod)
       for (Dictionary::iterator i = D.begin(); i != D.end(); i++) {
 	out << i->first << "\t" << i->second << "\t" << 0.0 << endl;
       }
-      out << eod << endl;
       out.close();
     }
   else {
