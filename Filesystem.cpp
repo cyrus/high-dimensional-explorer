@@ -53,7 +53,7 @@ int rmdir(const string& filename)
     // Check filename exists and is actually a directory
     struct stat sb;
     if (stat(filename, &sb) != 0 || !S_ISDIR(sb.st_mode)) {
-      cerr << "Could not delete" << filename << ". It does not exist or is not a directory" << endl;
+      cerr << "Could not delete " << filename << ". It does not exist or is not a directory" << endl;
         return -1;
     }
 
