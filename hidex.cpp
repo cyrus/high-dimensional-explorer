@@ -89,6 +89,7 @@ void readSettings(const string& configString, string& multi)
     allowedKeys.push_back("normCase");
     allowedKeys.push_back("englishContractions");
     allowedKeys.push_back("useVariance");
+    allowedKeys.push_back("thresholdPercentile");
     ConfigFile cfg(configString, allowedKeys, multi);
     settings.dbname = cfg.get("dbname");
     settings.dictFilename = cfg.get("dictFilename");
@@ -116,6 +117,7 @@ void readSettings(const string& configString, string& multi)
     settings.normCase = cfg.getBool("normCase", true);
     settings.englishContractions = cfg.getBool("englishContractions", true);
     settings.useVariance = cfg.getBool("useVariance", false);
+    settings.thresholdPercentile =  cfg.getDouble("thresholdPercentile", 0.001); 
 }
 
 
@@ -223,22 +225,23 @@ void printSDs()
       cerr << "Working Directory = " << settings.dbpath << "\n";
     ostringstream buffer;
     buffer << "Database Name = " << settings.dbname << "\n"
-         << "Wordlist FileName = " << settings.wordlistfilename << '\n'
-         << "Context size = " << settings.contextSize << '\n'
-         << "Window Length Behind " << settings.windowLenBehind << '\n'
-         << "Window Length Ahead = " << settings.windowLenAhead << '\n'
-         << "Weighting Scheme = " << settings.weightingScheme << '\n'
-         << "Similarity Metric = " << settings.metric << '\n'
-         << "Save GCM = " << settings.saveGCM << '\n'
-         << "Normalization Method = " << settings.normalization << '\n'
-         << "Max Neighbourhood Size = " << settings.neighbourhoodSize << '\n'
-         << "Use Zscore Thresholds = " << settings.usezscore << '\n'
-         << "Percent to sample for Zscore Thresholds = " << settings.percenttosample << '\n'
-         << "Separate = " << settings.separate << '\n'
-         << "Case Normalization = " << settings.normCase << '\n'
-         << "English Contraction Normalization = " << settings.englishContractions << '\n'
-         << "Using Variance for context selection = " << settings.useVariance << '\n'
-         << "Word List Size = " << settings.wordlistsize << '\n';
+	   << "Wordlist FileName = " << settings.wordlistfilename << '\n'
+	   << "Context size = " << settings.contextSize << '\n'
+	   << "Window Length Behind " << settings.windowLenBehind << '\n'
+	   << "Window Length Ahead = " << settings.windowLenAhead << '\n'
+	   << "Weighting Scheme = " << settings.weightingScheme << '\n'
+	   << "Similarity Metric = " << settings.metric << '\n'
+	   << "Save GCM = " << settings.saveGCM << '\n'
+	   << "Normalization Method = " << settings.normalization << '\n'
+	   << "Max Neighbourhood Size = " << settings.neighbourhoodSize << '\n'
+	   << "Use Zscore Thresholds = " << settings.usezscore << '\n'
+	   << "Percent to sample for Zscore Thresholds = " << settings.percenttosample << '\n'
+	   << "Separate = " << settings.separate << '\n'
+	   << "Case Normalization = " << settings.normCase << '\n'
+	   << "English Contraction Normalization = " << settings.englishContractions << '\n'
+	   << "Using Variance for context selection = " << settings.useVariance << '\n'
+	   << "Using Percentile for threshold = " << settings.thresholdPercentile << '\n'
+	   << "Word List Size = " << settings.wordlistsize << '\n';
     cerr << buffer.str();
     cerr << "Opening Database...\n";
     SDDB db(settings.dbname, settings.dbpath);

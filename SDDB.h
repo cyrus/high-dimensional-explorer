@@ -103,6 +103,7 @@ struct Settings
   bool normCase;
   bool englishContractions;
   bool useVariance;
+  double thresholdPercentile;
 };
 
 
@@ -380,7 +381,7 @@ public:
   void GetDocuments(istream &in, const int number, vector<string> &documents);
 
   // tests a document to see if it is empty
-  bool documentIsNotEmpty(vector<int>& wordsInDocument, size_t ahead) ;
+  bool windowIsNotEmpty(vector<int>& wordsInDocument, size_t ahead) ;
   
   //  make the window when there is no window
   void makeWindow(vector<int>& window, vector<int>& wordsInDocument) ;
@@ -463,9 +464,11 @@ public:
   //possessive
   bool _englishContractions;
 
-  //possessive
+  // Use Variance?
   bool _useVariance;
 
+  // Threshold percentile?
+  double _thresholdPercentile;
 
 };
 

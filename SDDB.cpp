@@ -254,7 +254,7 @@ bool SDDB::ConvertADocument(istream& in, vector<int>& wordsInDocument, const siz
 
 
 // tests a document to see if it is empty
-bool SDDB::documentIsNotEmpty(vector<int>& window, size_t behind) {
+bool SDDB::windowIsNotEmpty(vector<int>& window, size_t behind) {
     if (window.at(behind) == END_OF_DOCUMENT) 
         return false; 
     else
@@ -352,14 +352,14 @@ void SDDB::update(istream& in, const int testmode) {
         documents.clear();
         // Progress Meter
         if(((x+1) % 1000) == 0) {
-	  cerr << "Documents completed: " << FormatWithCommas(loopCount) << " _ Total Word Count: " << FormatWithCommas(_corpussize) << " _ Time: " << timestamp() << "\r" ;
+	  cerr << "Documents processed: " << FormatWithCommas(documentCount) << " _ Total Word Count: " << FormatWithCommas(_corpussize) << " _ Time: " << timestamp() << "\r" ;
 	  cerr.flush();
         }
         validDocument = ConvertADocument(in, wordsInDocument, behind, ahead, testmode, lang);
         if (validDocument) {
             documentCount++;
             makeWindow(window, wordsInDocument);
-            while (documentIsNotEmpty(window, behind)) {
+            while (windowIsNotEmpty(window, behind)) {
                 slideWindow(window, wordsInDocument);
                 //#pragma omp critical
                 addCooccurrences(window, behind);
@@ -470,6 +470,7 @@ void SDDB::setOptions(Settings settings) {
     _normCase = settings.normCase;;
     _englishContractions = settings.englishContractions;
     _useVariance = settings.useVariance;;
+    _thresholdPercentile = settings.thresholdPercentile;
 }
 
 pair<string,string> SDDB::createDirectories (const string outputpath, const bool wordsout) {
@@ -1276,10 +1277,10 @@ Float SDDB::GenerateStandardDev(const Float percenttosample, const vector<Float*
 
   //
   //find threshold in the top 1%
-  Float rank = 0.999;
+  Float rank = 1.0-_thresholdPercentile;
   size_t indx = static_cast<unsigned int>(scores.size() * rank );
   threshold = scores[indx];
-  cerr << "Threshold is being chosen by looking at the similarities of the top 0.1% of the random pairs." << endl;
+  cerr << "Threshold is being chosen by looking at the similarities of the top " << _thresholdPercentile * 100.0 << "% of the random pairs." << endl;
   cerr << "In this case, it was the similarity of word pair # " << (scores.size() - indx) << " out of " << scores.size() << " pairs."<<  endl;
   cerr << "The threshold was " << threshold << endl;
 
