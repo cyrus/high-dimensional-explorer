@@ -483,32 +483,32 @@ int main(int argc, char *argv[])
 	  configFilename = "config.txt";
 	  cerr << "Using default config file: \"config.txt\"\n";
         }
-      if (mode == "create"){
+      if (mode == "create" or mode == "c"){
 	readSettings(configFilename, multi);
 	create();
-      } else if (mode == "getneighbors")
+      } else if (mode == "getneighbors"  or mode == "gn")
         {
 	  readSettings(configFilename, multi);
 	  printSDs();
-        } else if (mode == "getvectors")
+        } else if (mode == "getvectors"  or mode == "gv")
 	  {
 	    readSettings(configFilename, multi);
 	    printVectors();
-	  } else if (mode == "getsimilarity")
+	  } else if (mode == "getsimilarity"  or mode == "gs")
 	    {
 	      readSettings(configFilename, multi);
 	      printPairs();
-	    } else if (mode == "batchneighbors")
+	    } else if (mode == "batchneighbors"  or mode == "bn")
 	      {
 		printmulti(configFilename);
-	      } else if (mode == "batchsimilarity")
+	      } else if (mode == "batchsimilarity"  or mode == "bs")
 		{
 		  PrintMultiPairs(configFilename);
-		} else if (mode == "update")
+		} else if (mode == "update" or mode == "u")
 		  {
 		    readSettings(configFilename, multi);
 		    update();
-		  } else if (mode == "remove")
+		  } else if (mode == "remove" or mode == "r")
 		    {
 		      readSettings(configFilename, multi);
 		      remove();
