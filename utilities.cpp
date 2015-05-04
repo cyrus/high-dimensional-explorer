@@ -1236,7 +1236,9 @@ string downstring(string localword, string lang) {
   //    localword[j]=toupper(localword[j]);   
   //  }
   //  const uint8_t * word = static_cast<const uint8_t*>(localword.c_str());
-
+  //  uint8_t * errCode;
+  //  uint8_t val;
+  //  errCode = &val;
 
   // New way to do it using libunicode
   //
@@ -1246,20 +1248,18 @@ string downstring(string localword, string lang) {
   const uint8_t * word = (const uint8_t*)localword.c_str();
   // create output buffer
   uint8_t output[200];
-  //  uint8_t * errCode;
-  //  uint8_t val;
-  //  errCode = &val;
   // create output length location
   size_t outLength = 200;
   // make lowercase, normalize and put output in the output buffer, length in the outLength variable
   if (u8_check(word, length)) {
-    cerr << "Problem processing the word: "<< word << endl;
-    throw Exception("This is an invalid UTF8 in string. Please make sure that you are using UTF8 encoding in all input files. Exiting.");
+    cerr << endl << "Invalid UTF-8 in word: "<< word << " : Dropping it." << endl;
+    //    throw Exception("This is an invalid UTF8 in string. Please make sure that you are using UTF8 encoding in all input files. Exiting.");
+    return(string(""));
   }
   if (!u8_tolower(word, length, lang.c_str(), UNINORM_NFKC, output, &outLength))  {
-    cerr << word << endl;
-    throw Exception("Error during case conversion (in downstring) ");
-    //    return(" ");
+    cerr << endl << "Error during lowercase conversion for word : "<< word << " : Dropping it." << endl;
+    //    throw Exception("Error during case conversion (in downstring) ");
+    return(string(""));
   }
   // return a c++ string, using begining and end pointers to the c-style string!
   return(string((const char *)output,(const char *)output+outLength));
