@@ -70,7 +70,7 @@ This file is part of HiDEx.
 #define DOC_BATCH_SIZE                    100000
 #define MIN_WORDS_PER_DOC                 2
 //for preprocessor
-#define MAX_WORDLEN                        40
+#define MAX_WORDLEN                        60
 #define NONWORD_MARKER                    -1
 
 
