@@ -53,11 +53,19 @@ FLAGS = -Wall -g
 UNAME= $(shell uname)
 
 #Mac OS X PPC specific comiler flags. DEFAULT: Configured for OpenMP support.
+# This is now set up OS X El Capitan, and gcc installed with brew.
+# 1) Install XCode
+# 2) use brew to install gcc and libunistring see: http://brew.sh/
+# execute:
+# brew install gcc
+# brew install libunistring
+# then compile
 ifeq ($(UNAME), Darwin)
 #CC = g++
-CC = g++-mp-4.9
+CC = g++-5
 FLAGS = -Wall -g -gfull -O3 -D NDEBUG -fopenmp
-LIBS = -L/opt/local/lib -lm -lunistring 
+#LIBS = -L/opt/local/lib -lm -lunistring 
+LIBS =  -lm -lunistring 
 endif
 
 # Linux Specific compiler Flags. Configured for OpenMP support. Remove OpenMP flags if you don't need parallel support.
