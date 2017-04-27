@@ -8,10 +8,10 @@ A copy of the license is included in the section entitled "GNU
 Free Documentation License" at the end of this file.
 
 
-****************************************************************************
+
 		HiDEx: The High Dimensional Explorer, A User Manual.
 		====================================================
-****************************************************************************
+
 
 by Cyrus Shaoul
 
