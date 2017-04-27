@@ -9,7 +9,7 @@ Free Documentation License" at the end of this file.
 
 
 ****************************************************************************
-			  How To Use HiDEx
+		HiDEx: The High Dimensional Explorer, A User Manual.
 ****************************************************************************
 
 by Cyrus Shaoul
