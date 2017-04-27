@@ -1,4 +1,4 @@
-Copyright (C) 2008-2017  Cyrus Shaoul 
+Copyright (C) 2008-2017  Cyrus Shaoul
 
 Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.3
@@ -6,7 +6,6 @@ or any later version published by the Free Software Foundation;
 with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
 A copy of the license is included in the section entitled "GNU
 Free Documentation License" at the end of this file.
-
 
 
 ****************************************************************************
@@ -21,7 +20,7 @@ Document Version 0.092 for HiDEx v. 0.092
 
 Updated on April 25th, 2017
 
-Preface: 
+Preface:
 	 This document is split into two parts: Part 1 is the Quick Start
 	 Guide. It is intended to be used by those who have extensive computer
 	 experience who want to get HiDEx working as quickly as possible.
@@ -44,7 +43,7 @@ Install GIT and then type this command:
 NOTE: Make sure that you are on a supported platform and that you have all the
    required software packages.
 
-1C) Compile the software using 
+1C) Compile the software using
 
 	make hidex
 
@@ -53,7 +52,11 @@ add that to your path.)
 
 	make install
 
-1D) Get a corpus, or for a shortcut, use an example vector set, available at:
+1D) Get a corpus! There are a few on the Westbury Lab web site:
+
+	http://www.psych.ualberta.ca/~westburylab/publications.html
+
+or for a shortcut, use an example vector set, available at:
 
     http://www.psych.ualberta.ca/~westburylab/downloads/HiDEx.vectorset.download.html
 
@@ -65,25 +68,25 @@ Part 2: User Manual
 
 Table of Contents:
 
-2A) What is HiDEx?
+2A) What is HiDEx? What can I measure?
 2B) What kind of hardware and software do I need to use HiDEx?
 2C) How do I obtain HiDEx?
 2D) How do I compile and install HiDEx?
 2E) How do I prepare my data before running HiDEx?
-2F) How do I use HiDEx to process my corpus? 
+2F) How do I use HiDEx to process my corpus?
 2G) How do I use HiDEx once I have finished processing my corpus?
 2H) How do I set up the configfile config.txt? What settings are available?
 2I) How do I improve the performance of HiDEx?
 Bib) Bibliography
 
 ****************************************************************************
-2A) What is HiDEx?
+2A) What is HiDEx? What can I measure?
 ****************************************************************************
 
 HiDEx is a software system that implements a family word
 co-occurrence models. These models are similar to those that were introduced by
-Curt Burgess in 1996 as the HAL model and have been extensively studied since 
-(See the bibliography for a list of papers that will help you understand these models). 
+Curt Burgess in 1996 as the HAL model and have been extensively studied since
+(See the bibliography for a list of papers that will help you understand these models).
 
 If you are unfamiliar with the ideas behind these models, I recommend that you
 start by reading the following papers listed in the Bibliography:
@@ -98,12 +101,26 @@ model and then process a corpus of text to create word vectors. It
 also allows you to perform comparisons of these word vectors and other
 calculations. HiDEx has been designed to handle very large corpora and
 very large vectors, and to process them efficiently on systems with
-large amounts of RAM and multiple CPUs. 
+large amounts of RAM and multiple CPUs.
 
-NOTE: HiDEx has been tested so far only on English, but it may work on other
+NOTE: HiDEx has been tested on English, French, Spanish, Serbian,
+Estonian, Japanese and Chinese, but it may work on other
 languages as well. Any language that can be encoded in UTF8 and has spaces
-between words should work. The authors are very interested in how
+between words should work. If there are no spaces between words, you
+may need to use software to insert spaces. The authors are very interested in how
 HiDEx works in other languages, so please let us know what you are doing!
+
+Using HiDEx, it is possible to make the following measurements:
+
+-Average Neighbor Similarity (ANS): [Note that in previous versions of
+ HiDEx, this was called the ARC.] This is the average similarity between the
+word and its neighbors, as defined by the neighborhood threshold. In
+ the case that a word has zero neighbords within the threshold, the
+ ANS will be taken as the similarity between the word and the most
+ similar word outside the threshold.
+
+-Inverse Neighbor Count (InvNCOUNT) The inverse of the number of
+ neighbors.
 
 HiDEx is free software released under the GNU Public License. This
 means that you are free to change HiDEx to better suit your needs. If
@@ -128,16 +145,16 @@ Hardware:
 -----------------------------
 CPU: (Types: PowerPC, Power5, and Intel/AMD x86 CPUs have been tested so far)
 -For serial operation:
-+Req:	A fast 64-bit CPU.
-+Rec:	The fastest CPU you can get your hands on. HiDEx has not been
-tested on 32-bit CPUs, but should work.
--For parallel operation: 
-+Req:	A computer with more than one processor in it, the faster the better.
-+Rec:	A computer with 4 or more processors in it, the faster the better.
+*Req:	A fast 64-bit CPU.
+*Rec:	The fastest CPU you can get your hands on. HiDEx has not been
+tested on 32-bit CPUs, but it might work.
+-For parallel operation:
+*Req:	A computer with more than one core/processor in it, the faster the better.
+*Rec:	A computer with 4 or more cores/processors in it, the faster the better.
 
 Memory:
-+Req:	2 Gb RAM (the faster the better)
-+Rec:	10 Gb or more of RAM (the faster the better)
++Req:	2 Gb RAM (the more the better)
++Rec:	10 Gb or more of RAM (the more the better)
 
 Hard Disk:
 +Req:	100 Gb of disk
@@ -150,15 +167,16 @@ OS:
 +Req:	Linux 2.6.x or greater
 
 Compiler:
-+Req:    g++ 4.2 or greater with libgomp included (for Linux, MacOS X)
++Req:    g++ 4.2 or greater with libgomp included (For Mac OS X, you
+may need to download gcc using port, fink or brew)
 
 Text Editor:
 +Rec:     Mac OS X: TextWrangler, BBEdit or any other text editor.
-+Rec:     Linux, other Unixen: emacs, vi or other text editor
++Rec:     Linux: emacs, vi or other text editor
 
 Dependent Software Libraries:
 The GNU Unicode String Libraries
-On Linux, please install this package:
+On Linux and Mac, please install this package:
 
 % sudo apt-get install libunistring-dev
 
@@ -178,7 +196,7 @@ English, not legal gobbledygook.
 2D) How do I compile and install HiDEx?
 ****************************************************************************
 
-Step 1: Move the TGZ file that you just downloaded to the correct directory. 
+Step 1: Move the TGZ file that you just downloaded to the correct directory.
 (I recommend the ~/src directory).
 
 Or get the latest version from the GIT repo:
@@ -190,7 +208,7 @@ xterm). Change to the correct directory:
 
 	       cd ~/src
 
-Step 3: Unpack the software in a good location 
+Step 3: Unpack the software in a good location
 To unpack it, use this command:
 
 	  tar xzf hidex.[version].tgz
@@ -209,7 +227,7 @@ recommend ~/bin)
 
 	mkdir ~/bin
 
-Step 7: Using a text editor, edit the file called "Makefile" 
+Step 7: Using a text editor, edit the file called "Makefile"
 to have the correct value for
 BINDIR (in this case, ~/bin). Then install the program using the
 following command:
@@ -220,7 +238,7 @@ Step 8: Add the BINDIR to the PATH environment variable of your shell,
 if it is not already included. Reload your PATH or start a new
 terminal process.  If you don't much about the shell, and the PATH
 environment variable, please read the following web page:
-    
+
      http://en.wikipedia.org/wiki/Environment_variable
 
 That is it! Take a break! Stretch out your tired finger muscles!
@@ -265,7 +283,7 @@ that it follows the following format :
      [Document Separator]
 
 Choose a very uncommon string to act as your document separator. I recommend:
-	
+
 ---END.OF.DOCUMENT---
 
 Make sure that there is one of these between every document in your
@@ -296,7 +314,7 @@ Step 4: Put the corpus file in your working directory. I recommend creating a
 new one for using with HiDEx. These commands will do it for you.
 
     mkdir ~/work
-    mv corpus.txt ~/work 
+    mv corpus.txt ~/work
 
 Step 5: Choose a lexicon to use with HiDEx. This is a file that contains all
 the words that will be analyzed for co-occurrence. If you do not have one, and
@@ -317,7 +335,7 @@ Once your lexicon is ready, put it in your work directory like so:
 
      mv lexicon.txt ~/work
 
-Now you are ready to process your corpus. 
+Now you are ready to process your corpus.
 
 ****************************************************************************
 2F) How do I use HiDEx to process my corpus?
@@ -325,7 +343,7 @@ Now you are ready to process your corpus.
 
 Intro: HiDEx is a program that has many different modes of operation. From
 this point onwards you will be specifying the mode that you would like HiDEx
-to use by typing "-m" and then the name of the mode. 
+to use by typing "-m" and then the name of the mode.
 
 Also, HiDEx has many parameters that change how it operates. These parameters
 are set inside a text file called the configfile. A sample configfile is
@@ -343,19 +361,19 @@ configfile by using the "-f" option. For example
 Step 1: Edit the configfile to make the correct settings. Edit the
 "config.txt" file in your favorite text editor. The list of possible settings
 and their implications are described in the documentation in the "config.txt"
-file.  
+file.
 
-Step 2: Create an empty data-store using this command: 
+Step 2: Create an empty data-store using this command:
 
      cd ~/work
-     hidex -m create 
+     hidex -m create
 
 Step 3: Process the corpus. The "update" command will create a sparse matrix
 representation of all the lexical co-occurrences in the corpus. WARNING:
 depending on the size of your corpus and your parameter settings, this process
 can take a long time. Please see section 2I for information on this topic.
 
-    hidex -m update 
+    hidex -m update
 
 ALTERNATIVE METHOD: Download a vector set.
 
@@ -378,7 +396,7 @@ There are two types of calculations: vector aggregation and vector-based
 metrics. Vector aggregation must take place before metric calculation, and can
 be quite time-consuming. For this reason, HiDEx can save the results of
 aggregation (called the Global Co-occurrence Matrix, or GCM) in the
-work directory. 
+work directory.
 
 Each time a GCM is needed, HiDEx will seek and reuse a GCM saved in
 the work directory. This feature is enabled by using the saveGCM
@@ -397,7 +415,7 @@ explanation of all the settings possible.
 To get neighborhoods in a word space, use the "getneighbors" mode, as in the
 following example:
 
-	  hidex -m getneighbors 
+	  hidex -m getneighbors
 
 NOTE: There are two numbers reported for each word of interest: 1)
 ANS: Average Neighbour Similarity (The average similarity between the
@@ -451,7 +469,7 @@ options are possible for each setting. The default name of the config
 file is "config.txt" and the default location is the current
 directory. To specify the name and location of the configfile, use the
 following command:
-	  
+
 	  hidex -f alternate.config.file.txt -m getneighbors
 
 [General Options]
@@ -466,7 +484,7 @@ dictFilename: Name of the lexicon file, assumed to be in the Working Directory.
 Format is a text file with one word per line.
 
 [Corpus Processing Options]
-maxWindowBehind: Maximum size of word window behind target word. 
+maxWindowBehind: Maximum size of word window behind target word.
 maxWindowAhead: Maximum size of word window ahead of target word.
 These two parameters change the size of the database, as they limit how much
 context information is saved. The actual size of the window used
@@ -488,7 +506,7 @@ count co-occurrence accross document boundaries. See section 2E for details.
 the Working Directory is this is not set.
 
 metric: Choose your similarity metric here. If it is blank, HiDEx will
-default to using (inverse) Euclidean distance. Other possible values are 
+default to using (inverse) Euclidean distance. Other possible values are
 Cosine, CityBlock and Correlation. For more information on these
 metrics, please see the references listed in the Bibliography.
 
@@ -545,7 +563,7 @@ this number is smaller than the number of words in the wordlist, HiDEx
 will pick a random subset of the words in the wordlistfile to use. If
 this number is larger than the number of words in the wordlistfile, or
 if the setting is left blank, HiDEx will use all the words in the file
-set by wordlistfilename. 
+set by wordlistfilename.
 
 saveGCM: If this is set to "1", HiDEx will create a large text file
 called "dbname.gcm" in the working directory. This file will be
@@ -569,7 +587,7 @@ englishContractions: In English, the string "'s" is a contraction
 that can make it difficult for the model to recognize words that
 are possessives.  This defaults to 1 (true), which means that words
 like "ball's" will be split into two words, "ball" and "'s" and
-"can't" will become "can" and "'nt".  
+"can't" will become "can" and "'nt".
 englishContractions=1
 
 NEW OPTIONS in vesion 0.07:
@@ -579,7 +597,7 @@ useVariance: In previous versions of HiDEx, the context was created
 from the N most frequent words in the corpus. In the original HAL
 paper (Lund & Burgess, 1996), the vectors for the N most variant words
 were used instead. This feature implements the method from Lund &
-Burgess (1996). 
+Burgess (1996).
 
 The default value for this is "0", meaning that variance will not be
 used. If it is set to "1", it must be enabled at the time of creation
@@ -636,19 +654,19 @@ Bibliography:
 ****************************************************************************
 
 Buchanan, L., Westbury, C., & Burgess, C. (2001). Characterizing semantic
-space: Neighborhood effects in word recognition. Psychonomic Bulletin & Review, 
-8, 531-544. 
+space: Neighborhood effects in word recognition. Psychonomic Bulletin & Review,
+8, 531-544.
 
-Bullinaria, J., & Levy, J. (2007). Extracting semantic representations from word 
-co-occurrence statistics: A computational study. Behavior Research Methods, 
+Bullinaria, J., & Levy, J. (2007). Extracting semantic representations from word
+co-occurrence statistics: A computational study. Behavior Research Methods,
 39, 510-526.
 
 Bullinaria, J.A. & Levy, J.P. (2012). Extracting Semantic
 Representations from Word Co-occurrence Statistics: Stop-lists,
 Stemming and SVD. Behavior Research Methods, 44, 890-907.
 
-Lund, K., & Burgess, C. (1996). Producing high-dimensional semantic spaces 
-from lexical co-occurrence. Behavior Research Methods, Instrumentation, 
+Lund, K., & Burgess, C. (1996). Producing high-dimensional semantic spaces
+from lexical co-occurrence. Behavior Research Methods, Instrumentation,
 and Computers, 28, 203-208.
 
 Rohde, D. L. T., Gonnerman, L., and Plaut, D. C. (submitted). An
@@ -656,15 +674,15 @@ improved model of semantic similarity based on lexical
 co-Occurrence. Cognitive Science.
 http://www.cnbc.cmu.edu/~plaut/papers/abstracts/RohdeGonnermanPlautSUB-CogSci.COALS.html
 
-Shaoul, C., & Westbury, C. (2006). Word frequency effects in high-dimensional 
-co-occurrence models: A new approach. Behavior Research Methods, 38, 
-190-195. 
+Shaoul, C., & Westbury, C. (2006). Word frequency effects in high-dimensional
+co-occurrence models: A new approach. Behavior Research Methods, 38,
+190-195.
 
 Shaoul, C., & Westbury, C. (2007). A usenet corpus (2005-2008)
 (Tech. Rep.). Edmonton, AB: University of Alberta. Downloaded from
 http://www.psych.ualberta.ca/~westburylab/downloads/usenetcorpus.download.html
 
-Shaoul, C. & Westbury, C. (2010). Exploring lexical co-occurrence space using 
+Shaoul, C. & Westbury, C. (2010). Exploring lexical co-occurrence space using
 HiDEx. Behavior Research Methods, 42:2, 393-413.
 
 
@@ -1096,19 +1114,19 @@ public wiki that anybody can edit is an example of such a server.  A
 "Massive Multiauthor Collaboration" (or "MMC") contained in the site
 means any set of copyrightable works thus published on the MMC site.
 
-"CC-BY-SA" means the Creative Commons Attribution-Share Alike 3.0 
-license published by Creative Commons Corporation, a not-for-profit 
-corporation with a principal place of business in San Francisco, 
-California, as well as future copyleft versions of that license 
+"CC-BY-SA" means the Creative Commons Attribution-Share Alike 3.0
+license published by Creative Commons Corporation, a not-for-profit
+corporation with a principal place of business in San Francisco,
+California, as well as future copyleft versions of that license
 published by that same organization.
 
-"Incorporate" means to publish or republish a Document, in whole or in 
+"Incorporate" means to publish or republish a Document, in whole or in
 part, as part of another Document.
 
-An MMC is "eligible for relicensing" if it is licensed under this 
-License, and if all works that were first published under this License 
-somewhere other than this MMC, and subsequently incorporated in whole or 
-in part into the MMC, (1) had no cover texts or invariant sections, and 
+An MMC is "eligible for relicensing" if it is licensed under this
+License, and if all works that were first published under this License
+somewhere other than this MMC, and subsequently incorporated in whole or
+in part into the MMC, (1) had no cover texts or invariant sections, and
 (2) were thus incorporated prior to November 1, 2008.
 
 The operator of an MMC Site may republish an MMC contained in the site
